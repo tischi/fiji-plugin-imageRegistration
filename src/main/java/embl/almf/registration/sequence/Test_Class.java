@@ -1,4 +1,4 @@
-package embl.almf.registration;
+package embl.almf.registration.sequence;
 
 import ij.IJ;
 import ij.ImageJ;
