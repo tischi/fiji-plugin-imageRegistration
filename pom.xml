@@ -12,17 +12,16 @@
 		<relativePath />
 	</parent>
 
-	<groupId>com.mycompany</groupId>
-	<artifactId>Process_Pixels</artifactId>
+	<groupId>embl.almf</groupId>
+	<artifactId>Image_Registration</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
-	<name>Process Pixels</name>
-	<description>A Maven project implementing an ImageJ 1.x plugin.</description>
-	<url>http://mycompany.com/imagej/process-pixels/</url>
-	<inceptionYear>2012</inceptionYear>
+	<name>Fiji plugin for image registration</name>
+	<description>A plugin for multidimensional data registration with different methods.</description>
+	<inceptionYear>2017</inceptionYear>
 	<organization>
-		<name>My Company</name>
-		<url>http://mycompany.com/</url>
+		<name>EMBL</name>
+		<url>http://embl.de/</url>
 	</organization>
 	<licenses>
 		<license>
@@ -33,9 +32,8 @@
 
 	<developers>
 		<developer>
-			<id>ctrueden</id>
-			<name>Curtis Rueden</name>
-			<url>http://imagej.net/User:Rueden</url>
+			<id>tischi</id>
+			<name>Christian Tischer</name>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -48,12 +46,11 @@
 	</developers>
 	<contributors>
 		<contributor>
-			<name>Johannes Schindelin</name>
-			<url>http://imagej.net/User:Schindelin</url>
+			<name>Aliaksandr Halavatyi</name>
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
-		<contributor>
+		<!-- <contributor>
 			<name>Olivier Burri</name>
 			<url>http://imagej.net/User:Oburri</url>
 			<properties><id>lacan</id></properties>
@@ -75,15 +72,9 @@
 			<name>Yili Zhao</name>
 			<url>http://imagej.net/User:Panovr</url>
 			<properties><id>panovr</id></properties>
-		</contributor>
+		</contributor> -->
 	</contributors>
 
-	<mailingLists>
-		<mailingList>
-			<name>ImageJ Forum</name>
-			<archive>http://forum.imagej.net/</archive>
-		</mailingList>
-	</mailingLists>
 
 	<scm>
 		<connection>scm:git:git://github.com/imagej/example-legacy-plugin</connection>
@@ -91,9 +82,10 @@
 		<tag>HEAD</tag>
 		<url>https://github.com/imagej/example-legacy-plugin</url>
 	</scm>
+
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/imagej/example-legacy-plugin/issues</url>
+		<url>https://github.com/imagej/fiji-plugin-imageRegistration/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>None</system>
@@ -103,7 +95,7 @@
 		<package-name>com.mycompany.imagej</package-name>
 		<main-class>com.mycompany.imagej.Process_Pixels</main-class>
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>My Company, Inc.</license.copyrightOwners>
+		<license.copyrightOwners>EMBL</license.copyrightOwners>
 	</properties>
 
 	<dependencies>
