@@ -1,3 +1,6 @@
-# General idea
+# fiji-plugin-imageRegistration
 
-# Implemented methods
+## General idea
+Plugin for registration of 5D image data.
+
+## Implemented methods
