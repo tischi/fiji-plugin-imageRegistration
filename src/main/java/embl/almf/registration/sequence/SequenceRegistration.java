@@ -4,8 +4,9 @@ import java.io.File;
 
 import embl.almf.image.ImageInterface;
 
-public class SequenceRegistration implements SequenceRegistrationInterface {
-	
+//public class SequenceRegistration implements SequenceRegistrationInterface {
+
+	/*
 	public void setInputData(ImageInterface inputImage);
 	
 	public void setSettings(SettingsInterface newSettings);
@@ -26,5 +27,6 @@ public class SequenceRegistration implements SequenceRegistrationInterface {
 	public void saveRegistration(File registrationLog);
 	
 	public void loadRegistration(File registrationLog);
+	*/
 
-}
+//}
