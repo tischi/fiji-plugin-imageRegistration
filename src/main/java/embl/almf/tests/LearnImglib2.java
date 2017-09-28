@@ -19,7 +19,7 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.view.Views;
-
+import net.imagej.ImgPlus;
 
 /**
  * Created by tischi on 27/09/17.
@@ -43,7 +43,8 @@ public class LearnImglib2 {
         //imp.show();
 
         // wrap it into an ImgLib image (no copying)
-        final Img< T > img = ImagePlusAdapter.wrap( imp );
+        final Img< T > img = ImageJFunctions.wrap( imp );
+        //ImagePlusAdapter.wrap( imp );
 
         // display it via ImgLib using ImageJ
         //ImageJFunctions.show( img );
@@ -55,7 +56,7 @@ public class LearnImglib2 {
         int n = img.numDimensions();
 
         // display it via ImgLib using ImageJ
-        ImageJFunctions.show( view );
+        ImageJFunctions.show(view);
 
     }
 

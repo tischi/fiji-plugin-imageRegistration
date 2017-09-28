@@ -14,5 +14,6 @@
     <orderEntry type="library" name="Maven: io.scif:scifio:0.31.1" level="project" />
     <orderEntry type="library" name="Maven: net.imglib2:imglib2:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: net.imglib2:imglib2-ij:2.0.0-beta-35" level="project" />
+    <orderEntry type="library" name="Maven: net.imagej:imagej-common:0.24.3" level="project" />
   </component>
 </module>
