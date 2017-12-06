@@ -1,0 +1,6 @@
+- can one apply a RealTransform directly on an Interval?
+
+
+
+- does that make sense?
+IntervalUtils.translateRealInterval(...)

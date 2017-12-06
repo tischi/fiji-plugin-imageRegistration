@@ -2,8 +2,8 @@ package embl.almf.tests;
 
 
 // Import does not work
-import net.imglib2.realtransform.RealTransformSequence;
-import net.imglib2.realtransform.RealTransform;
+//import net.imglib2.realtransform.RealTransformSequence;
+//import net.imglib2.realtransform.RealTransform;
 
 
 /**
@@ -24,7 +24,7 @@ https://github.com/imglib/imglib2-realtransform/blob/master/src/main/java/net/im
  */
 
 
-public class RealTransfromTranslationAlongZ implements RealTransform {
+public class RealTransfromTranslationAlongZ {
 
 
 }

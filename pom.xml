@@ -5,12 +5,14 @@
 		http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<!--
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
 		<version>14.0.0</version>
 		<relativePath />
 	</parent>
+	-->
 
 	<!--
 	<parent>
@@ -26,7 +28,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 
 	<name>Fiji plugin for image registration</name>
-	<description>A plugin for multidimensional data registration with different methods.</description>
+	<description>A plugin for multidimensional image registration with different methods.</description>
 	<inceptionYear>2017</inceptionYear>
 	<organization>
 		<name>EMBL</name>
@@ -59,38 +61,17 @@
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
-		<!-- <contributor>
-			<name>Olivier Burri</name>
-			<url>http://imagej.net/User:Oburri</url>
-			<properties><id>lacan</id></properties>
-		</contributor>
-		<contributor>
-			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
-			<properties><id>hinerm</id></properties>
-		</contributor>
-		<contributor>
-			<name>Jules Maselbas</name>
-		</contributor>
-		<contributor>
-			<name>Kota Miura</name>
-			<url>http://imagej.net/User:Miura</url>
-			<properties><id>cmci</id></properties>
-		</contributor>
-		<contributor>
-			<name>Yili Zhao</name>
-			<url>http://imagej.net/User:Panovr</url>
-			<properties><id>panovr</id></properties>
-		</contributor> -->
 	</contributors>
 
 
+	<!--
 	<scm>
 		<connection>scm:git:git://github.com/imagej/example-legacy-plugin</connection>
 		<developerConnection>scm:git:git@github.com:imagej/example-legacy-plugin</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/imagej/example-legacy-plugin</url>
 	</scm>
+	-->
 
 	<issueManagement>
 		<system>GitHub Issues</system>
@@ -100,12 +81,21 @@
 		<system>None</system>
 	</ciManagement>
 
+	<!--
 	<properties>
 		<package-name>com.mycompany.imagej</package-name>
 		<main-class>com.mycompany.imagej.Process_Pixels</main-class>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>EMBL</license.copyrightOwners>
 	</properties>
+	-->
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>13.0.0</version>
+		<relativePath />
+	</parent>
 
 
 	<repositories>
@@ -117,11 +107,17 @@
 	</repositories>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej</artifactId>
+		</dependency>
+
 		<!-- ImgLib2 dependencies -->
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2</artifactId>
-			<version>4.3.0</version>
+			<!-- <version>4.3.0</version> -->
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
@@ -170,9 +166,10 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-realtransform</artifactId>
-			<version>2.0.0-beta-34</version>
+			<artifactId>imglib2</artifactId>
+			<version>2.2.1</version>
 		</dependency>
+
 	</dependencies>
 
 
