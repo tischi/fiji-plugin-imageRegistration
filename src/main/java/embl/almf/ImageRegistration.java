@@ -1,10 +1,8 @@
 package embl.almf;
 
 import net.imglib2.*;
-import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
-import net.imglib2.realtransform.RealTransform;
-import net.imglib2.realtransform.RealViews;
 import net.imglib2.realtransform.Translation;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.Views;
 
@@ -16,81 +14,136 @@ public class ImageRegistration {
 
     RandomAccessibleInterval input;
     int sequenceDimension;
-    double sequenceStep;
-    FinalInterval sequenceInterval;
+    long sequenceStep, sequenceStart, sequenceEnd, sequenceIncrement;
+    FinalRealInterval referenceInterval;
 
+    long[] searchRadius;
 
-    String registrationType = TRANSLATION;
-    String registrationMethod = MEAN_SQUARE_DIFFERENCE;
-    String referenceType = MOVING;
+    String registrationType;
+    String registrationMethod;
+    String referenceType;
 
     ImageRegistration( RandomAccessibleInterval input,
                        int sequenceDimension,
-                       FinalInterval sequenceInterval)
+                       long[] searchRadius )
     {
         this.input = input;
         this.sequenceDimension = sequenceDimension;
-        this.sequenceInterval = sequenceInterval;
+        this.searchRadius = searchRadius;
+
+        // set default values
+        this.sequenceStart = input.min( sequenceDimension );
+        this.sequenceEnd = input.max( sequenceDimension );
+        this.sequenceIncrement = 1;
+        this.registrationType = TRANSLATION;
+        this.registrationMethod = MEAN_SQUARE_DIFFERENCE;
+        this.referenceType = MOVING;
+
+        // TODO: this.referenceInterval = new FinalInterval( input );
+    }
+
+    public void setReferenceRealInterval(
+            FinalRealInterval interval )
+    {
+        referenceInterval = interval;
     }
 
     public void computeTransforms()
     {
-        RandomAccessibleInterval view =
-                Views.interval( img, new long[] { 0, 0, 0 }, new long[]{ 100, 100, 0 } );
 
-        ImagePlus imp2 = ImageJFunctions.wrap( view, "wrapped back cropped view");
-        imp2.show();
+        FinalRealInterval fixedRealInterval = referenceInterval;
+        Translation relativeTranslation = null;
+        Translation absoluteTranslation = null;
 
-
-        for ( int t = 0; t < 1; ++t )
+        for ( long s = sequenceStart; s <= sequenceEnd; ++s )
         {
-            int tFixed = 0;
-            RandomAccessibleInterval fixed = Views.interval(
-                    img,
-                    new long[]{0, 100, tFixed},
-                    new long[]{0, 100, tFixed}
-            );
-            ImagePlus impFixed = ImageJFunctions.wrap( view, "wrapped back fixed");
-            impFixed.show();
+            if ( referenceType.equals( MOVING )
+                    && relativeTranslation != null )
+            {
+                // move reference roi along with
+                // the drift
+                fixedRealInterval
+                        = IntervalUtils.translateRealInterval(
+                        fixedRealInterval, relativeTranslation );
+            }
 
-            int tMoving = tFixed + 1;
-            RandomAccessibleInterval moving = Views.interval(img,
-                    new long[]{0, 100, tMoving},
-                    new long[]{0, 100, tMoving}
-            );
+            RandomAccessibleInterval fixedImage =
+                getFixedImage( fixedRealInterval, s );
 
-            computeTransform( fixed, moving );
+            RandomAccessible movingImage =
+                    getMovingImage( s );
+
+            relativeTranslation = computeTransform(
+                    fixedImage,
+                    movingImage,
+                    searchRadius );
+
+            if ( referenceType.equals( MOVING ) )
+            {
+                absoluteTranslation = relativeTranslation.concatenate( absoluteTranslation );
+            }
+            else
+            {
+                absoluteTranslation = relativeTranslation;
+            }
+
         }
 
     }
 
-
-    private RandomAccessibleInterval getNextFixedImage(
-            FinalRealInterval lastInterval,
-            Translation translation,
-            long lastSequenceCoordinate )
+    private RandomAccessibleInterval getFixedImage(
+            FinalRealInterval realInterval,
+            long sequenceCoordinate )
     {
 
-        // using the last transformation
-        // compute fixed interval
-        // at next sequence coordinate
+        // Set sequence coordinate
         //
-        FinalRealInterval nextRealInterval =
-                IntervalUtils.translateRealInterval( lastInterval, translation );
+        FinalRealInterval fixedImageRealInterval =
+                IntervalUtils.fixDimension(
+                        realInterval,
+                        sequenceDimension,
+                        sequenceCoordinate );
 
-        nextRealInterval = IntervalUtils.increment( nextRealInterval,
-                sequenceDimension, sequenceStep );
+        // Make it an Integer interval for cropping a view
+        //
+        FinalInterval fixedImageInterval = IntervalUtils.realToInt( fixedImageRealInterval );
 
-        FinalInterval nextInterval = IntervalUtils.realToInt( nextRealInterval );
-
-
-        // using the nextInterval,
-        // get the next fixed image
+        // Create new view
         //
         RandomAccessibleInterval nextFixedImage =
-                Views.interval( input, nextInterval );
+                Views.interval( input, fixedImageInterval );
 
         return nextFixedImage;
+
+    }
+
+    private RandomAccessible getMovingImage(
+            long sequenceCoordinate )
+    {
+
+        // construct an interval of the full image
+        // at the given sequenceCoordinate
+        long[] min = Intervals.minAsLongArray( input );
+        long[] max = Intervals.maxAsLongArray( input );
+
+        min[ sequenceDimension ] = sequenceCoordinate;
+        max[ sequenceDimension ] = sequenceCoordinate;
+
+        FinalInterval interval = new FinalInterval( min, max );
+
+        // get a view on this image
+        //
+        RandomAccessibleInterval randomAccessibleInterval =
+                Views.interval( input, interval );
+
+        // make it infinite such that we do not have to
+        // care about out-of-bounds issues during the
+        // search for the best match
+        //
+        RandomAccessible randomAccessible =
+                Views.extendMirrorSingle( randomAccessibleInterval );
+
+        return randomAccessible;
 
     }
 

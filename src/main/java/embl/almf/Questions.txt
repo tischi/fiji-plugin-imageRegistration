@@ -4,3 +4,6 @@
 
 - does that make sense?
 IntervalUtils.translateRealInterval(...)
+
+
+- what is the difference to extendMirrorDouble and extendMirrorSingle?

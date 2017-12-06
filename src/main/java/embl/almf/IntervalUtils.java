@@ -11,6 +11,7 @@ public class IntervalUtils {
             FinalRealInterval interval,
             Translation translation )
     {
+
         double[] minSource = Intervals.minAsDoubleArray( interval );
         double[] maxSource = Intervals.maxAsDoubleArray( interval );
 
@@ -37,6 +38,24 @@ public class IntervalUtils {
 
         min[ dimension ] += value;
         max[ dimension ] += value;
+
+        FinalRealInterval interval = new FinalRealInterval( min, max );
+
+        return interval;
+
+    }
+
+    public static FinalRealInterval fixDimension(
+            FinalRealInterval realInterval,
+            int dimension,
+            double value )
+    {
+
+        double[] min = Intervals.minAsDoubleArray( realInterval );
+        double[] max = Intervals.maxAsDoubleArray( realInterval );
+
+        min[ dimension ] = value;
+        max[ dimension ] = value;
 
         FinalRealInterval interval = new FinalRealInterval( min, max );
 
