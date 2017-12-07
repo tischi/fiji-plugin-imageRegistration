@@ -31,7 +31,7 @@ public abstract class TranslationPhaseCorrelation {
 
     public static RealTransform compute( RandomAccessibleInterval fixedRAI,
                                          RandomAccessible movingRA,
-                                         long[] searchRadius,
+                                         long[] searchRadii,
                                          ExecutorService service)
     {
         final int n = fixedRAI.numDimensions();
@@ -45,11 +45,11 @@ public abstract class TranslationPhaseCorrelation {
         final int[] extension = new int[ fixedRAI.numDimensions() ];
         Arrays.fill( extension, extensionValue );
 
-        FinalInterval movingInterval = IntervalUtils.expand( fixedRAI, searchRadius );
+        FinalInterval movingInterval = IntervalUtils.expand( fixedRAI, searchRadii );
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, movingInterval );
 
-        //ImageJFunctions.show( fixedRAI );
-        //ImageJFunctions.show( movingRAI );
+        ImageJFunctions.show( fixedRAI );
+        ImageJFunctions.show( movingRAI );
 
         final RandomAccessibleInterval< FloatType > pcm =
                 PhaseCorrelation2.calculatePCM(

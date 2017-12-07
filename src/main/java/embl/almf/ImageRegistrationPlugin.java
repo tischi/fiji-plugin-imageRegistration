@@ -60,30 +60,21 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIM;
         dimensionTypes[ 2 ] = ImageRegistration.SEQUENCE_DIM;
 
-        imageRegistration.setDimensionTypes( dimensionTypes );
-
         long[] min = Intervals.minAsLongArray( image );
         long[] max = Intervals.maxAsLongArray( image );
-        max[ 2 ] = 2;
-
+        //min[ 0 ] = 84; max[ 0 ] = 104;
+        //min[ 1 ] = 0; max[ 1 ] = 20;
+        min[ 2 ] = 0; max[ 2 ] = 0; // sequence dimension
         FinalInterval interval = new FinalInterval( min, max );
 
-        long[] searchRadius = new long[ ImageRegistration.getNumTransformableDimensions( dimensionTypes ) ];
-        searchRadius[ 0 ] = 0;
-        searchRadius[ 1 ] = 0;
+        imageRegistration.setDimensionTypesAndInterval( dimensionTypes, interval );
 
+        long[] searchRadii = new long[ 2 ];
+        searchRadii[ 0 ] = 0;
+        searchRadii[ 1 ] = 0;
 
+        imageRegistration.setSearchRadii( searchRadii );
 
-        ImageRegistration imageRegistration =
-                new ImageRegistration(
-                        image,
-                        dimensionTypes,
-                        interval,
-                        searchRadius,
-                        3 );
-
-
-        imageRegistration.setSMax( 0 );
         imageRegistration.computeTransforms();
 
         /*
@@ -124,7 +115,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         //final File file = ij.ui().chooseFile(null, "open");
 
         final File file =
-                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_drift_crop.tif");
+                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_");
 
         if (file != null) {
             // load the dataset

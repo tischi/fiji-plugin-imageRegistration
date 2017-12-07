@@ -7,9 +7,11 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.realtransform.RealViews;
+import net.imglib2.transform.InvertibleTransform;
 import net.imglib2.view.Views;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ImageRegistration {
 
@@ -28,10 +30,11 @@ public class ImageRegistration {
     int[] dimensionTypes;
     FinalInterval transformableDimensionsInterval;
     int numDimensions;
-    long[] searchRadii;
+    private long[] searchRadii;
 
+    int sequenceDim;
     long sRef;
-    long ds;
+    long ds = 1;
 
     String registrationType;
     String registrationMethod;
@@ -39,14 +42,44 @@ public class ImageRegistration {
 
     ExecutorService service;
 
+    int numThreads;
+
+    ImageRegistration( RandomAccessibleInterval input )
+    {
+        this.image = input;
+        this.numDimensions = input.numDimensions();
+
+        // set defaults
+        numThreads = 1;
+        service = Executors.newFixedThreadPool( numThreads );
+        referenceType = MOVING;
+
+    }
+
+    public void setNumThreads( int n )
+    {
+        numThreads = n;
+        service = Executors.newFixedThreadPool( numThreads );
+    }
 
     public void setDimensionTypesAndInterval( int[] dimensionTypes,
                                               FinalInterval interval )
     {
-        // TODO: assert that the sequenceDimension occurs only once.
+
         this.dimensionTypes = dimensionTypes;
+
+        for ( int d = 0; d < dimensionTypes.length; ++d )
+        {
+            if ( dimensionTypes[ d ] == SEQUENCE_DIM )
+            {
+                // TODO: assert that the sequenceDimension occurs only once.
+                sequenceDim = d;
+                sRef = interval.min( d );
+            }
+        }
+
         this.interval = interval;
-        setTransformableDimensionsInterval();
+        setTransformableDimensionsInterval( );
 
     }
 
@@ -58,12 +91,6 @@ public class ImageRegistration {
     }
 
 
-    ImageRegistration( RandomAccessibleInterval input )
-    {
-        this.image = input;
-        this.numDimensions = input.numDimensions();
-    }
-
 
     public <T extends InvertibleRealTransform & Concatenable< T > > void computeTransforms()
     {
@@ -74,19 +101,19 @@ public class ImageRegistration {
         T relativeTransformation = null;
         T absoluteTransformation = null;
 
-        for ( long s = sRef; s <= sMax; s += ds )
+        for ( long s = interval.min( sequenceDim );
+              s <= interval.max( sequenceDim );
+              s += ds )
         {
             fixedRAI = getFixedRAI( s, absoluteTransformation );
             movingRA = getMovingRA( s, absoluteTransformation );
 
-            relativeTransformation = (T) TranslationPhaseCorrelation
-                    .compute(
-                        fixedRAI,
-                        movingRA,
-                            searchRadii,
-                        service );
+            //ImageJFunctions.show( fixedRAI );
 
-            if ( s != sMin )
+            relativeTransformation = (T) TranslationPhaseCorrelation
+                    .compute( fixedRAI, movingRA, searchRadii, service );
+
+            if ( s != interval.min( sequenceDim ) )
             {
                 absoluteTransformation = ( T ) relativeTransformation
                         .concatenate( absoluteTransformation );
@@ -142,12 +169,12 @@ public class ImageRegistration {
             long s,
             InvertibleRealTransform transform )
     {
-
-        RandomAccessibleInterval rai = getTransformableDimensionsRAI( s );
+        RandomAccessibleInterval rai;
 
         if ( s == sRef || referenceType.equals( FIXED ) )
         {
-            // do nothing
+            rai = getTransformableDimensionsRAI( s );
+            rai = Views.interval( rai, transformableDimensionsInterval );
         }
         else if ( s != sRef && referenceType.equals( MOVING ) )
         {
@@ -161,7 +188,7 @@ public class ImageRegistration {
         }
 
         // crop out reference region
-        rai = Views.interval( rai, transformableDimensionsInterval );
+
 
         return rai;
     }
@@ -180,6 +207,7 @@ public class ImageRegistration {
             {
                 min[ i ] = interval.min( d );
                 max[ i ] = interval.max( d );
+                i++;
             }
         }
 
@@ -194,8 +222,6 @@ public class ImageRegistration {
 
         RandomAccessibleInterval rai = getTransformableDimensionsRAI( s + ds );
         RandomAccessible ra;
-
-        ImageJFunctions.show( rai );
 
         if ( s == sRef  )
         {
