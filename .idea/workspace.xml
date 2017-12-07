@@ -2,12 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__io_scif_scifio_0_31_1.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_imagej_ij_1_51h.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Image_Registration.iml" afterPath="$PROJECT_DIR$/Image_Registration.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt" />
     </list>
     <ignored path="fiji-plugin-imageRegistration.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -27,103 +31,48 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="599">
-              <caret line="87" column="13" lean-forward="true" selection-start-line="87" selection-start-column="13" selection-end-line="87" selection-end-column="13" />
+            <state relative-caret-position="-192">
+              <caret line="15" column="13" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="method#getMovingImage#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getFullImageInterval#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getTransformedRA#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getFixedImageAtIntegerInterval#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getMovingImageWrong#0;class#ImageRegistration#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Views.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/view/Views.class">
+      <file leaf-file-name="TranslationPhaseCorrelation.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3">
-              <caret line="35" column="13" lean-forward="false" selection-start-line="35" selection-start-column="13" selection-end-line="35" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="IntervalUtils.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="22">
-              <caret line="9" column="36" lean-forward="false" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
+            <state relative-caret-position="255">
+              <caret line="26" column="22" lean-forward="false" selection-start-line="26" selection-start-column="22" selection-end-line="26" selection-end-column="22" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#translateRealInterval#0;class#IntervalUtils#0" expanded="true" />
-                <element signature="method#increment#0;class#IntervalUtils#0" expanded="true" />
-                <element signature="method#fixDimension#0;class#IntervalUtils#0" expanded="true" />
-                <element signature="method#realToInt#0;class#IntervalUtils#0" expanded="true" />
-                <element signature="method#doubleToLong#0;class#IntervalUtils#0" expanded="true" />
+                <element signature="method#compute#0;class#TranslationPhaseCorrelation#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RealTransform.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-34/imglib2-realtransform-2.0.0-beta-34.jar!/net/imglib2/realtransform/RealTransform.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="15" column="9" lean-forward="false" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Interval.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/Interval.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="10" column="9" lean-forward="false" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Questions.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="70" lean-forward="false" selection-start-line="8" selection-start-column="70" selection-end-line="8" selection-end-column="70" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="34" column="36" lean-forward="false" selection-start-line="34" selection-start-column="36" selection-end-line="34" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RealTransfromTranslationAlongZ.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/RealTransfromTranslationAlongZ.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="26" column="13" lean-forward="false" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LearnImglib2.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/LearnImglib2.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="463">
-              <caret line="51" column="43" lean-forward="false" selection-start-line="51" selection-start-column="43" selection-end-line="51" selection-end-column="43" />
-              <folding />
+            <state relative-caret-position="601">
+              <caret line="73" column="8" lean-forward="false" selection-start-line="73" selection-start-column="8" selection-end-line="73" selection-end-column="8" />
+              <folding>
+                <element signature="initializer##0;class#1578:1640" expanded="true" />
+                <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -149,11 +98,13 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/tests/LearnImglib2.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/Intervals.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
       </list>
     </option>
   </component>
@@ -231,6 +182,15 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="almf" type="462c0819:PsiDirectoryNode" />
+              <item name="registration" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="fiji-plugin-imageRegistration" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fiji-plugin-imageRegistration" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="almf" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -263,7 +223,7 @@
   <component name="RunManager" selected="Application.ImageRegistration">
     <configuration name="ImageRegistration" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="embl.almf.ImageRegistration" />
+      <option name="MAIN_CLASS_NAME" value="embl.almf.ImageRegistrationPlugin" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -451,7 +411,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22246066" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26680973" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32889965" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -462,10 +424,8 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32889965" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -487,8 +447,26 @@
           <line>66</line>
           <properties />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java</url>
+          <line>68</line>
+          <properties />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java</url>
+          <line>49</line>
+          <properties />
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java</url>
+          <line>60</line>
+          <properties />
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="2" />
+      <option name="time" value="5" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -504,7 +482,13 @@
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#getMovingImage#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFullImageInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRA#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedImageAtIntegerInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getMovingImageWrong#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -524,30 +508,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="110" column="8" lean-forward="false" selection-start-line="110" selection-start-column="8" selection-end-line="110" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/LearnImglib2.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="463">
-          <caret line="51" column="43" lean-forward="false" selection-start-line="51" selection-start-column="43" selection-end-line="51" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/RealTransfromTranslationAlongZ.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="26" column="13" lean-forward="false" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/Interval.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -564,37 +524,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/view/Views.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3">
-          <caret line="35" column="13" lean-forward="false" selection-start-line="35" selection-start-column="13" selection-end-line="35" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="34" column="36" lean-forward="false" selection-start-line="34" selection-start-column="36" selection-end-line="34" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="9" column="36" lean-forward="false" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#translateRealInterval#0;class#IntervalUtils#0" expanded="true" />
-            <element signature="method#increment#0;class#IntervalUtils#0" expanded="true" />
-            <element signature="method#fixDimension#0;class#IntervalUtils#0" expanded="true" />
-            <element signature="method#realToInt#0;class#IntervalUtils#0" expanded="true" />
-            <element signature="method#doubleToLong#0;class#IntervalUtils#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
@@ -603,14 +532,143 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/RealTransfromTranslationAlongZ.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="26" column="13" lean-forward="false" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/LearnImglib2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="419">
+          <caret line="51" column="43" lean-forward="false" selection-start-line="51" selection-start-column="43" selection-end-line="51" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/view/Views.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="265">
+          <caret line="86" column="27" lean-forward="false" selection-start-line="86" selection-start-column="27" selection-end-line="86" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/view/IntervalView.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="22" column="11" lean-forward="false" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
+          <folding>
+            <element signature="method#IntervalView#0;class#IntervalView#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/util/Intervals.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="35" column="0" lean-forward="false" selection-start-line="35" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
+          <folding>
+            <element signature="method#expand#0;class#Intervals#0" expanded="true" />
+            <element signature="method#expand#1;class#Intervals#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#translateRealInterval#0;class#IntervalUtils#0" expanded="true" />
+            <element signature="method#increment#0;class#IntervalUtils#0" expanded="true" />
+            <element signature="method#fixDimension#0;class#IntervalUtils#0" expanded="true" />
+            <element signature="method#realToInt#0;class#IntervalUtils#0" expanded="true" />
+            <element signature="method#expand#0;class#IntervalUtils#0" expanded="true" />
+            <element signature="method#doubleToLong#0;class#IntervalUtils#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="118" column="36" lean-forward="false" selection-start-line="118" selection-start-column="36" selection-end-line="118" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/RealLocalizable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-34/imglib2-realtransform-2.0.0-beta-34.jar!/net/imglib2/realtransform/AbstractTranslation.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="11" column="22" lean-forward="false" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-34/imglib2-realtransform-2.0.0-beta-34.jar!/net/imglib2/realtransform/Translation.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/concatenate/Concatenable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="7" column="23" lean-forward="true" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="26" column="22" lean-forward="false" selection-start-line="26" selection-start-column="22" selection-end-line="26" selection-end-column="22" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#compute#0;class#TranslationPhaseCorrelation#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="599">
-          <caret line="87" column="13" lean-forward="true" selection-start-line="87" selection-start-column="13" selection-end-line="87" selection-end-column="13" />
+        <state relative-caret-position="-192">
+          <caret line="15" column="13" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#getMovingImage#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFullImageInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRA#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedImageAtIntegerInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getMovingImageWrong#0;class#ImageRegistration#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="601">
+          <caret line="73" column="8" lean-forward="false" selection-start-line="73" selection-start-column="8" selection-end-line="73" selection-end-column="8" />
+          <folding>
+            <element signature="initializer##0;class#1578:1640" expanded="true" />
+            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
           </folding>
         </state>
       </provider>

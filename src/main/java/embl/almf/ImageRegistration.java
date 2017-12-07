@@ -1,10 +1,17 @@
 package embl.almf;
 
+import embl.almf.registration.TranslationPhaseCorrelation;
 import net.imglib2.*;
-import net.imglib2.realtransform.Translation;
-import net.imglib2.util.Intervals;
-import net.imglib2.view.ExtendedRandomAccessibleInterval;
+import net.imglib2.concatenate.Concatenable;
+import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.realtransform.RealTransform;
+import net.imglib2.realtransform.RealViews;
 import net.imglib2.view.Views;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ImageRegistration {
 
@@ -14,8 +21,9 @@ public class ImageRegistration {
 
     RandomAccessibleInterval input;
     int sequenceDimension;
-    long sequenceStep, sequenceStart, sequenceEnd, sequenceIncrement;
-    FinalRealInterval referenceInterval;
+    Set< Integer > translationDimensions;
+    long sequenceStep, sMin, sMax, ds;
+    FinalInterval referenceInterval;
 
     long[] searchRadius;
 
@@ -23,75 +31,150 @@ public class ImageRegistration {
     String registrationMethod;
     String referenceType;
 
+    ExecutorService service;
+
+
     ImageRegistration( RandomAccessibleInterval input,
                        int sequenceDimension,
-                       long[] searchRadius )
+                       Set< Integer > translationDimensions,
+                       long[] searchRadius,
+                       int numThreads )
     {
         this.input = input;
         this.sequenceDimension = sequenceDimension;
+        this.translationDimensions = translationDimensions;
         this.searchRadius = searchRadius;
 
         // set default values
-        this.sequenceStart = input.min( sequenceDimension );
-        this.sequenceEnd = input.max( sequenceDimension );
-        this.sequenceIncrement = 1;
+        this.sMin = input.min( sequenceDimension );
+        this.sMax = input.max( sequenceDimension );
+        this.ds = 1;
         this.registrationType = TRANSLATION;
         this.registrationMethod = MEAN_SQUARE_DIFFERENCE;
         this.referenceType = MOVING;
 
+        this.service = Executors.newFixedThreadPool( numThreads );
+
         // TODO: this.referenceInterval = new FinalInterval( input );
     }
 
-    public void setReferenceRealInterval(
-            FinalRealInterval interval )
-    {
-        referenceInterval = interval;
-    }
 
-    public void computeTransforms()
+    public <T extends RealTransform & Concatenable< T > > void computeTransforms()
     {
 
-        FinalRealInterval fixedRealInterval = referenceInterval;
-        Translation relativeTranslation = null;
-        Translation absoluteTranslation = null;
+        RandomAccessibleInterval fixedRAI = Views.interval( input, referenceInterval );
+        RandomAccessible movingRA;
 
-        for ( long s = sequenceStart; s <= sequenceEnd; ++s )
+        T relativeTransformation = null;
+        T absoluteTransformation = null;
+
+        for ( long s = sMin; s <= sMax; s += ds )
         {
             if ( referenceType.equals( MOVING )
-                    && relativeTranslation != null )
+                    && absoluteTransformation != null )
             {
-                // move reference roi along with
-                // the drift
-                fixedRealInterval
-                        = IntervalUtils.translateRealInterval(
-                        fixedRealInterval, relativeTranslation );
+                fixedRAI = getFixedRAI( absoluteTransformation, s );
             }
 
-            RandomAccessibleInterval fixedImage =
-                getFixedImage( fixedRealInterval, s );
+            movingRA = getMovingRA( absoluteTransformation, s + ds );
 
-            RandomAccessible movingImage =
-                    getMovingImage( s );
+            relativeTransformation = (T) TranslationPhaseCorrelation.compute(
+                    fixedRAI,
+                    movingRA,
+                    searchRadius,
+                    service );
 
-            relativeTranslation = computeTransform(
-                    fixedImage,
-                    movingImage,
-                    searchRadius );
-
-            if ( referenceType.equals( MOVING ) )
-            {
-                absoluteTranslation = relativeTranslation.concatenate( absoluteTranslation );
-            }
-            else
-            {
-                absoluteTranslation = relativeTranslation;
-            }
+            absoluteTransformation = (T) relativeTransformation
+                            .concatenate( absoluteTransformation );
 
         }
 
     }
 
-    private RandomAccessibleInterval getFixedImage(
+
+    private FinalInterval getFullImageInterval( long sequenceCoordinate )
+    {
+        long[] min = net.imglib2.util.Intervals.minAsLongArray( input );
+        long[] max = net.imglib2.util.Intervals.maxAsLongArray( input );
+
+        for ( int d = 0; d < min.length; ++d )
+        {
+            if ( translationDimensions.contains( d ) )
+            {
+                // leave as is, because we crop later, after applying current translation
+            }
+            else if ( d == sequenceDimension )
+            {
+                // move to next point in the sequence
+                min[ d ] = sequenceCoordinate;
+                max[ d ] = sequenceCoordinate;
+            }
+            else
+            {
+                // neither translation dimension, nor sequence dimension.
+                // for example, this could be the 'reference channel'
+                // in a multi-channel image
+                min[ d ] = referenceInterval.min( d );
+                max[ d ] = referenceInterval.max( d );
+            }
+        }
+
+        return new FinalInterval( min, max );
+
+    }
+
+    private RandomAccessibleInterval getFixedRAI(
+            RealTransform transform,
+            long sequenceCoordinate )
+    {
+
+        RandomAccessible ra = getTransformedRA( transform, sequenceCoordinate );
+
+        // crop out reference region
+        RandomAccessibleInterval rai = Views.interval( ra, referenceInterval );
+
+        return rai;
+
+    }
+
+    private RandomAccessible getMovingRA(
+            RealTransform transform,
+            long sequenceCoordinate )
+    {
+
+        RandomAccessible ra = getTransformedRA(
+                transform,
+                sequenceCoordinate );
+
+        return ra;
+    }
+
+
+    private RandomAccessible getTransformedRA(
+            RealTransform transform,
+            long sequenceCoordinate )
+    {
+        // get appropriate view on data at current step
+        //
+        FinalInterval fullIntervalAtCurrentStep = getFullImageInterval( sequenceCoordinate );
+        RandomAccessibleInterval rai = Views.interval( input, fullIntervalAtCurrentStep );
+
+        // apply current inverse translation in order to
+        // compensate for the already detected drift
+        RealRandomAccessible rra = Views.interpolate(
+                Views.extendMirrorSingle( input ),
+                new NLinearInterpolatorFactory() );
+        rra = RealViews.transform( rra, transform );
+        RandomAccessible ra = Views.raster( rra );
+
+        return ra;
+
+    }
+
+
+
+
+    private RandomAccessibleInterval getFixedImageAtIntegerInterval(
             FinalRealInterval realInterval,
             long sequenceCoordinate )
     {
@@ -117,14 +200,14 @@ public class ImageRegistration {
 
     }
 
-    private RandomAccessible getMovingImage(
+    private RandomAccessible getMovingImageWrong(
             long sequenceCoordinate )
     {
 
         // construct an interval of the full image
         // at the given sequenceCoordinate
-        long[] min = Intervals.minAsLongArray( input );
-        long[] max = Intervals.maxAsLongArray( input );
+        long[] min = net.imglib2.util.Intervals.minAsLongArray( input );
+        long[] max = net.imglib2.util.Intervals.maxAsLongArray( input );
 
         min[ sequenceDimension ] = sequenceCoordinate;
         max[ sequenceDimension ] = sequenceCoordinate;

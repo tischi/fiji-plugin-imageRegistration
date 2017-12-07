@@ -113,6 +113,12 @@
 			<artifactId>imagej</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>net.preibisch</groupId>
+			<artifactId>BigStitcher</artifactId>
+			<version>0.1.1</version>
+		</dependency>
+
 		<!-- ImgLib2 dependencies -->
 		<dependency>
 			<groupId>net.imglib2</groupId>

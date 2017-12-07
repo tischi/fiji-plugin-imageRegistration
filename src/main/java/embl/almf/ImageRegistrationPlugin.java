@@ -12,6 +12,7 @@ package embl.almf;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.command.Command;
@@ -20,6 +21,9 @@ import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This example illustrates how to create an ImageJ {@link Command} plugin.
@@ -49,6 +53,26 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
     @Override
     public void run() {
         final Img<T> image = (Img<T>)currentData.getImgPlus();
+
+        Set< Integer > translationDimensions
+                = new HashSet< Integer >() {{
+                    add(0); add(1); }};
+
+        long[] searchRadius = new long[ translationDimensions.size() ];
+        searchRadius[ 0 ] = 10;
+        searchRadius[ 1 ] = 10;
+
+        int sequenceDimension = 2;
+
+        ImageRegistration imageRegistration =
+                new ImageRegistration(
+                        image,
+                        sequenceDimension,
+                        translationDimensions,
+                        searchRadius,
+                        3 );
+        
+        imageRegistration.computeTransforms();
 
         /*
 

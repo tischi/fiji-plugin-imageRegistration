@@ -2,6 +2,7 @@ package embl.almf;
 
 import net.imglib2.FinalInterval;
 import net.imglib2.FinalRealInterval;
+import net.imglib2.Interval;
 import net.imglib2.realtransform.Translation;
 import net.imglib2.util.Intervals;
 
@@ -12,8 +13,8 @@ public class IntervalUtils {
             Translation translation )
     {
 
-        double[] minSource = Intervals.minAsDoubleArray( interval );
-        double[] maxSource = Intervals.maxAsDoubleArray( interval );
+        double[] minSource = net.imglib2.util.Intervals.minAsDoubleArray( interval );
+        double[] maxSource = net.imglib2.util.Intervals.maxAsDoubleArray( interval );
 
         double[] minTarget = new double[ interval.numDimensions() ];
         double[] maxTarget = new double[ interval.numDimensions() ];
@@ -33,8 +34,8 @@ public class IntervalUtils {
             double value )
     {
 
-        double[] min = Intervals.minAsDoubleArray( realInterval );
-        double[] max = Intervals.maxAsDoubleArray( realInterval );
+        double[] min = net.imglib2.util.Intervals.minAsDoubleArray( realInterval );
+        double[] max = net.imglib2.util.Intervals.maxAsDoubleArray( realInterval );
 
         min[ dimension ] += value;
         max[ dimension ] += value;
@@ -51,8 +52,8 @@ public class IntervalUtils {
             double value )
     {
 
-        double[] min = Intervals.minAsDoubleArray( realInterval );
-        double[] max = Intervals.maxAsDoubleArray( realInterval );
+        double[] min = net.imglib2.util.Intervals.minAsDoubleArray( realInterval );
+        double[] max = net.imglib2.util.Intervals.maxAsDoubleArray( realInterval );
 
         min[ dimension ] = value;
         max[ dimension ] = value;
@@ -67,8 +68,8 @@ public class IntervalUtils {
             FinalRealInterval realInterval )
     {
 
-        long[] min = doubleToLong( Intervals.minAsDoubleArray( realInterval ) );
-        long[] max = doubleToLong( Intervals.maxAsDoubleArray( realInterval ) );
+        long[] min = doubleToLong( net.imglib2.util.Intervals.minAsDoubleArray( realInterval ) );
+        long[] max = doubleToLong( net.imglib2.util.Intervals.maxAsDoubleArray( realInterval ) );
 
         FinalInterval interval =
                 new FinalInterval( min, max );
@@ -76,6 +77,25 @@ public class IntervalUtils {
         return interval;
 
     }
+
+
+    public static FinalInterval expand( Interval interval, long[] border) {
+        assert interval.numDimensions() == border.length;
+
+        int n = interval.numDimensions();
+        long[] min = new long[n];
+        long[] max = new long[n];
+        interval.min(min);
+        interval.max(max);
+
+        for(int d = 0; d < n; ++d) {
+            min[d] -= border[d];
+            max[d] += border[d];
+        }
+
+        return new FinalInterval(min, max);
+    }
+
 
 
     private static long[] doubleToLong( double[] in )
