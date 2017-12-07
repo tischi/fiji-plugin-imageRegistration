@@ -93,7 +93,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>13.0.0</version>
+		<version>17.1.1</version>
 		<relativePath />
 	</parent>
 
@@ -123,7 +123,6 @@
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2</artifactId>
-			<!-- <version>4.3.0</version> -->
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
@@ -161,20 +160,12 @@
 		</dependency>
 
 		<!-- SCIFIO dependencies -->
+
 		<dependency>
 			<groupId>io.scif</groupId>
 			<artifactId>scifio</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-realtransform</artifactId>
-			<version>2.0.0-beta-34</version>
-		</dependency>
-		<dependency>
-			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2</artifactId>
-			<version>2.2.1</version>
-		</dependency>
+
 
 	</dependencies>
 

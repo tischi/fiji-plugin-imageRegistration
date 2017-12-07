@@ -1,12 +1,14 @@
 package embl.almf.registration;
 
 import embl.almf.IntervalUtils;
+import ij.IJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.RealTransform;
 import net.imglib2.realtransform.Translation;
 
@@ -40,12 +42,14 @@ public abstract class TranslationPhaseCorrelation {
         final boolean doSubpixel = true;
         final boolean interpolateCrossCorrelation = true;
 
-        FinalInterval movingInterval = IntervalUtils.expand( fixedRAI, searchRadius );
-
         final int[] extension = new int[ fixedRAI.numDimensions() ];
         Arrays.fill( extension, extensionValue );
 
+        FinalInterval movingInterval = IntervalUtils.expand( fixedRAI, searchRadius );
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, movingInterval );
+
+        //ImageJFunctions.show( fixedRAI );
+        //ImageJFunctions.show( movingRAI );
 
         final RandomAccessibleInterval< FloatType > pcm =
                 PhaseCorrelation2.calculatePCM(
@@ -80,6 +84,12 @@ public abstract class TranslationPhaseCorrelation {
             shiftPeak.getShift().localize( shift );
         else
             shiftPeak.getSubpixelShift().localize( shift );
+
+        IJ.log("--");
+        for ( double s : shift )
+        {
+            IJ.log( ""+ s );
+        }
 
         Translation translation = new Translation( shift );
 

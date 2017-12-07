@@ -13,7 +13,6 @@ import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
@@ -23,9 +22,6 @@ import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This example illustrates how to create an ImageJ {@link Command} plugin.
@@ -54,39 +50,40 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
 
     @Override
     public void run() {
+
         final Img<T> image = (Img<T>)currentData.getImgPlus();
 
+        ImageRegistration imageRegistration = new ImageRegistration( image );
 
-        int sequenceDimension = 2;
+        int[] dimensionTypes = new int[ image.numDimensions() ];
+        dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIM;
+        dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIM;
+        dimensionTypes[ 2 ] = ImageRegistration.SEQUENCE_DIM;
 
-        // Specify translation dimensions
-        //
-        Set< Integer > translationDimensions
-                = new HashSet< Integer >() {{
-                    add(0); add(1); }};
+        imageRegistration.setDimensionTypes( dimensionTypes );
 
-        long[] searchRadius = new long[ translationDimensions.size() ];
-        searchRadius[ 0 ] = 10;
-        searchRadius[ 1 ] = 10;
+        long[] min = Intervals.minAsLongArray( image );
+        long[] max = Intervals.maxAsLongArray( image );
+        max[ 2 ] = 2;
 
-        long[] min = new long[ translationDimensions.size() ];
-        long[] max = new long[ translationDimensions.size() ];
-        min[ 0 ] = 0;
-        max[ 0 ] = 0;
-        min[ 1 ] = 50;
-        max[ 1 ] = 50;
+        FinalInterval interval = new FinalInterval( min, max );
 
-        FinalInterval referenceInterval = new FinalInterval( min, max );
+        long[] searchRadius = new long[ ImageRegistration.getNumTransformableDimensions( dimensionTypes ) ];
+        searchRadius[ 0 ] = 0;
+        searchRadius[ 1 ] = 0;
+
+
 
         ImageRegistration imageRegistration =
                 new ImageRegistration(
                         image,
-                        sequenceDimension,
-                        translationDimensions,
+                        dimensionTypes,
+                        interval,
                         searchRadius,
-                        referenceInterval,
                         3 );
 
+
+        imageRegistration.setSMax( 0 );
         imageRegistration.computeTransforms();
 
         /*
