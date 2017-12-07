@@ -4,11 +4,14 @@ import embl.almf.registration.TranslationPhaseCorrelation;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
-import net.imglib2.realtransform.RealTransform;
+import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.realtransform.RealViews;
+import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,12 +21,18 @@ public class ImageRegistration {
     final static String TRANSLATION = "Translation";
     final static String MEAN_SQUARE_DIFFERENCE = "Mean square difference";
     final static String MOVING = "Moving";
+    final static String FIXED = "Fixed";
+
+
+    ArrayList< Integer > transformableDimensions;
+    FinalInterval transformableDimensionsInterval;
+
+    Map< Integer, Integer > fixedDimensions;
+
+    int sequenceDimension;
+    long sMin, sMax, sRef, ds;
 
     RandomAccessibleInterval input;
-    int sequenceDimension;
-    Set< Integer > translationDimensions;
-    long sequenceStep, sMin, sMax, ds;
-    FinalInterval referenceInterval;
 
     long[] searchRadius;
 
@@ -38,11 +47,12 @@ public class ImageRegistration {
                        int sequenceDimension,
                        Set< Integer > translationDimensions,
                        long[] searchRadius,
+                       FinalInterval referenceInterval,
                        int numThreads )
     {
         this.input = input;
         this.sequenceDimension = sequenceDimension;
-        this.translationDimensions = translationDimensions;
+        this.transformableDimensions = translationDimensions;
         this.searchRadius = searchRadius;
 
         // set default values
@@ -52,17 +62,17 @@ public class ImageRegistration {
         this.registrationType = TRANSLATION;
         this.registrationMethod = MEAN_SQUARE_DIFFERENCE;
         this.referenceType = MOVING;
+        this.transformableDimensionsInterval = referenceInterval;
 
         this.service = Executors.newFixedThreadPool( numThreads );
 
-        // TODO: this.referenceInterval = new FinalInterval( input );
     }
 
 
-    public <T extends RealTransform & Concatenable< T > > void computeTransforms()
+    public <T extends InvertibleRealTransform & Concatenable< T > > void computeTransforms()
     {
 
-        RandomAccessibleInterval fixedRAI = Views.interval( input, referenceInterval );
+        RandomAccessibleInterval fixedRAI;
         RandomAccessible movingRA;
 
         T relativeTransformation = null;
@@ -70,105 +80,129 @@ public class ImageRegistration {
 
         for ( long s = sMin; s <= sMax; s += ds )
         {
-            if ( referenceType.equals( MOVING )
-                    && absoluteTransformation != null )
-            {
-                fixedRAI = getFixedRAI( absoluteTransformation, s );
-            }
+            fixedRAI = getFixedRAI( s, absoluteTransformation );
+
 
             movingRA = getMovingRA( absoluteTransformation, s + ds );
 
-            relativeTransformation = (T) TranslationPhaseCorrelation.compute(
-                    fixedRAI,
-                    movingRA,
-                    searchRadius,
-                    service );
+            relativeTransformation = (T) TranslationPhaseCorrelation
+                    .compute(
+                        fixedRAI,
+                        movingRA,
+                        searchRadius,
+                        service );
 
-            absoluteTransformation = (T) relativeTransformation
-                            .concatenate( absoluteTransformation );
-
-        }
-
-    }
-
-
-    private FinalInterval getFullImageInterval( long sequenceCoordinate )
-    {
-        long[] min = net.imglib2.util.Intervals.minAsLongArray( input );
-        long[] max = net.imglib2.util.Intervals.maxAsLongArray( input );
-
-        for ( int d = 0; d < min.length; ++d )
-        {
-            if ( translationDimensions.contains( d ) )
+            if ( s != sMin )
             {
-                // leave as is, because we crop later, after applying current translation
-            }
-            else if ( d == sequenceDimension )
-            {
-                // move to next point in the sequence
-                min[ d ] = sequenceCoordinate;
-                max[ d ] = sequenceCoordinate;
+                absoluteTransformation = ( T ) relativeTransformation
+                        .concatenate( absoluteTransformation );
             }
             else
             {
-                // neither translation dimension, nor sequence dimension.
-                // for example, this could be the 'reference channel'
-                // in a multi-channel image
-                min[ d ] = referenceInterval.min( d );
-                max[ d ] = referenceInterval.max( d );
+                absoluteTransformation = relativeTransformation;
             }
-        }
 
-        return new FinalInterval( min, max );
+        }
 
     }
 
-    private RandomAccessibleInterval getFixedRAI(
-            RealTransform transform,
-            long sequenceCoordinate )
+
+    private RandomAccessibleInterval getTransformableDimensionsRAI( long s )
     {
+        long[] min = Intervals.minAsLongArray( input );
+        long[] max = Intervals.maxAsLongArray( input );
 
-        RandomAccessible ra = getTransformedRA( transform, sequenceCoordinate );
+        min[ sequenceDimension ] = s;
+        max[ sequenceDimension ] = s;
 
-        // crop out reference region
-        RandomAccessibleInterval rai = Views.interval( ra, referenceInterval );
+        for ( int d : fixedDimensions.keySet() )
+        {
+            min[ d ] = fixedDimensions.get( d );
+            max[ d ] = fixedDimensions.get( d );
+        }
+
+        for ( int d : transformableDimensions )
+        {
+            // leave as is
+        }
+
+        FinalInterval interval = new FinalInterval( min, max );
+
+        RandomAccessibleInterval rai =
+                Views.dropSingletonDimensions(
+                    Views.interval( input, interval )
+                );
 
         return rai;
 
     }
 
-    private RandomAccessible getMovingRA(
-            RealTransform transform,
-            long sequenceCoordinate )
+    private RandomAccessibleInterval getFixedRAI(
+            long s,
+            InvertibleRealTransform transform )
     {
 
-        RandomAccessible ra = getTransformedRA(
-                transform,
-                sequenceCoordinate );
+        RandomAccessibleInterval rai = getTransformableDimensionsRAI( s );
+
+        if ( s == sRef || referenceType.equals( FIXED ) )
+        {
+            // do nothing
+        }
+        else if ( s != sRef && referenceType.equals( MOVING ) )
+        {
+            rai = getTransformableDimensionsRAI( s );
+            RandomAccessible ra = getTransformedRA( rai, transform );
+            rai = Views.interval( ra, transformableDimensionsInterval );
+        }
+        else
+        {
+            return null; // should not occur
+        }
+
+        // crop out reference region
+        rai = Views.interval( rai, transformableDimensionsInterval );
+
+        return rai;
+    }
+
+    private RandomAccessible getMovingRA(
+            long s,
+            InvertibleRealTransform transform )
+    {
+
+        RandomAccessibleInterval rai = getTransformableDimensionsRAI( s );
+        RandomAccessible ra;
+
+        if ( s == sRef  )
+        {
+            ra = Views.extendMirrorSingle( rai );
+        }
+        else
+        {
+            ra = getTransformedRA( rai, transform );
+        }
 
         return ra;
+
     }
 
 
-    private RandomAccessible getTransformedRA(
-            RealTransform transform,
-            long sequenceCoordinate )
-    {
-        // get appropriate view on data at current step
-        //
-        FinalInterval fullIntervalAtCurrentStep = getFullImageInterval( sequenceCoordinate );
-        RandomAccessibleInterval rai = Views.interval( input, fullIntervalAtCurrentStep );
 
-        // apply current inverse translation in order to
-        // compensate for the already detected drift
-        RealRandomAccessible rra = Views.interpolate(
-                Views.extendMirrorSingle( input ),
-                new NLinearInterpolatorFactory() );
-        rra = RealViews.transform( rra, transform );
+
+    private RandomAccessible getTransformedRA(
+            RandomAccessibleInterval rai,
+            InvertibleRealTransform transform )
+    {
+
+        RealRandomAccessible rra
+                = RealViews.transform(
+                    Views.interpolate( Views.extendMirrorSingle( rai ),
+                            new NLinearInterpolatorFactory() ),
+                                transform );
+
         RandomAccessible ra = Views.raster( rra );
 
         return ra;
-
     }
 
 

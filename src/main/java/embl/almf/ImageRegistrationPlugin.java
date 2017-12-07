@@ -12,9 +12,11 @@ package embl.almf;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
+import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -54,6 +56,11 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
     public void run() {
         final Img<T> image = (Img<T>)currentData.getImgPlus();
 
+
+        int sequenceDimension = 2;
+
+        // Specify translation dimensions
+        //
         Set< Integer > translationDimensions
                 = new HashSet< Integer >() {{
                     add(0); add(1); }};
@@ -62,7 +69,14 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         searchRadius[ 0 ] = 10;
         searchRadius[ 1 ] = 10;
 
-        int sequenceDimension = 2;
+        long[] min = new long[ translationDimensions.size() ];
+        long[] max = new long[ translationDimensions.size() ];
+        min[ 0 ] = 0;
+        max[ 0 ] = 0;
+        min[ 1 ] = 50;
+        max[ 1 ] = 50;
+
+        FinalInterval referenceInterval = new FinalInterval( min, max );
 
         ImageRegistration imageRegistration =
                 new ImageRegistration(
@@ -70,8 +84,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
                         sequenceDimension,
                         translationDimensions,
                         searchRadius,
+                        referenceInterval,
                         3 );
-        
+
         imageRegistration.computeTransforms();
 
         /*
