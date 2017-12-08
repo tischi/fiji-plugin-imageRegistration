@@ -58,13 +58,16 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         int[] dimensionTypes = new int[ image.numDimensions() ];
         dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIM;
         dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIM;
-        dimensionTypes[ 2 ] = ImageRegistration.SEQUENCE_DIM;
+        dimensionTypes[ 2 ] = ImageRegistration.FIXED_DIM;
+        dimensionTypes[ 3 ] = ImageRegistration.SEQUENCE_DIM;
 
         long[] min = Intervals.minAsLongArray( image );
         long[] max = Intervals.maxAsLongArray( image );
-        //min[ 0 ] = 84; max[ 0 ] = 104;
-        //min[ 1 ] = 0; max[ 1 ] = 20;
-        min[ 2 ] = 0; max[ 2 ] = 0; // sequence dimension
+        //refMin[ 0 ] = 84; refMax[ 0 ] = 104;
+        //refMin[ 1 ] = 0; refMax[ 1 ] = 20;
+        min[ 2 ] = 0; max[ 2 ] = 0; // fixed dimension, chosen reference
+        min[ 3 ] = 0; max[ 3 ] = 3; // sequence dimension, which time-points to register
+
         FinalInterval interval = new FinalInterval( min, max );
 
         imageRegistration.setDimensionTypesAndInterval( dimensionTypes, interval );
@@ -80,7 +83,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         /*
 
         //
-        // Enter image processing code here ...
+        // Enter inputRAI processing code here ...
         // The following is just a Gauss filtering example
         //
         final double[] sigmas = {1.0, 3.0, 5.0};
@@ -88,7 +91,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         List<RandomAccessibleInterval<T>> results = new ArrayList<>();
 
         for (double sigma : sigmas) {
-            results.add(opService.filter().gauss(image, sigma));
+            results.add(opService.filter().gauss(inputRAI, sigma));
         }
 
         // display result
@@ -115,13 +118,13 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         //final File file = ij.ui().chooseFile(null, "open");
 
         final File file =
-                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_");
+                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur.tif");
 
         if (file != null) {
             // load the dataset
             final Dataset dataset = ij.scifio().datasetIO().open( file.getPath() );
 
-            // show the image
+            // show the inputRAI
             ij.ui().show(dataset);
 
             // invoke the plugin

@@ -3,12 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__io_scif_scifio_0_31_1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_imagej_ij_1_51h.xml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Image_Registration.iml" afterPath="$PROJECT_DIR$/Image_Registration.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
@@ -31,26 +25,35 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="104" column="47" lean-forward="true" selection-start-line="104" selection-start-column="47" selection-end-line="104" selection-end-column="47" />
+            <state relative-caret-position="689">
+              <caret line="337" column="0" lean-forward="true" selection-start-line="337" selection-start-column="0" selection-end-line="337" selection-end-column="0" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="method#TransformableDimensions#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getReferenceInterval#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#SequenceDimension#0;class#SequenceDimension#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#setDimensionTypesAndInterval#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#createTransformedSeries#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#createTransformedSeriesList#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getTransformedSequence#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getTransformableDimensionsIntervals#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getNumTransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pom.xml">
+      <file leaf-file-name="IntervalUtils.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="211">
-              <caret line="109" column="0" lean-forward="false" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
-              <folding>
-                <marker date="1512669617000" expanded="true" signature="3407:3424" ph="..." />
-              </folding>
+            <state relative-caret-position="180">
+              <caret line="31" column="43" lean-forward="true" selection-start-line="31" selection-start-column="43" selection-end-line="31" selection-end-column="43" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -58,20 +61,20 @@
       <file leaf-file-name="TranslationPhaseCorrelation.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+            <state relative-caret-position="-696">
+              <caret line="52" column="43" lean-forward="true" selection-start-line="52" selection-start-column="43" selection-end-line="52" selection-end-column="43" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="116">
-              <caret line="117" column="92" lean-forward="false" selection-start-line="117" selection-start-column="92" selection-end-line="117" selection-end-column="92" />
+            <state relative-caret-position="225">
+              <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
               <folding>
-                <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -106,10 +109,10 @@
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/Intervals.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
       </list>
     </option>
   </component>
@@ -385,23 +388,24 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3700121" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3688946" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32262212" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40874037" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29256082" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.042203147" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277635" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3579202" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.14395887" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -409,7 +413,6 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32889965" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -461,13 +464,31 @@
           <properties />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java</url>
-          <line>109</line>
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java</url>
+          <line>219</line>
           <properties />
-          <option name="timeStamp" value="53" />
+          <option name="timeStamp" value="65" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java</url>
+          <line>217</line>
+          <properties />
+          <option name="timeStamp" value="66" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java</url>
+          <line>181</line>
+          <properties />
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java</url>
+          <line>210</line>
+          <properties />
+          <option name="timeStamp" value="71" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="54" />
+      <option name="time" value="73" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -481,7 +502,18 @@
         <state relative-caret-position="1020">
           <caret line="111" column="45" lean-forward="false" selection-start-line="111" selection-start-column="45" selection-end-line="111" selection-end-column="45" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="method#TransformableDimensions#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getReferenceInterval#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#SequenceDimension#0;class#SequenceDimension#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#setDimensionTypesAndInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeries#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeriesList#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedSequence#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformableDimensionsIntervals#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getNumTransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -509,7 +541,7 @@
         <state relative-caret-position="1275">
           <caret line="97" column="10" lean-forward="false" selection-start-line="97" selection-start-column="10" selection-end-line="97" selection-end-column="10" />
           <folding>
-            <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -519,7 +551,18 @@
         <state relative-caret-position="0">
           <caret line="111" column="45" lean-forward="false" selection-start-line="111" selection-start-column="45" selection-end-line="111" selection-end-column="45" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="method#TransformableDimensions#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getReferenceInterval#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#SequenceDimension#0;class#SequenceDimension#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#setDimensionTypesAndInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeries#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeriesList#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedSequence#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformableDimensionsIntervals#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getNumTransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -547,7 +590,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -557,7 +600,18 @@
         <state relative-caret-position="0">
           <caret line="82" column="0" lean-forward="false" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="method#TransformableDimensions#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getReferenceInterval#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#SequenceDimension#0;class#SequenceDimension#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#setDimensionTypesAndInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeries#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeriesList#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedSequence#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformableDimensionsIntervals#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getNumTransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -575,7 +629,7 @@
         <state relative-caret-position="0">
           <caret line="74" column="0" lean-forward="false" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
           <folding>
-            <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -585,7 +639,18 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="method#TransformableDimensions#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getReferenceInterval#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#SequenceDimension#0;class#SequenceDimension#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#setDimensionTypesAndInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeries#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeriesList#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedSequence#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformableDimensionsIntervals#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getNumTransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -692,13 +757,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/view/Views.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="433" column="50" lean-forward="false" selection-start-line="433" selection-start-column="50" selection-end-line="433" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/AbstractInterval.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -706,40 +764,148 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/InvertibleRealTransform.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+        <state relative-caret-position="225">
+          <caret line="19" column="28" lean-forward="false" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/concatenate/Concatenable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="8" column="20" lean-forward="false" selection-start-line="8" selection-start-column="20" selection-end-line="8" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/concatenate/PreConcatenable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="8" column="23" lean-forward="false" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/view/Views.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="250">
+          <caret line="530" column="70" lean-forward="false" selection-start-line="530" selection-start-column="70" selection-end-line="530" selection-end-column="70" />
+          <folding>
+            <element signature="method#hyperSlices#0;class#Views#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/imglib2/algorithm/phasecorrelation/PhaseCorrelationPeak2.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="150" column="63" lean-forward="false" selection-start-line="150" selection-start-column="63" selection-end-line="150" selection-end-column="63" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/imglib2/algorithm/phasecorrelation/PhaseCorrelation2Util.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="553" column="42" lean-forward="true" selection-start-line="553" selection-start-column="42" selection-end-line="553" selection-end-column="42" />
+          <folding>
+            <element signature="method#calculateCrossCorrParallel#1;class#PhaseCorrelation2Util#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/imglib2/algorithm/phasecorrelation/PhaseCorrelation2.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="101" column="48" lean-forward="true" selection-start-line="101" selection-start-column="48" selection-end-line="101" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/preibisch/stitcher/algorithm/PairwiseStitching.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-902">
+          <caret line="154" column="183" lean-forward="false" selection-start-line="154" selection-start-column="183" selection-end-line="154" selection-end-column="183" />
+          <folding>
+            <element signature="method#getShift#0;class#PairwiseStitching#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="109" column="0" lean-forward="false" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
+        <state relative-caret-position="375">
+          <caret line="48" column="33" lean-forward="true" selection-start-line="48" selection-start-column="33" selection-end-line="48" selection-end-column="33" />
           <folding>
             <marker date="1512669617000" expanded="true" signature="3407:3424" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
+    <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/preibisch/stitcher/algorithm/AveragedRandomAccessible.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="104" column="47" lean-forward="true" selection-start-line="104" selection-start-column="47" selection-end-line="104" selection-end-column="47" />
+        <state relative-caret-position="-109">
+          <caret line="20" column="11" lean-forward="false" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="method#AveragedRandomAccessible#0;class#AveragedRandomAccessible#0" expanded="true" />
+            <element signature="method#get#0;class#AverageRandomAccess#0;class#AveragedRandomAccessible#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/preibisch/stitcher/algorithm/GroupedViewAggregator.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="300" column="54" lean-forward="false" selection-start-line="300" selection-start-column="54" selection-end-line="300" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-696">
+          <caret line="52" column="43" lean-forward="true" selection-start-line="52" selection-start-column="43" selection-end-line="52" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="31" column="43" lean-forward="true" selection-start-line="31" selection-start-column="43" selection-end-line="31" selection-end-column="43" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="116">
-          <caret line="117" column="92" lean-forward="false" selection-start-line="117" selection-start-column="92" selection-end-line="117" selection-end-column="92" />
+        <state relative-caret-position="225">
+          <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
           <folding>
-            <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="689">
+          <caret line="337" column="0" lean-forward="true" selection-start-line="337" selection-start-column="0" selection-end-line="337" selection-end-column="0" />
+          <folding>
+            <element signature="method#TransformableDimensions#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getReferenceInterval#0;class#TransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#SequenceDimension#0;class#SequenceDimension#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#setDimensionTypesAndInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#computeTransforms#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeries#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedSeriesList#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedSequence#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformableDimensionsIntervals#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getNumTransformableDimensions#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
       </provider>

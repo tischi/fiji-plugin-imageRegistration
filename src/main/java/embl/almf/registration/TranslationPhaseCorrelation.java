@@ -12,6 +12,8 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.RealTransform;
 import net.imglib2.realtransform.Translation;
 
+import net.imglib2.realtransform.Translation2D;
+import net.imglib2.realtransform.Translation3D;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.complex.ComplexFloatType;
 import net.imglib2.type.numeric.integer.LongType;
@@ -37,7 +39,7 @@ public abstract class TranslationPhaseCorrelation {
         final int n = fixedRAI.numDimensions();
 
         final int numPeaksToCheck = 5;
-        final long minOverlap = 10;
+        final long minOverlap = 20; //200*200;
         final int extensionValue = 10;
         final boolean doSubpixel = true;
         final boolean interpolateCrossCorrelation = true;
@@ -48,8 +50,8 @@ public abstract class TranslationPhaseCorrelation {
         FinalInterval movingInterval = IntervalUtils.expand( fixedRAI, searchRadii );
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, movingInterval );
 
-        ImageJFunctions.show( fixedRAI );
-        ImageJFunctions.show( movingRAI );
+        //ImageJFunctions.show( fixedRAI );
+        //ImageJFunctions.show( movingRAI );
 
         final RandomAccessibleInterval< FloatType > pcm =
                 PhaseCorrelation2.calculatePCM(
@@ -63,7 +65,8 @@ public abstract class TranslationPhaseCorrelation {
                         service );
 
         final PhaseCorrelationPeak2 shiftPeak =
-                PhaseCorrelation2.getShift( pcm,
+                PhaseCorrelation2.getShift(
+                        pcm,
                         fixedRAI,
                         movingRAI,
                         numPeaksToCheck,
@@ -72,7 +75,7 @@ public abstract class TranslationPhaseCorrelation {
                         interpolateCrossCorrelation,
                         service );
 
-        //System.out.println( "Actual overlap of best shift is: " + shiftPeak.getnPixel() );
+        //System.out.println( "Actual overlap of best shift is: " + shiftPeak.getnPixel() )
 
         // the best peak is horrible or no peaks were found at all, return null
         if ( shiftPeak == null || Double.isInfinite( shiftPeak.getCrossCorr() ) )
@@ -90,10 +93,26 @@ public abstract class TranslationPhaseCorrelation {
         {
             IJ.log( ""+ s );
         }
+        IJ.log("" + shiftPeak.getCrossCorr());
 
-        Translation translation = new Translation( shift );
 
-        return translation;
+        // TODO: replace with N-D ?!
+        if ( shift.length == 2 )
+        {
+            return new Translation2D( shift );
+        }
+        else if ( shift.length == 3 )
+        {
+            return new Translation3D( shift );
+        }
+        else
+        {
+            return null;
+        }
+
+        // TODO: below does not work; why?
+        //Translation translation = new Translation( shift );
+        //return translation;
 
     }
 
