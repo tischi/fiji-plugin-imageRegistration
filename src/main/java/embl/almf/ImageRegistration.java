@@ -1,5 +1,6 @@
 package embl.almf;
 
+import embl.almf.filter.ThresholdFilter;
 import embl.almf.registration.TranslationPhaseCorrelation;
 import ij.IJ;
 import net.imglib2.*;
@@ -26,28 +27,29 @@ public class ImageRegistration
     final static String MOVING = "Moving";
     final static String FIXED = "Fixed";
 
-    public final static int SEQUENCE_DIM = 0;
-    public final static int TRANSFORMABLE_DIM = 1;
-    public final static int FIXED_DIM = 2;
+    public final static String SEQUENCE_DIMENSION = "Sequence";
+    public final static String TRANSFORMABLE_DIMENSION = "Transformable";
+    public final static String FIXED_DIMENSION = "Fixed";
 
-    RandomAccessibleInterval< R > inputRAI;
+    public final static String FILTER_THRESHOLD = "Threshold";
+    public final static String FILTER_THRESHOLD_VALUE = "Threshold";
 
-    private long[] searchRadii;
+    private final String filterMethod;
 
-    SequenceDimension sequenceDimension;
-    Map< Integer, long[] > transformableDimensions;
-    FinalInterval transformableDimensionsInterval;
-    Map< Integer, Long > fixedDimensionsReferenceCoordinates;
+    final RandomAccessibleInterval< R > inputRAI;
 
-    String registrationType;
-    String registrationMethod;
+    private final long[] searchRadii;
+
+    private final SequenceDimension sequenceDimension;
+    private final Map< Integer, long[] > transformableDimensions;
+    private FinalInterval transformableDimensionsInterval;
+    private final Map< Integer, Long > fixedDimensionsReferenceCoordinates;
+
+    private final Map< String, Object > parameters;
+
     String referenceType;
 
     ExecutorService service;
-
-    int numThreads;
-
-
 
     private void setTransformableDimensionsReferenceInterval()
     {
@@ -83,27 +85,29 @@ public class ImageRegistration
 
     }
 
-    ImageRegistration( RandomAccessibleInterval< R > input )
+    ImageRegistration( final RandomAccessibleInterval< R > input,
+                       final String[] dimensionTypes,
+                       final FinalInterval interval,
+                       final long[] searchRadii,
+                       int numThreads,
+                       final String filterMethod,
+                       final Map< String, Object > parameters )
     {
+        referenceType = MOVING; // TODO
+
         this.inputRAI = input;
 
-        // set defaults
-        numThreads = 1;
+        // pre-processing
+        this.filterMethod = filterMethod;
+        this.parameters = parameters;
+
         service = Executors.newFixedThreadPool( numThreads );
-        referenceType = MOVING;
 
-    }
+        // set up sequence dimension
+        int s = Arrays.asList( dimensionTypes ).indexOf( SEQUENCE_DIMENSION );
+        sequenceDimension = new SequenceDimension( s, interval.min( s ), interval.max( s ) );
 
-    public void setNumThreads( int n )
-    {
-        numThreads = n;
-        service = Executors.newFixedThreadPool( numThreads );
-    }
-
-    public void setDimensionTypesAndInterval( int[] dimensionTypes,
-                                              FinalInterval interval )
-    {
-
+        // set up other dimensions
         transformableDimensions = new LinkedHashMap<>();
         fixedDimensionsReferenceCoordinates = new HashMap<>(  );
 
@@ -111,13 +115,10 @@ public class ImageRegistration
         {
             switch ( dimensionTypes[ d ] )
             {
-                case SEQUENCE_DIM:
-                    sequenceDimension = new SequenceDimension( d, interval.min( d ), interval.max( d ) );
-                    break;
-                case TRANSFORMABLE_DIM:
+                case TRANSFORMABLE_DIMENSION:
                     transformableDimensions.put( d, new long[]{ interval.min( d ), interval.max( d ) });
                     break;
-                case FIXED_DIM:
+                case FIXED_DIMENSION:
                     fixedDimensionsReferenceCoordinates.put( d, interval.min( d ) );
                     break;
             }
@@ -125,17 +126,15 @@ public class ImageRegistration
 
         setTransformableDimensionsReferenceInterval();
 
-    }
+        // set up multi-threading
+        service = Executors.newFixedThreadPool( numThreads );
 
-    public void setSearchRadii( long[] searchRadii )
-    {
-        assert searchRadii.length == transformableDimensions.size();
-
+        // set search radii
         this.searchRadii = searchRadii;
+
     }
 
-
-    public void computeTransforms()
+    public void run()
     {
 
         RandomAccessibleInterval fixedRAI;
@@ -176,84 +175,15 @@ public class ImageRegistration
         ImageJFunctions.show( transformedInputRAI );
     }
 
-
-    // TODO: deal with fixed dimensions
-    private RandomAccessibleInterval transformWholeInputRAI(
-            Map< Long, T > transformations )
+    public RandomAccessibleInterval< R > getFilteredImage()
     {
+        ThresholdFilter thresholdFilter = new ThresholdFilter< R >( parameters );
+        RandomAccessibleInterval source = getTransformableRAI(
+                0, fixedDimensionsReferenceCoordinates );
+        RandomAccessibleInterval filtered = Views.interval( thresholdFilter.filter( source ), source );
 
-        Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap = new HashMap<>(  );
-        Map< Integer, Long > fixedDimensions = new HashMap<>( fixedDimensionsReferenceCoordinates );
-        for ( int d : fixedDimensions.keySet() )
-        {
-            fixedDimensions.put( d, null );
-        }
-
-        RandomAccessibleInterval transformedRAI = createTransformedRAI(
-                transformedSequenceMap,
-                fixedDimensions,
-                transformations );
-
-        // just for logging...
-        for ( Map< Integer, Long > fixedCoordinates : transformedSequenceMap.keySet() )
-        {
-            IJ.log( "-- Transformed sequence at fixed dimensions:" );
-            for ( Integer d : fixedCoordinates.keySet() )
-            {
-                IJ.log( "Dimension " + d + "; Coordinate " + fixedCoordinates.get( d ) );
-            }
-        }
-
-        return transformedRAI;
-
+        return filtered;
     }
-
-
-    private void populateTransformedSeriesList(
-            Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap,
-            Map< Integer, Long > fixedDimensions,
-            Map< Long, T > transformations )
-    {
-        if ( fixedDimensions.containsValue( null ) )
-        {
-            for ( int d : fixedDimensions.keySet() )
-            {
-                if ( fixedDimensions.get( d ) == null )
-                {
-                    for ( long c = inputRAI.min( d ); c <= inputRAI.max( d ); ++c )
-                    {
-                        Map< Integer, Long > newFixedDimensions = new LinkedHashMap<>(fixedDimensions);
-                        newFixedDimensions.put( d, c );
-                        populateTransformedSeriesList( transformedSequenceMap, newFixedDimensions, transformations );
-                    }
-                }
-            }
-        }
-        else
-        {
-            List< RandomAccessibleInterval< R > > transformedRaiList = new ArrayList<>();
-
-            for ( long s = inputRAI.min( sequenceDimension.dimension );
-                  s <= inputRAI.max( sequenceDimension.dimension );
-                  ++s )
-            {
-                if ( transformations.containsKey( s ) )
-                {
-                    transformedRaiList.add( getTransformedRAI( s, transformations.get( s ), fixedDimensions ) );
-                }
-            }
-
-            // combine time-series of multiple channels into a channel stack
-            RandomAccessibleInterval< R > transformedSequence = Views.stack( transformedRaiList );
-
-            transformedSequenceMap.put( fixedDimensions, transformedSequence );
-
-            return;
-        }
-
-    }
-
-
 
     private RandomAccessibleInterval createTransformedRAI(
             Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap,
@@ -299,10 +229,7 @@ public class ImageRegistration
                 {
                     transformedRaiList.add( getTransformedRAI( s, transformations.get( s ), fixedDimensions ) );
                 }
-                else
-                {
-                    transformedRaiList.add( getTransformedRAI( s, transformations.get( s ), fixedDimensions ) );
-                }
+
             }
 
             // combine time-series of multiple channels into a channel stack
@@ -315,39 +242,11 @@ public class ImageRegistration
 
     }
 
-
-    private RandomAccessibleInterval getTransformableRAI(
-            long s,
-            Map< Integer, Long > fixedDimensions )
-    {
-
-        long[] min = Intervals.minAsLongArray( inputRAI );
-        long[] max = Intervals.maxAsLongArray( inputRAI );
-
-        min[ sequenceDimension.dimension ] = s;
-        max[ sequenceDimension.dimension ] = s;
-
-        for ( int d : fixedDimensions.keySet() )
-        {
-            min[ d ] = fixedDimensions.get( d );
-            max[ d ] = fixedDimensions.get( d );
-        }
-
-        FinalInterval interval = new FinalInterval( min, max );
-
-        RandomAccessibleInterval rai =
-                Views.dropSingletonDimensions(
-                    Views.interval( inputRAI, interval ) );
-
-        return rai;
-
-    }
-
     private RandomAccessibleInterval getFixedRAI(
             long s,
             InvertibleRealTransform transform )
     {
-        RandomAccessibleInterval rai;
+        RandomAccessibleInterval rai = null;
 
         if ( transform == null || referenceType.equals( FIXED ) )
         {
@@ -360,13 +259,6 @@ public class ImageRegistration
             RandomAccessible ra = getTransformedRA( rai, transform );
             rai = Views.interval( ra, transformableDimensionsInterval );
         }
-        else
-        {
-            return null; // should not occur
-        }
-
-        // crop out reference region
-
 
         return rai;
     }
@@ -419,6 +311,108 @@ public class ImageRegistration
         rai = Views.interval( getTransformedRA( rai, transform ), rai );
 
         return rai;
+    }
+
+    private RandomAccessibleInterval transformWholeInputRAI(
+            Map< Long, T > transformations )
+    {
+
+        Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap = new HashMap<>(  );
+        Map< Integer, Long > fixedDimensions = new HashMap<>( fixedDimensionsReferenceCoordinates );
+        for ( int d : fixedDimensions.keySet() )
+        {
+            fixedDimensions.put( d, null );
+        }
+
+        RandomAccessibleInterval transformedRAI = createTransformedRAI(
+                transformedSequenceMap,
+                fixedDimensions,
+                transformations );
+
+        // just for logging...
+        for ( Map< Integer, Long > fixedCoordinates : transformedSequenceMap.keySet() )
+        {
+            IJ.log( "-- Transformed sequence at fixed dimensions:" );
+            for ( Integer d : fixedCoordinates.keySet() )
+            {
+                IJ.log( "Dimension " + d + "; Coordinate " + fixedCoordinates.get( d ) );
+            }
+        }
+
+        return transformedRAI;
+
+    }
+
+    private RandomAccessibleInterval getTransformableRAI(
+            long s,
+            Map< Integer, Long > fixedDimensions )
+    {
+
+        long[] min = Intervals.minAsLongArray( inputRAI );
+        long[] max = Intervals.maxAsLongArray( inputRAI );
+
+        min[ sequenceDimension.dimension ] = s;
+        max[ sequenceDimension.dimension ] = s;
+
+        for ( int d : fixedDimensions.keySet() )
+        {
+            min[ d ] = fixedDimensions.get( d );
+            max[ d ] = fixedDimensions.get( d );
+        }
+
+        FinalInterval interval = new FinalInterval( min, max );
+
+        RandomAccessibleInterval rai =
+                Views.dropSingletonDimensions(
+                        Views.interval( inputRAI, interval ) );
+
+        return rai;
+
+    }
+
+    @Deprecated
+    private void populateTransformedSeriesList(
+            Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap,
+            Map< Integer, Long > fixedDimensions,
+            Map< Long, T > transformations )
+    {
+        if ( fixedDimensions.containsValue( null ) )
+        {
+            for ( int d : fixedDimensions.keySet() )
+            {
+                if ( fixedDimensions.get( d ) == null )
+                {
+                    for ( long c = inputRAI.min( d ); c <= inputRAI.max( d ); ++c )
+                    {
+                        Map< Integer, Long > newFixedDimensions = new LinkedHashMap<>(fixedDimensions);
+                        newFixedDimensions.put( d, c );
+                        populateTransformedSeriesList( transformedSequenceMap, newFixedDimensions, transformations );
+                    }
+                }
+            }
+        }
+        else
+        {
+            List< RandomAccessibleInterval< R > > transformedRaiList = new ArrayList<>();
+
+            for ( long s = inputRAI.min( sequenceDimension.dimension );
+                  s <= inputRAI.max( sequenceDimension.dimension );
+                  ++s )
+            {
+                if ( transformations.containsKey( s ) )
+                {
+                    transformedRaiList.add( getTransformedRAI( s, transformations.get( s ), fixedDimensions ) );
+                }
+            }
+
+            // combine time-series of multiple channels into a channel stack
+            RandomAccessibleInterval< R > transformedSequence = Views.stack( transformedRaiList );
+
+            transformedSequenceMap.put( fixedDimensions, transformedSequence );
+
+            return;
+        }
+
     }
 
 }

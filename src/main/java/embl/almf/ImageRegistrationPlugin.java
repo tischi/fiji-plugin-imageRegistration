@@ -9,19 +9,27 @@ package embl.almf;
  */
 
 
+import ij.IJ;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
+import net.imagej.axis.Axes;
+import net.imagej.axis.AxisType;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
+import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
+import org.scijava.command.DynamicCommand;
+import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
 
 import java.io.File;
+import java.util.*;
 
 /**
  * This example illustrates how to create an ImageJ {@link Command} plugin.
@@ -33,14 +41,17 @@ import java.io.File;
  * and replace the {@link run} method implementation with your own logic.
  * </p>
  */
-@Plugin(type = Command.class, menuPath = "Plugins>Gauss Filtering")
-public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
+@Plugin(
+        type = Command.class,
+        menuPath = "Plugins>Image Registration",
+        initializer = "initFields")
+public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicCommand {
     //
     // Feel free to add more parameters here...
     //
 
     @Parameter
-    private Dataset currentData;
+    private Dataset dataset;
 
     @Parameter
     private UIService uiService;
@@ -48,37 +59,24 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
     @Parameter
     private OpService opService;
 
+    public String getAxisType( final int d ) {
+        final String value = typeInput(d).getValue(this);
+        return value;
+    }
+
+
     @Override
     public void run() {
 
-        final Img<T> image = (Img<T>)currentData.getImgPlus();
+        final Img<T> image = (Img<T>) dataset.getImgPlus();
 
-        ImageRegistration imageRegistration = new ImageRegistration( image );
 
-        int[] dimensionTypes = new int[ image.numDimensions() ];
-        dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIM;
-        dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIM;
-        dimensionTypes[ 2 ] = ImageRegistration.FIXED_DIM;
-        dimensionTypes[ 3 ] = ImageRegistration.SEQUENCE_DIM;
+        for (int d = 0; d < dataset.numDimensions(); d++)
+        {
+            IJ.log( "Axis type " + getAxisType(d) );
+        }
 
-        long[] min = Intervals.minAsLongArray( image );
-        long[] max = Intervals.maxAsLongArray( image );
-        //refMin[ 0 ] = 84; refMax[ 0 ] = 104;
-        //refMin[ 1 ] = 0; refMax[ 1 ] = 20;
-        min[ 2 ] = 0; max[ 2 ] = 0; // fixed dimension, chosen reference
-        min[ 3 ] = 0; max[ 3 ] = 3; // sequence dimension, which time-points to register
 
-        FinalInterval interval = new FinalInterval( min, max );
-
-        imageRegistration.setDimensionTypesAndInterval( dimensionTypes, interval );
-
-        long[] searchRadii = new long[ 2 ];
-        searchRadii[ 0 ] = 0;
-        searchRadii[ 1 ] = 0;
-
-        imageRegistration.setSearchRadii( searchRadii );
-
-        imageRegistration.computeTransforms();
 
         /*
 
@@ -101,6 +99,118 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         */
     }
 
+    protected void initFields()
+    {
+
+        int n = dataset.numDimensions();
+
+        // Figure out which axes we have
+        //
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+        for (int d = 0; d < dataset.numDimensions(); d++)
+        {
+            axisTypes.add( dataset.axis( d ).type() );
+        }
+
+        // Use heuristics to create registration suggestions
+        //
+        String[] axisRegistrationTypes = new String[ dataset.numDimensions() ];
+        Arrays.fill( axisRegistrationTypes, ImageRegistration.TRANSFORMABLE_DIMENSION );
+
+        if ( axisTypes.contains( Axes.TIME ) )
+        {
+            axisRegistrationTypes[ axisTypes.indexOf( Axes.TIME ) ]
+                = ImageRegistration.SEQUENCE_DIMENSION;
+
+            if ( axisTypes.contains( Axes.Z ) )
+            {
+                axisRegistrationTypes[ axisTypes.indexOf( Axes.Z ) ]
+                        = ImageRegistration.TRANSFORMABLE_DIMENSION;
+            }
+        }
+        else if ( axisTypes.contains( Axes.Z ) )
+        {
+            axisRegistrationTypes[ axisTypes.indexOf( Axes.Z ) ]
+                    = ImageRegistration.SEQUENCE_DIMENSION;
+        }
+
+        if ( axisTypes.contains( Axes.X ) )
+        {
+            axisRegistrationTypes[ axisTypes.indexOf( Axes.X ) ]
+                    = ImageRegistration.TRANSFORMABLE_DIMENSION;
+        }
+
+        if ( axisTypes.contains( Axes.Y ) )
+        {
+            axisRegistrationTypes[ axisTypes.indexOf( Axes.Y ) ]
+                    = ImageRegistration.TRANSFORMABLE_DIMENSION;
+        }
+
+        if ( axisTypes.contains( Axes.CHANNEL) )
+        {
+            axisRegistrationTypes[ axisTypes.indexOf( Axes.CHANNEL ) ]
+                    = ImageRegistration.FIXED_DIMENSION;
+        }
+
+        // Create GUI
+        //
+
+        List< String > choices = new ArrayList<>(  );
+        choices.add( ImageRegistration.FIXED_DIMENSION );
+        choices.add( ImageRegistration.TRANSFORMABLE_DIMENSION );
+        choices.add( ImageRegistration.SEQUENCE_DIMENSION );
+
+        for (int d = 0; d < dataset.numDimensions(); d++)
+        {
+
+            final MutableModuleItem<String> axisItem =
+                    addInput("axis" + d, String.class);
+            axisItem.setPersisted(false);
+            axisItem.setVisibility( ItemVisibility.MESSAGE );
+            axisItem.setValue(this, "-- Axis #" + (d + 1) + " --");
+
+            final MutableModuleItem<String> typeItem =
+                    addInput(typeName(d), String.class);
+            typeItem.setPersisted(false);
+            typeItem.setLabel("Type");
+            typeItem.setChoices( choices );
+            typeItem.setValue(this, ImageRegistration.SEQUENCE_DIMENSION );
+
+            String var = "min";
+            final MutableModuleItem<Long> minItem =
+                    addInput(varName(d, var), Long.class);
+            minItem.setPersisted(false);
+            minItem.setLabel(var);
+            minItem.setValue(this, dataset.min( d ));
+
+            var = "max";
+            final MutableModuleItem<Long> maxItem =
+                    addInput(varName(d, var), Long.class);
+            maxItem.setPersisted(false);
+            maxItem.setLabel(var);
+            maxItem.setValue(this, dataset.max( d ));
+
+        }
+
+    }
+
+
+    // -- Helper methods --
+
+    private String typeName(final int d) {
+        return "type" + d;
+    }
+
+    private String varName(final int d, final String var) {
+        return "var" + d + ":" + var;
+    }
+
+    @SuppressWarnings("unchecked")
+    private MutableModuleItem<String> typeInput(final int d) {
+        return (MutableModuleItem<String>) getInfo().getInput(typeName(d));
+    }
+
+
     /**
      * This main function serves for development purposes.
      * It allows you to run the plugin immediately out of
@@ -114,22 +224,74 @@ public class ImageRegistrationPlugin<T extends RealType<T>> implements Command {
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
+        boolean GUI = true;
+
         // ask the user for a file to open
         //final File file = ij.ui().chooseFile(null, "open");
 
         final File file =
                 new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur.tif");
 
-        if (file != null) {
-            // load the dataset
-            final Dataset dataset = ij.scifio().datasetIO().open( file.getPath() );
+        Dataset dataset = null;
 
+        if (file != null)
+        {
+            // load the dataset
+            dataset = ij.scifio().datasetIO().open( file.getPath() );
+        }
+
+        int n = dataset.numDimensions();
+
+        if ( GUI )
+        {
             // show the inputRAI
-            ij.ui().show(dataset);
+            ij.ui().show( dataset );
 
             // invoke the plugin
             ij.command().run(ImageRegistrationPlugin.class, true);
         }
+        else
+        {
+
+            String[] dimensionTypes = new String[n];
+            dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
+            dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
+            dimensionTypes[ 2 ] = ImageRegistration.FIXED_DIMENSION;
+            dimensionTypes[ 3 ] = ImageRegistration.SEQUENCE_DIMENSION;
+
+
+            long[] min = Intervals.minAsLongArray( dataset );
+            long[] max = Intervals.maxAsLongArray( dataset );
+            min[ 0 ] = 30; max[ 0 ] = 200;
+            min[ 1 ] = 30; max[ 1 ] = 200;
+            min[ 2 ] = 0; max[ 2 ] = 0; // fixed dimension, chosen reference
+            min[ 3 ] = 0; max[ 3 ] = 8; // sequence dimension, which time-points to register
+
+            FinalInterval interval = new FinalInterval( min, max );
+
+            long[] searchRadii = new long[ 2 ];
+            searchRadii[ 0 ] = 0;
+            searchRadii[ 1 ] = 0;
+
+            Map< String, Object > parameters = new HashMap<>();
+            parameters.put( ImageRegistration.FILTER_THRESHOLD_VALUE, 10 );
+
+            ImageRegistration imageRegistration =
+                    new ImageRegistration(
+                            dataset,
+                            dimensionTypes,
+                            interval,
+                            searchRadii,
+                            3,
+                            ImageRegistration.FILTER_THRESHOLD,
+                            parameters );
+
+            ImageJFunctions.show( imageRegistration.getFilteredImage() );
+
+            //imageRegistration.run();
+        }
+
+
     }
 
 }

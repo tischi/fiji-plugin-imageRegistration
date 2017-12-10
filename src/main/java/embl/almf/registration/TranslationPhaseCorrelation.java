@@ -39,7 +39,15 @@ public abstract class TranslationPhaseCorrelation {
         final int n = fixedRAI.numDimensions();
 
         final int numPeaksToCheck = 5;
-        final long minOverlap = 20; //200*200;
+
+
+        long minOverlap = 1;
+
+        for ( int d = 0; d < fixedRAI.numDimensions(); ++d )
+        {
+            minOverlap *= fixedRAI.dimension( d ) / 5;
+        }
+
         final int extensionValue = 10;
         final boolean doSubpixel = true;
         final boolean interpolateCrossCorrelation = true;
