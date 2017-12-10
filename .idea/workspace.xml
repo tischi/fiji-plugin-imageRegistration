@@ -2,15 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterConstants.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterParameters.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterThreshold.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterType.java" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilter.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterConstants.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Image_Registration.iml" afterPath="$PROJECT_DIR$/Image_Registration.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
     </list>
     <ignored path="fiji-plugin-imageRegistration.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -33,12 +39,42 @@
       <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="320">
-              <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+            <state relative-caret-position="156">
+              <caret line="166" column="0" lean-forward="true" selection-start-line="166" selection-start-column="0" selection-end-line="166" selection-end-column="0" />
               <folding>
+                <element signature="imports" expanded="true" />
                 <element signature="class#SequenceDimension#0;class#ImageRegistration#0" expanded="false" />
                 <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getFilteredImage#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#createTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ImageFilterGauss.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="271">
+              <caret line="29" column="0" lean-forward="true" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#809#810#0" expanded="true" />
+                <element signature="e#853#854#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TranslationPhaseCorrelation.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="42">
+              <caret line="36" column="82" lean-forward="true" selection-start-line="36" selection-start-column="82" selection-end-line="36" selection-end-column="82" />
+              <folding>
+                <element signature="method#findTransform#0;class#TranslationPhaseCorrelation#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -47,48 +83,10 @@
       <file leaf-file-name="ImageFilter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="8" column="40" lean-forward="false" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
+            <state relative-caret-position="90">
+              <caret line="6" column="100" lean-forward="true" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="100" />
               <folding>
                 <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ImageFilterConstants.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterConstants.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ThresholdFilterView.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="381">
-              <caret line="20" column="65" lean-forward="false" selection-start-line="20" selection-start-column="65" selection-end-line="20" selection-end-column="65" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#382#383#0" expanded="true" />
-                <element signature="e#426#427#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ImageFilterGauss.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#725#726#0" expanded="true" />
-                <element signature="e#769#770#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -97,8 +95,8 @@
       <file leaf-file-name="ImageFilterFactory.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+            <state relative-caret-position="317">
+              <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -106,20 +104,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="278" column="90" lean-forward="false" selection-start-line="278" selection-start-column="90" selection-end-line="278" selection-end-column="90" />
+            <state relative-caret-position="221">
+              <caret line="274" column="0" lean-forward="true" selection-start-line="274" selection-start-column="0" selection-end-line="274" selection-end-column="0" />
               <folding>
                 <element signature="docComment;class#ImageRegistrationPlugin#0" expanded="false" />
-                <element signature="e#1355#1478#0" expanded="false" />
-                <element signature="e#1569#1571#0" expanded="false" />
-                <element signature="e#2760#2792#0" expanded="false" />
-                <element signature="e#3009#3061#0" expanded="false" />
-                <element signature="e#4440#4453#0" expanded="false" />
+                <element signature="e#1360#1483#0" expanded="false" />
+                <element signature="e#1574#1576#0" expanded="false" />
+                <element signature="e#2765#2797#0" expanded="false" />
+                <element signature="e#3014#3066#0" expanded="false" />
+                <element signature="e#4445#4458#0" expanded="false" />
                 <element signature="docComment;method#main#0;class#ImageRegistrationPlugin#0" expanded="false" />
-                <element signature="e#6838#6872#0" expanded="false" />
+                <element signature="e#6844#6878#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -141,6 +139,7 @@
       <find>ImageJ</find>
       <find>run</find>
       <find>dimension</find>
+      <find>register</find>
       <find>dimensionT</find>
     </findStrings>
   </component>
@@ -159,18 +158,23 @@
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/Intervals.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/image/TestThresholdedView.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/views/TestThresholdedView.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/views/ThresholdView.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterConstants.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/FilterType.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/Constants.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/Parameters.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterParameters.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterThreshold.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
       </list>
     </option>
@@ -264,6 +268,15 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="almf" type="462c0819:PsiDirectoryNode" />
+              <item name="registration" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="fiji-plugin-imageRegistration" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fiji-plugin-imageRegistration" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="almf" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -280,6 +293,11 @@
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="recentsLimit" value="5" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="embl.almf.filter" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -470,26 +488,27 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18863362" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.47400242" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.13059251" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39419588" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2653791" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18168813" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4171705" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17170496" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -554,8 +573,26 @@
           <properties />
           <option name="timeStamp" value="94" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-algorithm/0.8.1/imglib2-algorithm-0.8.1.jar!/net/imglib2/algorithm/binary/Thresholder.class</url>
+          <line>31</line>
+          <properties />
+          <option name="timeStamp" value="105" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java</url>
+          <line>45</line>
+          <properties />
+          <option name="timeStamp" value="111" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java</url>
+          <line>73</line>
+          <properties />
+          <option name="timeStamp" value="114" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="100" />
+      <option name="time" value="118" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -564,44 +601,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="110" column="8" lean-forward="false" selection-start-line="110" selection-start-column="8" selection-end-line="110" selection-end-column="8" />
-          <folding>
-            <marker date="1512669617000" expanded="true" signature="3407:3424" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-ops/0.35.1/imagej-ops-0.35.1.jar!/net/imagej/ops/filter/FilterNamespace.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="482" column="86" lean-forward="false" selection-start-line="482" selection-start-column="86" selection-end-line="482" selection-end-column="86" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/2.2.1/imglib2-2.2.1.jar!/net/imglib2/Interval.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="10" column="9" lean-forward="false" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-34/imglib2-realtransform-2.0.0-beta-34.jar!/net/imglib2/realtransform/RealTransform.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="15" column="9" lean-forward="false" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/RealTransfromTranslationAlongZ.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="26" column="13" lean-forward="false" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/tests/LearnImglib2.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -729,16 +728,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="48" column="33" lean-forward="true" selection-start-line="48" selection-start-column="33" selection-end-line="48" selection-end-column="33" />
-          <folding>
-            <marker date="1512669617000" expanded="true" signature="3407:3424" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/preibisch/BigStitcher/0.1.1/BigStitcher-0.1.1.jar!/net/preibisch/stitcher/algorithm/AveragedRandomAccessible.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-109">
@@ -757,14 +746,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="31" column="43" lean-forward="false" selection-start-line="31" selection-start-column="43" selection-end-line="31" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -838,14 +819,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/type/BooleanType.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="9" column="17" lean-forward="false" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/type/logic/BitType.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
@@ -859,63 +832,63 @@
         <state relative-caret-position="192">
           <caret line="13" column="25" lean-forward="false" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="25" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#ThresholdView#0;class#ThresholdView#0" expanded="true" />
-            <element signature="e#565#566#0" expanded="true" />
-            <element signature="e#608#609#0" expanded="true" />
-            <element signature="e#702#703#0" expanded="true" />
-            <element signature="e#755#756#0" expanded="true" />
-            <element signature="e#807#808#0" expanded="true" />
-            <element signature="e#852#853#0" expanded="true" />
-            <element signature="method#MyRandomAccess#0;class#MyRandomAccess#0;class#ThresholdView#0" expanded="true" />
-            <element signature="method#MyRandomAccess#1;class#MyRandomAccess#0;class#ThresholdView#0" expanded="true" />
-            <element signature="e#1402#1403#0" expanded="true" />
-            <element signature="e#1453#1454#0" expanded="true" />
-            <element signature="e#1525#1526#0" expanded="true" />
-            <element signature="e#1568#1569#0" expanded="true" />
-            <element signature="e#1642#1643#0" expanded="true" />
-            <element signature="e#1686#1687#0" expanded="true" />
-            <element signature="e#1758#1759#0" expanded="true" />
-            <element signature="e#1811#1812#0" expanded="true" />
-            <element signature="e#1885#1886#0" expanded="true" />
-            <element signature="e#1939#1940#0" expanded="true" />
-            <element signature="e#2001#2002#0" expanded="true" />
-            <element signature="e#2036#2037#0" expanded="true" />
-            <element signature="e#2098#2099#0" expanded="true" />
-            <element signature="e#2133#2134#0" expanded="true" />
-            <element signature="e#2204#2205#0" expanded="true" />
-            <element signature="e#2243#2244#0" expanded="true" />
-            <element signature="e#2314#2315#0" expanded="true" />
-            <element signature="e#2353#2354#0" expanded="true" />
-            <element signature="e#2434#2435#0" expanded="true" />
-            <element signature="e#2480#2481#0" expanded="true" />
-            <element signature="e#2548#2549#0" expanded="true" />
-            <element signature="e#2587#2588#0" expanded="true" />
-            <element signature="e#2657#2658#0" expanded="true" />
-            <element signature="e#2697#2698#0" expanded="true" />
-            <element signature="e#2785#2786#0" expanded="true" />
-            <element signature="e#2838#2839#0" expanded="true" />
-            <element signature="e#2913#2914#0" expanded="true" />
-            <element signature="e#2959#2960#0" expanded="true" />
-            <element signature="e#3036#3037#0" expanded="true" />
-            <element signature="e#3083#3084#0" expanded="true" />
-            <element signature="e#3161#3162#0" expanded="true" />
-            <element signature="e#3208#3209#0" expanded="true" />
-            <element signature="e#3286#3287#0" expanded="true" />
-            <element signature="e#3332#3333#0" expanded="true" />
-            <element signature="e#3408#3409#0" expanded="true" />
-            <element signature="e#3453#3454#0" expanded="true" />
-            <element signature="e#3531#3532#0" expanded="true" />
-            <element signature="e#3577#3578#0" expanded="true" />
-            <element signature="e#3653#3654#0" expanded="true" />
-            <element signature="e#3708#3709#0" expanded="true" />
-            <element signature="e#3786#3787#0" expanded="true" />
-            <element signature="e#3842#3843#0" expanded="true" />
-            <element signature="e#3906#3907#0" expanded="true" />
-            <element signature="e#3955#3956#0" expanded="true" />
-            <element signature="method#get#0;class#MyRandomAccess#0;class#ThresholdView#0" expanded="true" />
-            <element signature="e#4182#4183#0" expanded="true" />
-            <element signature="e#4233#4234#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="method#ThresholdView#0;class#ThresholdView#0" expanded="false" />
+            <element signature="e#565#566#0" expanded="false" />
+            <element signature="e#608#609#0" expanded="false" />
+            <element signature="e#702#703#0" expanded="false" />
+            <element signature="e#755#756#0" expanded="false" />
+            <element signature="e#807#808#0" expanded="false" />
+            <element signature="e#852#853#0" expanded="false" />
+            <element signature="method#MyRandomAccess#0;class#MyRandomAccess#0;class#ThresholdView#0" expanded="false" />
+            <element signature="method#MyRandomAccess#1;class#MyRandomAccess#0;class#ThresholdView#0" expanded="false" />
+            <element signature="e#1402#1403#0" expanded="false" />
+            <element signature="e#1453#1454#0" expanded="false" />
+            <element signature="e#1525#1526#0" expanded="false" />
+            <element signature="e#1568#1569#0" expanded="false" />
+            <element signature="e#1642#1643#0" expanded="false" />
+            <element signature="e#1686#1687#0" expanded="false" />
+            <element signature="e#1758#1759#0" expanded="false" />
+            <element signature="e#1811#1812#0" expanded="false" />
+            <element signature="e#1885#1886#0" expanded="false" />
+            <element signature="e#1939#1940#0" expanded="false" />
+            <element signature="e#2001#2002#0" expanded="false" />
+            <element signature="e#2036#2037#0" expanded="false" />
+            <element signature="e#2098#2099#0" expanded="false" />
+            <element signature="e#2133#2134#0" expanded="false" />
+            <element signature="e#2204#2205#0" expanded="false" />
+            <element signature="e#2243#2244#0" expanded="false" />
+            <element signature="e#2314#2315#0" expanded="false" />
+            <element signature="e#2353#2354#0" expanded="false" />
+            <element signature="e#2434#2435#0" expanded="false" />
+            <element signature="e#2480#2481#0" expanded="false" />
+            <element signature="e#2548#2549#0" expanded="false" />
+            <element signature="e#2587#2588#0" expanded="false" />
+            <element signature="e#2657#2658#0" expanded="false" />
+            <element signature="e#2697#2698#0" expanded="false" />
+            <element signature="e#2785#2786#0" expanded="false" />
+            <element signature="e#2838#2839#0" expanded="false" />
+            <element signature="e#2913#2914#0" expanded="false" />
+            <element signature="e#2959#2960#0" expanded="false" />
+            <element signature="e#3036#3037#0" expanded="false" />
+            <element signature="e#3083#3084#0" expanded="false" />
+            <element signature="e#3161#3162#0" expanded="false" />
+            <element signature="e#3208#3209#0" expanded="false" />
+            <element signature="e#3286#3287#0" expanded="false" />
+            <element signature="e#3332#3333#0" expanded="false" />
+            <element signature="e#3408#3409#0" expanded="false" />
+            <element signature="e#3453#3454#0" expanded="false" />
+            <element signature="e#3531#3532#0" expanded="false" />
+            <element signature="e#3577#3578#0" expanded="false" />
+            <element signature="e#3653#3654#0" expanded="false" />
+            <element signature="e#3708#3709#0" expanded="false" />
+            <element signature="e#3786#3787#0" expanded="false" />
+            <element signature="e#3842#3843#0" expanded="false" />
+            <element signature="e#3906#3907#0" expanded="false" />
+            <element signature="e#3955#3956#0" expanded="false" />
+            <element signature="method#get#0;class#MyRandomAccess#0;class#ThresholdView#0" expanded="false" />
+            <element signature="e#4182#4183#0" expanded="false" />
+            <element signature="e#4233#4234#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -924,14 +897,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="17" lean-forward="false" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -954,46 +919,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="8" column="40" lean-forward="false" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding>
-            <element signature="class#SequenceDimension#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#getFilteredImage#0;class#ImageRegistration#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="381">
-          <caret line="20" column="65" lean-forward="false" selection-start-line="20" selection-start-column="65" selection-end-line="20" selection-end-column="65" />
+        <state relative-caret-position="380">
+          <caret line="19" column="66" lean-forward="false" selection-start-line="19" selection-start-column="66" selection-end-line="19" selection-end-column="66" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#382#383#0" expanded="true" />
-            <element signature="e#426#427#0" expanded="true" />
+            <element signature="e#346#347#0" expanded="true" />
+            <element signature="e#390#391#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1008,31 +941,154 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterParameters.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="278" column="90" lean-forward="false" selection-start-line="278" selection-start-column="90" selection-end-line="278" selection-end-column="90" />
+        <state relative-caret-position="38">
+          <caret line="2" column="43" lean-forward="false" selection-start-line="2" selection-start-column="43" selection-end-line="2" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-ij/2.0.0-beta-38/imglib2-ij-2.0.0-beta-38.jar!/net/imglib2/img/display/imagej/ImageJFunctions.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="74">
+          <caret line="87" column="55" lean-forward="false" selection-start-line="87" selection-start-column="55" selection-end-line="87" selection-end-column="55" />
           <folding>
-            <element signature="docComment;class#ImageRegistrationPlugin#0" expanded="false" />
-            <element signature="e#1355#1478#0" expanded="false" />
-            <element signature="e#1569#1571#0" expanded="false" />
-            <element signature="e#2760#2792#0" expanded="false" />
-            <element signature="e#3009#3061#0" expanded="false" />
-            <element signature="e#4440#4453#0" expanded="false" />
-            <element signature="docComment;method#main#0;class#ImageRegistrationPlugin#0" expanded="false" />
-            <element signature="e#6838#6872#0" expanded="false" />
+            <element signature="method#show#1;class#ImageJFunctions#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="110" column="20" lean-forward="false" selection-start-line="110" selection-start-column="20" selection-end-line="110" selection-end-column="20" />
+          <folding>
+            <marker date="1512922094000" expanded="true" signature="3514:3531" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="317">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/img/ImgFactory.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="17" column="18" lean-forward="false" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
+          <folding>
+            <element signature="method#create#1;class#ImgFactory#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-algorithm/0.8.1/imglib2-algorithm-0.8.1.jar!/net/imglib2/algorithm/binary/Thresholder.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="23" column="73" lean-forward="false" selection-start-line="23" selection-start-column="73" selection-end-line="23" selection-end-column="73" />
+          <folding>
+            <element signature="method#threshold#0;class#Thresholder#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/type/BooleanType.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="9" column="22" lean-forward="false" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="30" lean-forward="false" selection-start-line="8" selection-start-column="30" selection-end-line="8" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterThreshold.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="412">
+          <caret line="39" column="5" lean-forward="true" selection-start-line="39" selection-start-column="5" selection-end-line="39" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1024#1025#0" expanded="true" />
+            <element signature="e#1068#1069#0" expanded="true" />
+            <element signature="method#filter#0;class#ImageFilterThreshold#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="100" lean-forward="true" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="100" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="46" column="0" lean-forward="false" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
+        <state relative-caret-position="271">
+          <caret line="29" column="0" lean-forward="true" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#725#726#0" expanded="true" />
-            <element signature="e#769#770#0" expanded="true" />
+            <element signature="e#809#810#0" expanded="true" />
+            <element signature="e#853#854#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="36" column="82" lean-forward="true" selection-start-line="36" selection-start-column="82" selection-end-line="36" selection-end-column="82" />
+          <folding>
+            <element signature="method#findTransform#0;class#TranslationPhaseCorrelation#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="166" column="0" lean-forward="true" selection-start-line="166" selection-start-column="0" selection-end-line="166" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="class#SequenceDimension#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFilteredImage#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="274" column="0" lean-forward="true" selection-start-line="274" selection-start-column="0" selection-end-line="274" selection-end-column="0" />
+          <folding>
+            <element signature="docComment;class#ImageRegistrationPlugin#0" expanded="false" />
+            <element signature="e#1360#1483#0" expanded="false" />
+            <element signature="e#1574#1576#0" expanded="false" />
+            <element signature="e#2765#2797#0" expanded="false" />
+            <element signature="e#3014#3066#0" expanded="false" />
+            <element signature="e#4445#4458#0" expanded="false" />
+            <element signature="docComment;method#main#0;class#ImageRegistrationPlugin#0" expanded="false" />
+            <element signature="e#6844#6878#0" expanded="false" />
           </folding>
         </state>
       </provider>

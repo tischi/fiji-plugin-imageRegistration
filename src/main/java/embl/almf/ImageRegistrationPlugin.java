@@ -9,8 +9,8 @@ package embl.almf;
  */
 
 
-import embl.almf.filter.ImageFilter;
-import embl.almf.filter.ImageFilterConstants;
+import embl.almf.filter.ImageFilterType;
+import embl.almf.filter.ImageFilterParameters;
 import ij.IJ;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
@@ -226,6 +226,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
+
         boolean GUI = false;
 
         // ask the user for a file to open
@@ -254,6 +255,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         }
         else
         {
+            ij.ui().show( dataset );
 
             String[] dimensionTypes = new String[n];
             dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
@@ -264,33 +266,53 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
 
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );
-            min[ 0 ] = 30; max[ 0 ] = 200;
-            min[ 1 ] = 30; max[ 1 ] = 200;
+            min[ 0 ] = 50; max[ 0 ] = 220;
+            min[ 1 ] = 50; max[ 1 ] = 220;
             min[ 2 ] = 0; max[ 2 ] = 0; // fixed dimension, chosen reference
             min[ 3 ] = 0; max[ 3 ] = 8; // sequence dimension, which time-points to register
 
             FinalInterval interval = new FinalInterval( min, max );
 
-            long[] searchRadii = new long[ 2 ];
-            searchRadii[ 0 ] = 0;
-            searchRadii[ 1 ] = 0;
+            long[] searchRadius = new long[ 2 ];
+            searchRadius[ 0 ] = 0;
+            searchRadius[ 1 ] = 0;
 
-            Map< String, Object > parameters = new HashMap<>();
-            parameters.put( ImageFilterConstants.FILTER_GAUSS_SIGMAS, new double[]{20.0D, 0.0D} );
+            // Configure image filtering
+            //
+            Map< String, Object > imageFilterParameters = new HashMap<>();
+
+            ImageFilterType imageFilterType = ImageFilterType.GAUSS;
+            imageFilterParameters.put(
+                    ImageFilterParameters.GAUSS_SIGMA,
+                    new double[]{ 3.0D, 3.0D} );
+
+            /*
+            ImageFilterType imageFilterType = ImageFilterType.THRESHOLD;
+            imageFilterParameters.put( ImageFilterParameters.THRESHOLD_VALUE, 20.0D );
+            */
+
+            boolean showFixedImageSequence = true;
+
+            imageFilterType = null;
 
             ImageRegistration imageRegistration =
                     new ImageRegistration(
                             dataset,
                             dimensionTypes,
                             interval,
-                            searchRadii,
+                            searchRadius,
                             3,
-                            ImageFilterConstants.FILTER_GAUSS,
-                            parameters );
+                            imageFilterType,
+                            imageFilterParameters,
+                            showFixedImageSequence );
 
-            ImageJFunctions.show( imageRegistration.getFilteredImage() );
+            /*
+            ImageJFunctions.show(
+                    imageRegistration.getFilteredImage(),
+                    "filtering preview");
+                    */
 
-            //imageRegistration.run();
+            imageRegistration.run();
         }
 
 

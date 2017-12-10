@@ -1,6 +1,7 @@
 package embl.almf.registration;
 
 import embl.almf.IntervalUtils;
+import embl.almf.filter.ImageFilter;
 import ij.IJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessible;
@@ -14,6 +15,7 @@ import net.imglib2.realtransform.Translation;
 
 import net.imglib2.realtransform.Translation2D;
 import net.imglib2.realtransform.Translation3D;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.complex.ComplexFloatType;
 import net.imglib2.type.numeric.integer.LongType;
@@ -24,6 +26,7 @@ import net.imglib2.view.Views;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,15 +34,17 @@ import java.util.concurrent.Executors;
 public abstract class TranslationPhaseCorrelation {
 
 
-    public static RealTransform compute( RandomAccessibleInterval fixedRAI,
-                                         RandomAccessible movingRA,
-                                         long[] searchRadii,
-                                         ExecutorService service)
+    public static < R extends RealType< R > & NativeType< R > > RealTransform findTransform(
+            RandomAccessibleInterval fixedRAI,
+            RandomAccessible movingRA,
+            List< RandomAccessibleInterval < R > > fixedRAIList,
+            long[] searchRadii,
+            ImageFilter imageFilter,
+            ExecutorService service)
     {
         final int n = fixedRAI.numDimensions();
 
         final int numPeaksToCheck = 5;
-
 
         long minOverlap = 1;
 
@@ -55,16 +60,35 @@ public abstract class TranslationPhaseCorrelation {
         final int[] extension = new int[ fixedRAI.numDimensions() ];
         Arrays.fill( extension, extensionValue );
 
-        FinalInterval movingInterval = IntervalUtils.expand( fixedRAI, searchRadii );
+        FinalInterval movingInterval =
+                IntervalUtils.expand( fixedRAI, searchRadii );
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, movingInterval );
+
+        // potentially filter the input images
+        //
+        RandomAccessibleInterval filteredFixedRAI = fixedRAI;
+        RandomAccessibleInterval filteredMovingRAI = movingRAI;
+
+        if ( imageFilter != null )
+        {
+            filteredFixedRAI = imageFilter.filter( fixedRAI );
+            filteredMovingRAI = imageFilter.filter( movingRAI );
+        }
+
+        if ( fixedRAIList != null )
+        {
+            fixedRAIList.add( fixedRAI );
+        }
 
         //ImageJFunctions.show( fixedRAI );
         //ImageJFunctions.show( movingRAI );
 
+        // compute best shift
+        //
         final RandomAccessibleInterval< FloatType > pcm =
                 PhaseCorrelation2.calculatePCM(
-                        fixedRAI,
-                        movingRAI,
+                        filteredFixedRAI,
+                        filteredMovingRAI,
                         extension,
                         new ArrayImgFactory< FloatType >(),
                         new FloatType(),
@@ -75,8 +99,8 @@ public abstract class TranslationPhaseCorrelation {
         final PhaseCorrelationPeak2 shiftPeak =
                 PhaseCorrelation2.getShift(
                         pcm,
-                        fixedRAI,
-                        movingRAI,
+                        filteredFixedRAI,
+                        filteredMovingRAI,
                         numPeaksToCheck,
                         minOverlap,
                         doSubpixel,

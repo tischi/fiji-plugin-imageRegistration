@@ -1,8 +1,6 @@
 package embl.almf;
 
-import embl.almf.filter.ImageFilter;
-import embl.almf.filter.ImageFilterFactory;
-import embl.almf.filter.ThresholdFilterView;
+import embl.almf.filter.*;
 import embl.almf.registration.TranslationPhaseCorrelation;
 import ij.IJ;
 import net.imglib2.*;
@@ -45,11 +43,12 @@ public class ImageRegistration
     private FinalInterval transformableDimensionsInterval;
     private final Map< Integer, Long > fixedDimensionsReferenceCoordinates;
 
-    private final Map< String, Object > parameters;
+    private final Map< String, Object > imageFilterParameters;
 
     String referenceType;
 
     ExecutorService service;
+    private final boolean showFixedImageSequence;
 
     private void setTransformableDimensionsReferenceInterval()
     {
@@ -93,16 +92,27 @@ public class ImageRegistration
                        final FinalInterval interval,
                        final long[] searchRadii,
                        int numThreads,
-                       final String imageFilterType,
-                       final Map< String, Object > parameters )
+                       final ImageFilterType imageFilterType,
+                       final Map< String, Object > imageFilterParameters,
+                       boolean showFixedImageSequence )
     {
+        this.showFixedImageSequence = showFixedImageSequence;
+
         referenceType = MOVING; // TODO
 
         this.inputRAI = input;
 
-        imageFilter = ImageFilterFactory.create( imageFilterType, parameters );
-
-        this.parameters = parameters;
+        if ( imageFilterType != null )
+        {
+            this.imageFilterParameters = imageFilterParameters;
+            this.imageFilterParameters.put( ImageFilterParameters.NUM_THREADS, numThreads );
+            this.imageFilter = ImageFilterFactory.create( imageFilterType, imageFilterParameters );
+        }
+        else
+        {
+            this.imageFilter = null;
+            this.imageFilterParameters = null;
+        }
 
         service = Executors.newFixedThreadPool( numThreads );
 
@@ -143,44 +153,61 @@ public class ImageRegistration
         RandomAccessibleInterval fixedRAI;
         RandomAccessible movingRA;
 
+        List< RandomAccessibleInterval < R > > fixedRAIList = new ArrayList<>(  );
+
         T absoluteTransformation = null;
 
         Map< Long, T > transformations = new HashMap<>(  );
 
         for ( long s = sequenceDimension.min; s <= sequenceDimension.max; s += 1 )
         {
-            fixedRAI = getFixedRAI( s, absoluteTransformation );
-            movingRA = getMovingRA( s + 1, absoluteTransformation );
+
+            fixedRAI = getFixedRAI( s, transformations.get( s ) );
+            movingRA = getMovingRA( s + 1, transformations.get( s ) );
 
             //ImageJFunctions.show( fixedRAI );
 
             T relativeTransformation = ( T ) TranslationPhaseCorrelation
-                    .compute( fixedRAI, movingRA, searchRadii, service );
+                    .findTransform(
+                            fixedRAI,
+                            movingRA,
+                            fixedRAIList,
+                            searchRadii,
+                            imageFilter,
+                            service );
 
-            if ( s != sequenceDimension.min )
+            if ( absoluteTransformation != null )
             {
                 absoluteTransformation.preConcatenate( relativeTransformation );
-                int a = 1;
             }
             else
             {
                 absoluteTransformation = relativeTransformation;
-                int a = 1;
             }
 
             transformations.put( s + 1, ( T ) absoluteTransformation.copy() );
 
         }
 
+        // Generate fixedRAI
+        //
+        RandomAccessibleInterval fixedRAISequence = Views.stack( fixedRAIList );
+        ImageJFunctions.show( fixedRAISequence, "reference region" );
+
+        // Generate result
+        //
         RandomAccessibleInterval transformedInputRAI =
                 transformWholeInputRAI( transformations );
 
-        ImageJFunctions.show( transformedInputRAI );
+        ImageJFunctions.show( transformedInputRAI, "registered" );
     }
 
     public RandomAccessibleInterval< R > getFilteredImage()
     {
-        ThresholdFilterView thresholdFilter = new ThresholdFilterView< R >( parameters );
+        /*
+        if ( imageFilter != null )
+        {
+        ThresholdFilterView thresholdFilter = new ThresholdFilterView< R >( imageFilterParameters );
 
         RandomAccessibleInterval source = getTransformableRAI(
                 0, fixedDimensionsReferenceCoordinates );
@@ -188,6 +215,8 @@ public class ImageRegistration
         RandomAccessibleInterval filtered = imageFilter.filter( source );
 
         return filtered;
+        */
+        return null;
     }
 
     private RandomAccessibleInterval createTransformedRAI(

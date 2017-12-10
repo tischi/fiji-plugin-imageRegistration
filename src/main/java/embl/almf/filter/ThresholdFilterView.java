@@ -1,6 +1,5 @@
 package embl.almf.filter;
 
-import embl.almf.ImageRegistration;
 import embl.almf.views.ThresholdView;
 import net.imglib2.RandomAccessible;
 import net.imglib2.type.numeric.RealType;
@@ -18,7 +17,7 @@ public class ThresholdFilterView<T extends RealType<T> > {
 
     public RandomAccessible< T > filter( RandomAccessible< T > input )
     {
-        T threshold = ( T ) parameters.get( ImageFilterConstants.FILTER_THRESHOLD_VALUE );
+        T threshold = ( T ) parameters.get( ImageFilterParameters.THRESHOLD_VALUE );
 
         return new ThresholdView ( input, threshold );
     }
