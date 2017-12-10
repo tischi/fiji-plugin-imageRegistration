@@ -274,22 +274,22 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
             FinalInterval interval = new FinalInterval( min, max );
 
             long[] searchRadius = new long[ 2 ];
-            searchRadius[ 0 ] = 0;
-            searchRadius[ 1 ] = 0;
+            searchRadius[ 0 ] = 30;
+            searchRadius[ 1 ] = 30;
 
             // Configure image filtering
             //
             Map< String, Object > imageFilterParameters = new HashMap<>();
 
+            /*
             ImageFilterType imageFilterType = ImageFilterType.GAUSS;
             imageFilterParameters.put(
                     ImageFilterParameters.GAUSS_SIGMA,
                     new double[]{ 10.0D, 1.0D} );
+             */
 
-            /*
             ImageFilterType imageFilterType = ImageFilterType.THRESHOLD;
             imageFilterParameters.put( ImageFilterParameters.THRESHOLD_VALUE, 20.0D );
-            */
 
             boolean showFixedImageSequence = true;
 

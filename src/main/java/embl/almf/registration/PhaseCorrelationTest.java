@@ -33,13 +33,13 @@ public class PhaseCorrelationTest {
                 factory.create( new long[]{100,100}, new FloatType(  ) );
 
         final int[] extension = new int[ im1.numDimensions() ];
-        Arrays.fill( extension, 10 );
+        Arrays.fill( extension, 0 );
 
 
         /*
          Below offset leads to an error in the shiftPeak method
         */
-        
+
         long offset = 10; // putting this to 0 => no error
         RandomAccessibleInterval im1withOffset = Views.translate( im1, new long[]{offset, offset } );
         RandomAccessibleInterval im2withOffset = Views.translate( im2, new long[]{offset, offset } );

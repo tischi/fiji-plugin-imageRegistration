@@ -38,7 +38,7 @@ public abstract class TranslationPhaseCorrelation {
             RandomAccessibleInterval fixedRAI,
             RandomAccessible movingRA,
             List< RandomAccessibleInterval < R > > fixedRAIList,
-            long[] searchRadii,
+            long[] searchRadius,
             ImageFilter imageFilter,
             ExecutorService service)
     {
@@ -46,23 +46,23 @@ public abstract class TranslationPhaseCorrelation {
 
         final int numPeaksToCheck = 5;
 
+        // TODO: find a good strategy for the minOverlap!
+
         long minOverlap = 1;
 
-        for ( int d = 0; d < fixedRAI.numDimensions(); ++d )
+        for ( int d = 0; d < n; ++d )
         {
-            minOverlap *= fixedRAI.dimension( d ) / 5;
+            minOverlap *= ( fixedRAI.dimension( d ) - searchRadius[ d ] );
         }
 
-        final int extensionValue = 10;
+        final int extensionValue = 0; //(int) searchRadius[ 0 ];
         final boolean doSubpixel = true;
         final boolean interpolateCrossCorrelation = true;
 
-        final int[] extension = new int[ fixedRAI.numDimensions() ];
+        final int[] extension = new int[ n ];
         Arrays.fill( extension, extensionValue );
 
-        FinalInterval movingInterval =
-                IntervalUtils.expand( fixedRAI, searchRadii );
-        RandomAccessibleInterval movingRAI = Views.interval( movingRA, movingInterval );
+        RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
 
         // potentially filter the input images
         //
@@ -79,6 +79,10 @@ public abstract class TranslationPhaseCorrelation {
         {
             fixedRAIList.add( filteredFixedRAI );
         }
+
+        // TODO: remove below code!
+        filteredFixedRAI = Views.zeroMin( filteredFixedRAI );
+        filteredMovingRAI = Views.zeroMin( filteredMovingRAI );
 
         //ImageJFunctions.show( fixedRAI );
         //ImageJFunctions.show( movingRAI );
