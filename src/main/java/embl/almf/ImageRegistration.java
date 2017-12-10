@@ -1,6 +1,8 @@
 package embl.almf;
 
-import embl.almf.filter.ThresholdFilter;
+import embl.almf.filter.ImageFilter;
+import embl.almf.filter.ImageFilterFactory;
+import embl.almf.filter.ThresholdFilterView;
 import embl.almf.registration.TranslationPhaseCorrelation;
 import ij.IJ;
 import net.imglib2.*;
@@ -10,6 +12,7 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.realtransform.RealViews;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
@@ -19,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ImageRegistration
-        < R extends RealType< R >,
+        < R extends RealType< R > & NativeType < R >,
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable < T > > {
 
     final static String TRANSLATION = "Translation";
@@ -31,10 +34,7 @@ public class ImageRegistration
     public final static String TRANSFORMABLE_DIMENSION = "Transformable";
     public final static String FIXED_DIMENSION = "Fixed";
 
-    public final static String FILTER_THRESHOLD = "Threshold";
-    public final static String FILTER_THRESHOLD_VALUE = "Threshold";
-
-    private final String filterMethod;
+    private final ImageFilter imageFilter;
 
     final RandomAccessibleInterval< R > inputRAI;
 
@@ -85,20 +85,23 @@ public class ImageRegistration
 
     }
 
+
+    // TODO: read and write: https://github.com/bigdataviewer/spimdata/blob/master/src/main/java/mpicbg/spim/data/XmlHelpers.java
+
     ImageRegistration( final RandomAccessibleInterval< R > input,
                        final String[] dimensionTypes,
                        final FinalInterval interval,
                        final long[] searchRadii,
                        int numThreads,
-                       final String filterMethod,
+                       final String imageFilterType,
                        final Map< String, Object > parameters )
     {
         referenceType = MOVING; // TODO
 
         this.inputRAI = input;
 
-        // pre-processing
-        this.filterMethod = filterMethod;
+        imageFilter = ImageFilterFactory.create( imageFilterType, parameters );
+
         this.parameters = parameters;
 
         service = Executors.newFixedThreadPool( numThreads );
@@ -177,10 +180,12 @@ public class ImageRegistration
 
     public RandomAccessibleInterval< R > getFilteredImage()
     {
-        ThresholdFilter thresholdFilter = new ThresholdFilter< R >( parameters );
+        ThresholdFilterView thresholdFilter = new ThresholdFilterView< R >( parameters );
+
         RandomAccessibleInterval source = getTransformableRAI(
                 0, fixedDimensionsReferenceCoordinates );
-        RandomAccessibleInterval filtered = Views.interval( thresholdFilter.filter( source ), source );
+
+        RandomAccessibleInterval filtered = imageFilter.filter( source );
 
         return filtered;
     }

@@ -9,6 +9,8 @@ package embl.almf;
  */
 
 
+import embl.almf.filter.ImageFilter;
+import embl.almf.filter.ImageFilterConstants;
 import ij.IJ;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
@@ -224,7 +226,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        boolean GUI = true;
+        boolean GUI = false;
 
         // ask the user for a file to open
         //final File file = ij.ui().chooseFile(null, "open");
@@ -274,7 +276,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
             searchRadii[ 1 ] = 0;
 
             Map< String, Object > parameters = new HashMap<>();
-            parameters.put( ImageRegistration.FILTER_THRESHOLD_VALUE, 10 );
+            parameters.put( ImageFilterConstants.FILTER_GAUSS_SIGMAS, new double[]{20.0D, 0.0D} );
 
             ImageRegistration imageRegistration =
                     new ImageRegistration(
@@ -283,7 +285,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
                             interval,
                             searchRadii,
                             3,
-                            ImageRegistration.FILTER_THRESHOLD,
+                            ImageFilterConstants.FILTER_GAUSS,
                             parameters );
 
             ImageJFunctions.show( imageRegistration.getFilteredImage() );
