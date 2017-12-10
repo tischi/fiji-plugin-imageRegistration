@@ -77,7 +77,7 @@ public abstract class TranslationPhaseCorrelation {
 
         if ( fixedRAIList != null )
         {
-            fixedRAIList.add( fixedRAI );
+            fixedRAIList.add( filteredFixedRAI );
         }
 
         //ImageJFunctions.show( fixedRAI );

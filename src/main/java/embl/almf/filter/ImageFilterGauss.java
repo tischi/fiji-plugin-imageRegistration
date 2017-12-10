@@ -47,13 +47,13 @@ public class ImageFilterGauss
 
         try
         {
-            Gauss3.gauss( sigmas, extendedSource, targetWrongOffset );
+            Gauss3.gauss( sigmas, extendedSource, target );
         }
         catch ( IncompatibleTypeException e )
         {
             e.printStackTrace();
         }
 
-        return targetWrongOffset;
+        return target;
     }
 }

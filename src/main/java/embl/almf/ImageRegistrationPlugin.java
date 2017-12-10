@@ -284,7 +284,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
             ImageFilterType imageFilterType = ImageFilterType.GAUSS;
             imageFilterParameters.put(
                     ImageFilterParameters.GAUSS_SIGMA,
-                    new double[]{ 3.0D, 3.0D} );
+                    new double[]{ 10.0D, 1.0D} );
 
             /*
             ImageFilterType imageFilterType = ImageFilterType.THRESHOLD;
@@ -293,7 +293,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
 
             boolean showFixedImageSequence = true;
 
-            imageFilterType = null;
+            //imageFilterType = null;
 
             ImageRegistration imageRegistration =
                     new ImageRegistration(
