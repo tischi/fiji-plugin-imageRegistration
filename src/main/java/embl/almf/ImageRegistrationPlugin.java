@@ -21,6 +21,7 @@ import net.imagej.axis.AxisType;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.cell.CellImg;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
@@ -37,6 +38,8 @@ import org.scijava.widget.NumberWidget;
 
 import java.io.File;
 import java.util.*;
+
+import static embl.almf.filter.ImageFilterParameters.*;
 
 /**
  * This example illustrates how to create an ImageJ {@link Command} plugin.
@@ -238,8 +241,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         ij.ui().showUI();
 
 
-        boolean GUI = true;
-        boolean TEST = false;
+        boolean GUI = false;
+        boolean TEST = true;
 
 
         // ask the user for a file to open
@@ -254,26 +257,29 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         {
             // load the dataset
 
-            // dataset = ij.scifio().datasetIO().open( file.getPath() );
+            dataset = ij.scifio().datasetIO().open( file.getPath() );
             // show the inputRAI
-            // n = dataset.numDimensions();
-            // ij.ui().show( dataset );
+            n = dataset.numDimensions();
+            ij.ui().show( dataset );
 
 
             //ImagePlus imp =
             //        IJ.openVirtual(
             //                "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit/mri-stack_0000.tif" );
-            IJ.run("Image Sequence...",
-                    "open=/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit sort use");
-            ImagePlus imp = IJ.getImage();
-            imp.hide();
+            //IJ.run("Image Sequence...",
+            //        "open=/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit sort use");
+            //ImagePlus imp = IJ.getImage();
+            //imp.hide();
 
-            n = 3;
+            //n = 3;
 
             // convert of cellImg that is lazily loaded
             //
-            Img< UnsignedShortType > img = ConvertVirtualStackToCellImg.getCellImgUnsignedShort( imp );
-            ImageJFunctions.show( img );
+            //Img< UnsignedShortType > img = ConvertVirtualStackToCellImg.getCellImgUnsignedShort( imp );
+            //ImageJFunctions.show( img );
+
+            //CellImg img2 = (CellImg) img;
+            //int a = 1;
         }
 
 
@@ -292,7 +298,6 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
             dimensionTypes[ 2 ] = ImageRegistration.FIXED_DIMENSION;
             dimensionTypes[ 3 ] = ImageRegistration.SEQUENCE_DIMENSION;
 
-
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );
             min[ 0 ] = 50; max[ 0 ] = 220;
@@ -310,15 +315,17 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
             //
             Map< String, Object > imageFilterParameters = new HashMap<>();
 
-            /*
-            ImageFilterType imageFilterType = ImageFilterType.GAUSS;
-            imageFilterParameters.put(
-                    ImageFilterParameters.GAUSS_SIGMA,
-                    new double[]{ 10.0D, 1.0D} );
-             */
+            ImageFilterType imageFilterType = ImageFilterType.DOG_THRESHOLD;
 
-            ImageFilterType imageFilterType = ImageFilterType.THRESHOLD;
-            imageFilterParameters.put( ImageFilterParameters.THRESHOLD_VALUE, 20.0D );
+            imageFilterParameters.put(
+                    GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );
+            imageFilterParameters.put(
+                    THRESHOLD_VALUE, 20.0D );
+            imageFilterParameters.put(
+                    DOG_SIGMA_SMALLER, new double[]{ 1.0D, 1.0D} );
+            imageFilterParameters.put(
+                    DOG_SIGMA_LARGER, new double[]{ 10.0D, 10.0D} );
+
 
             boolean showFixedImageSequence = true;
 

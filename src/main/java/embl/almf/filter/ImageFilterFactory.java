@@ -21,6 +21,14 @@ public abstract class ImageFilterFactory < R extends RealType< R > & NativeType<
         {
             return new ImageFilterThreshold( parameters );
         }
+        else if ( imageFilterType.equals ( DOG ) )
+        {
+            return new ImageFilterDog( parameters );
+        }
+        else if ( imageFilterType.equals ( DOG_THRESHOLD ) )
+        {
+            return new ImageFilterDogThreshold( parameters );
+        }
         else
         {
             // TODO: throw an error

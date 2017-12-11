@@ -85,7 +85,12 @@ public class ImageRegistration
     }
 
 
-    // TODO: read and write: https://github.com/bigdataviewer/spimdata/blob/master/src/main/java/mpicbg/spim/data/XmlHelpers.java
+    // TODO: read and write registrations:
+    // - https://github.com/bigdataviewer/spimdata/blob/master/src/main/java/mpicbg/spim/data/XmlHelpers.java
+    // - http://scijava.org/javadoc.scijava.org/Fiji/mpicbg/spim/data/registration/XmlIoViewRegistrations.html
+    // - http://scijava.org/javadoc.scijava.org/Fiji/mpicbg/spim/data/registration/ViewRegistrations.html
+    // - http://scijava.org/javadoc.scijava.org/Fiji/mpicbg/spim/data/registration/ViewRegistration.html
+    // - https://github.com/bigdataviewer/spimdata/blob/master/src/main/java/mpicbg/spim/data/SpimDataExample2.java
 
     ImageRegistration( final RandomAccessibleInterval< R > input,
                        final String[] dimensionTypes,
@@ -101,12 +106,14 @@ public class ImageRegistration
         referenceType = MOVING; // TODO
 
         this.inputRAI = input;
+        this.service = Executors.newFixedThreadPool( numThreads );
 
         if ( imageFilterType != null )
         {
+            this.imageFilter = ImageFilterFactory.create( imageFilterType, imageFilterParameters );
             this.imageFilterParameters = imageFilterParameters;
             this.imageFilterParameters.put( ImageFilterParameters.NUM_THREADS, numThreads );
-            this.imageFilter = ImageFilterFactory.create( imageFilterType, imageFilterParameters );
+            this.imageFilterParameters.put( ImageFilterParameters.EXECUTOR_SERVICE, service );
         }
         else
         {
@@ -114,7 +121,7 @@ public class ImageRegistration
             this.imageFilterParameters = null;
         }
 
-        service = Executors.newFixedThreadPool( numThreads );
+
 
         // set up sequence dimension
         int s = Arrays.asList( dimensionTypes ).indexOf( SEQUENCE_DIMENSION );

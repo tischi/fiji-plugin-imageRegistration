@@ -4,7 +4,8 @@ public enum ImageFilterType
 {
     THRESHOLD( "Threshold" ),
     GAUSS( "Gauss" ),
-    DOG( "Difference of gaussian");
+    DOG( "DoG"),
+    DOG_THRESHOLD("DoG -> Threshold");
 
     private final String name;
 

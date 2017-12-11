@@ -34,13 +34,12 @@ public class ImageFilterGauss
     {
         double[] sigmas = (double []) parameters.get( GAUSS_SIGMA );
 
+        // create target image with same offset as source image
+        //
         final ImgFactory< FloatType > factory = new ArrayImgFactory< >();
-
-        RandomAccessibleInterval< FloatType > targetWrongOffset =
-                factory.create( source, new FloatType(  ) );
-
         RandomAccessibleInterval< FloatType > target =
-                Views.translate( targetWrongOffset,
+                Views.translate(
+                        factory.create( source, new FloatType(  ) ),
                         Intervals.minAsLongArray( source ) );
 
         RandomAccessible< R > extendedSource = Views.extendBorder( source );

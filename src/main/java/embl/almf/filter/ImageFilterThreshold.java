@@ -43,10 +43,11 @@ public class ImageFilterThreshold
         double threshold = (double) parameters.get( THRESHOLD_VALUE );
         ArrayImg< BitType, LongArray > output = ArrayImgs
                 .bits( Intervals.dimensionsAsLongArray( source ) );
+
         RandomAccessibleInterval< BitType > converted = Converters.convert( source, ( s, t ) -> {
             t.set( s.getRealDouble() > threshold );
         }, new BitType() );
-        for ( Pair< BitType, BitType > p : Views.interval(  Views.pair( Views.zeroMin( converted ), output ), output ) )
+        for ( Pair< BitType, BitType > p : Views.interval( Views.pair( Views.zeroMin( converted ), output ), output ) )
             p.getB().set( p.getA() );
 
         /*
