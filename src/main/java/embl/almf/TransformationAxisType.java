@@ -1,11 +1,8 @@
 package embl.almf;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public enum RegistrationAxisType {
+public enum TransformationAxisType {
 
     SEQUENCE_DIMENSION( "Sequence" ),
     TRANSFORMABLE_DIMENSION( "Transformable" ),
@@ -13,7 +10,7 @@ public enum RegistrationAxisType {
 
     private final String name;
 
-    private RegistrationAxisType( final String name )
+    private TransformationAxisType( final String name )
     {
         this.name = name;
     }
@@ -23,11 +20,11 @@ public enum RegistrationAxisType {
         return name;
     }
 
-    public static List< String > asStringList()
+    public final static ArrayList< String > asStringList()
     {
-        List<String> enumNames = new ArrayList<>(  );
+        ArrayList<String> enumNames = new ArrayList<>(  );
 
-        for (RegistrationAxisType registrationAxisType : values() )
+        for (TransformationAxisType registrationAxisType : values() )
         {
             enumNames.add( registrationAxisType.toString() );
         }

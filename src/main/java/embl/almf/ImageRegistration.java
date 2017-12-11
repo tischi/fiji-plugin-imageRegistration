@@ -89,7 +89,7 @@ public class ImageRegistration
     // - http://scijava.org/javadoc.scijava.org/Fiji/mpicbg/spim/data/registration/ViewRegistration.html
     // - https://github.com/bigdataviewer/spimdata/blob/master/src/main/java/mpicbg/spim/data/SpimDataExample2.java
 
-    ImageRegistration( final RandomAccessibleInterval< R > input,
+    public ImageRegistration( final RandomAccessibleInterval< R > input,
                        final String[] dimensionTypes,
                        final FinalInterval interval,
                        final long[] searchRadii,
@@ -119,7 +119,7 @@ public class ImageRegistration
         }
 
         // set up sequence dimension
-        int s = Arrays.asList( dimensionTypes ).indexOf( RegistrationAxisType.SEQUENCE_DIMENSION );
+        int s = Arrays.asList( dimensionTypes ).indexOf( TransformationAxisType.SEQUENCE_DIMENSION );
         sequenceDimension = new SequenceDimension( s, interval.min( s ), interval.max( s ) );
 
         // set up other dimensions
@@ -128,11 +128,11 @@ public class ImageRegistration
 
         for ( int d = 0; d < dimensionTypes.length; ++d )
         {
-            if ( dimensionTypes[ d ].equals( RegistrationAxisType.TRANSFORMABLE_DIMENSION ) )
+            if ( dimensionTypes[ d ].equals( TransformationAxisType.TRANSFORMABLE_DIMENSION ) )
             {
                 transformableDimensions.put( d, new long[]{ interval.min( d ), interval.max( d ) } );
             }
-            else if ( dimensionTypes[ d ].equals( RegistrationAxisType.FIXED_DIMENSION ) )
+            else if ( dimensionTypes[ d ].equals( TransformationAxisType.FIXED_DIMENSION ) )
             {
                 fixedDimensionsReferenceCoordinates.put( d, interval.min( d ) );
             }

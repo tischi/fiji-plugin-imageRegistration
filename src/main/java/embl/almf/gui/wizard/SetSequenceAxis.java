@@ -1,13 +1,12 @@
-package embl.almf.wizard;
+package embl.almf.gui.wizard;
 
-import embl.almf.ImageRegistrationParameters;
-import embl.almf.RegistrationAxisType;
+import embl.almf.TransformationAxisType;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
-import net.imagej.axis.AxisType;
 import net.imagej.ops.OpService;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
+import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
@@ -16,6 +15,8 @@ import org.scijava.ui.UIService;
 
 import java.io.File;
 import java.util.*;
+
+import static embl.almf.ImageRegistrationParameters.*;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Image Registration",
@@ -31,18 +32,18 @@ public class SetSequenceAxis extends DynamicCommand {
     @Parameter
     private OpService opService;
 
-
-    //@Parameter
-    //private CommandService commandService;
+    @Parameter
+    private CommandService commandService2;
 
     @Override
     public void run()
     {
-        Map< String, Object > parameters = new HashMap<>(  );
-        parameters.put( "dataset" , dataset);
-        //parameters.put( "sequenceAxis" , SEQUENCE_AXIS);
 
-        //commandService.run( GuiNextStep.class, true, parameters );
+        Map< String, Object > parameters = new HashMap<>(  );
+        parameters.put( "dataset" , dataset );
+        parameters.put( INPUT_SEQUENCE_AXIS , getInfo().getInput( INPUT_SEQUENCE_AXIS ).getValue( this ) );
+
+        commandService2.run( SetSequenceAxisParameters.class, true, parameters );
     }
 
 
@@ -54,12 +55,12 @@ public class SetSequenceAxis extends DynamicCommand {
         // Figure out which axes we have
         //
         ArrayList< String > axisTypes
-                = ImageRegistrationParameters.getAxisTypesAsStringList( dataset );
+                = getAxisNamesAsStringList( dataset );
 
         // Create GUI
         //
 
-        List< String > choices = RegistrationAxisType.asStringList();
+        List< String > choices = TransformationAxisType.asStringList();
 
         /*
         final MutableModuleItem<String> axisItem =
@@ -70,18 +71,18 @@ public class SetSequenceAxis extends DynamicCommand {
                 "Please select the sequence dimension");
                 */
 
-        final MutableModuleItem<String> axisItem =
-                addInput("axis" + 0, String.class);
-        axisItem.setPersisted(false);
-        axisItem.setVisibility( ItemVisibility.MESSAGE );
-        axisItem.setValue(this, "aaaa");
+        final MutableModuleItem<String> messageItem =
+                addInput("Message", String.class);
+        messageItem.setPersisted( false );
+        messageItem.setVisibility( ItemVisibility.MESSAGE );
+        messageItem.setValue(this, "aaaaaaaaaaa");
 
         final MutableModuleItem<String> typeItem =
-                addInput("bbb", String.class);
-        typeItem.setPersisted(false);
-        typeItem.setLabel("Sequence dimension");
+                addInput( INPUT_SEQUENCE_AXIS, String.class);
+        typeItem.setPersisted( false );
+        typeItem.setLabel( INPUT_SEQUENCE_AXIS );
         typeItem.setChoices( axisTypes );
-        typeItem.setValue(this, ""+RegistrationAxisType.SEQUENCE_DIMENSION );
+        typeItem.setValue(this, ""+ TransformationAxisType.SEQUENCE_DIMENSION );
 
     }
 
