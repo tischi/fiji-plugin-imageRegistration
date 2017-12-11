@@ -11,7 +11,9 @@ package embl.almf;
 
 import embl.almf.filter.ImageFilterType;
 import embl.almf.filter.ImageFilterParameters;
+import embl.almf.streaming.ConvertVirtualStackToCellImg;
 import ij.IJ;
+import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.axis.Axes;
@@ -21,7 +23,9 @@ import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.util.Intervals;
+import net.imglib2.util.Pair;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
@@ -29,6 +33,7 @@ import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
+import org.scijava.widget.NumberWidget;
 
 import java.io.File;
 import java.util.*;
@@ -60,6 +65,11 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
 
     @Parameter
     private OpService opService;
+
+    @Parameter(label = "integer (slider)", style = NumberWidget.SLIDER_STYLE,
+            min = "0", max = "1000", stepSize = "50")
+    private int sliderInteger;
+
 
     public String getAxisType( final int d ) {
         final String value = typeInput(d).getValue(this);
@@ -197,6 +207,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
     }
 
 
+
     // -- Helper methods --
 
     private String typeName(final int d) {
@@ -227,7 +238,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         ij.ui().showUI();
 
 
-        boolean GUI = false;
+        boolean GUI = true;
+        boolean TEST = false;
+
 
         // ask the user for a file to open
         //final File file = ij.ui().chooseFile(null, "open");
@@ -236,28 +249,44 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
                 new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur.tif");
 
         Dataset dataset = null;
-
+        int n = 0;
         if (file != null)
         {
             // load the dataset
-            dataset = ij.scifio().datasetIO().open( file.getPath() );
+
+            // dataset = ij.scifio().datasetIO().open( file.getPath() );
+            // show the inputRAI
+            // n = dataset.numDimensions();
+            // ij.ui().show( dataset );
+
+
+            //ImagePlus imp =
+            //        IJ.openVirtual(
+            //                "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit/mri-stack_0000.tif" );
+            IJ.run("Image Sequence...",
+                    "open=/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit sort use");
+            ImagePlus imp = IJ.getImage();
+            imp.hide();
+
+            n = 3;
+
+            // convert of cellImg that is lazily loaded
+            //
+            Img< UnsignedShortType > img = ConvertVirtualStackToCellImg.getCellImgUnsignedShort( imp );
+            ImageJFunctions.show( img );
         }
 
-        int n = dataset.numDimensions();
+
 
         if ( GUI )
         {
-            // show the inputRAI
-            ij.ui().show( dataset );
-
             // invoke the plugin
-            ij.command().run(ImageRegistrationPlugin.class, true);
+            ij.command().run( ImageRegistrationPlugin.class, true );
         }
-        else
+        else if ( TEST )
         {
-            ij.ui().show( dataset );
 
-            String[] dimensionTypes = new String[n];
+            String[] dimensionTypes = new String[ n ];
             dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
             dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
             dimensionTypes[ 2 ] = ImageRegistration.FIXED_DIMENSION;
