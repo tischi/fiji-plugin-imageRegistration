@@ -10,10 +10,7 @@ package embl.almf;
 
 
 import embl.almf.filter.ImageFilterType;
-import embl.almf.filter.ImageFilterParameters;
-import embl.almf.streaming.ConvertVirtualStackToCellImg;
 import ij.IJ;
-import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.axis.Axes;
@@ -21,12 +18,8 @@ import net.imagej.axis.AxisType;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
-import net.imglib2.img.cell.CellImg;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.util.Intervals;
-import net.imglib2.util.Pair;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
@@ -34,7 +27,6 @@ import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
-import org.scijava.widget.NumberWidget;
 
 import java.io.File;
 import java.util.*;
@@ -51,16 +43,13 @@ import static embl.almf.filter.ImageFilterParameters.*;
  * and replace the {@link run} method implementation with your own logic.
  * </p>
  */
-@Plugin(
-        type = Command.class,
-        menuPath = "Plugins>Image Registration",
-        initializer = "initFields")
+@Plugin(type = Command.class)
 public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicCommand {
     //
     // Feel free to add more parameters here...
     //
 
-    @Parameter
+    @Parameter(initializer = "")
     private Dataset dataset;
 
     @Parameter
@@ -69,9 +58,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
     @Parameter
     private OpService opService;
 
-    @Parameter(label = "integer (slider)", style = NumberWidget.SLIDER_STYLE,
-            min = "0", max = "1000", stepSize = "50")
-    private int sliderInteger;
+    //@Parameter(label = "integer (slider)", style = NumberWidget.SLIDER_STYLE,
+    //        min = "0", max = "1000", stepSize = "50")
+    //private int sliderInteger;
 
 
     public String getAxisType( final int d ) {
@@ -114,6 +103,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         */
     }
 
+/*
     protected void initFields()
     {
 
@@ -130,50 +120,50 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         // Use heuristics to create registration suggestions
         //
         String[] axisRegistrationTypes = new String[ dataset.numDimensions() ];
-        Arrays.fill( axisRegistrationTypes, ImageRegistration.TRANSFORMABLE_DIMENSION );
+        Arrays.fill( axisRegistrationTypes, RegistrationAxisType.TRANSFORMABLE_DIMENSION );
 
         if ( axisTypes.contains( Axes.TIME ) )
         {
             axisRegistrationTypes[ axisTypes.indexOf( Axes.TIME ) ]
-                = ImageRegistration.SEQUENCE_DIMENSION;
+                = RegistrationAxisType.SEQUENCE_DIMENSION;
 
             if ( axisTypes.contains( Axes.Z ) )
             {
                 axisRegistrationTypes[ axisTypes.indexOf( Axes.Z ) ]
-                        = ImageRegistration.TRANSFORMABLE_DIMENSION;
+                        = RegistrationAxisType.TRANSFORMABLE_DIMENSION;
             }
         }
         else if ( axisTypes.contains( Axes.Z ) )
         {
             axisRegistrationTypes[ axisTypes.indexOf( Axes.Z ) ]
-                    = ImageRegistration.SEQUENCE_DIMENSION;
+                    = RegistrationAxisType.SEQUENCE_DIMENSION;
         }
 
         if ( axisTypes.contains( Axes.X ) )
         {
             axisRegistrationTypes[ axisTypes.indexOf( Axes.X ) ]
-                    = ImageRegistration.TRANSFORMABLE_DIMENSION;
+                    = RegistrationAxisType.TRANSFORMABLE_DIMENSION;
         }
 
         if ( axisTypes.contains( Axes.Y ) )
         {
             axisRegistrationTypes[ axisTypes.indexOf( Axes.Y ) ]
-                    = ImageRegistration.TRANSFORMABLE_DIMENSION;
+                    = RegistrationAxisType.TRANSFORMABLE_DIMENSION;
         }
 
         if ( axisTypes.contains( Axes.CHANNEL) )
         {
             axisRegistrationTypes[ axisTypes.indexOf( Axes.CHANNEL ) ]
-                    = ImageRegistration.FIXED_DIMENSION;
+                    = RegistrationAxisType.FIXED_DIMENSION;
         }
 
         // Create GUI
         //
 
         List< String > choices = new ArrayList<>(  );
-        choices.add( ImageRegistration.FIXED_DIMENSION );
-        choices.add( ImageRegistration.TRANSFORMABLE_DIMENSION );
-        choices.add( ImageRegistration.SEQUENCE_DIMENSION );
+        choices.add( RegistrationAxisType.FIXED_DIMENSION );
+        choices.add( RegistrationAxisType.TRANSFORMABLE_DIMENSION );
+        choices.add( RegistrationAxisType.SEQUENCE_DIMENSION );
 
         for (int d = 0; d < dataset.numDimensions(); d++)
         {
@@ -182,14 +172,14 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
                     addInput("axis" + d, String.class);
             axisItem.setPersisted(false);
             axisItem.setVisibility( ItemVisibility.MESSAGE );
-            axisItem.setValue(this, "-- Axis #" + (d + 1) + " --");
+            axisItem.setValue(this, "" + dataset.axis( d ).type());
 
             final MutableModuleItem<String> typeItem =
                     addInput(typeName(d), String.class);
             typeItem.setPersisted(false);
             typeItem.setLabel("Type");
             typeItem.setChoices( choices );
-            typeItem.setValue(this, ImageRegistration.SEQUENCE_DIMENSION );
+            typeItem.setValue(this, RegistrationAxisType.SEQUENCE_DIMENSION );
 
             String var = "min";
             final MutableModuleItem<Long> minItem =
@@ -209,7 +199,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
 
     }
 
-
+*/
 
     // -- Helper methods --
 
@@ -241,8 +231,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         ij.ui().showUI();
 
 
-        boolean GUI = false;
-        boolean TEST = true;
+        boolean GUI = true;
+        boolean TEST = false;
 
 
         // ask the user for a file to open
@@ -293,10 +283,10 @@ public class ImageRegistrationPlugin<T extends RealType<T>>  extends DynamicComm
         {
 
             String[] dimensionTypes = new String[ n ];
-            dimensionTypes[ 0 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
-            dimensionTypes[ 1 ] = ImageRegistration.TRANSFORMABLE_DIMENSION;
-            dimensionTypes[ 2 ] = ImageRegistration.FIXED_DIMENSION;
-            dimensionTypes[ 3 ] = ImageRegistration.SEQUENCE_DIMENSION;
+            dimensionTypes[ 0 ] = ""+RegistrationAxisType.TRANSFORMABLE_DIMENSION;
+            dimensionTypes[ 1 ] = ""+RegistrationAxisType.TRANSFORMABLE_DIMENSION;
+            dimensionTypes[ 2 ] = ""+RegistrationAxisType.FIXED_DIMENSION;
+            dimensionTypes[ 3 ] = ""+RegistrationAxisType.SEQUENCE_DIMENSION;
 
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );

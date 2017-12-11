@@ -28,9 +28,6 @@ public class ImageRegistration
     final static String MOVING = "Moving";
     final static String FIXED = "Fixed";
 
-    public final static String SEQUENCE_DIMENSION = "Sequence";
-    public final static String TRANSFORMABLE_DIMENSION = "Transformable";
-    public final static String FIXED_DIMENSION = "Fixed";
 
     private final ImageFilter imageFilter;
 
@@ -121,10 +118,8 @@ public class ImageRegistration
             this.imageFilterParameters = null;
         }
 
-
-
         // set up sequence dimension
-        int s = Arrays.asList( dimensionTypes ).indexOf( SEQUENCE_DIMENSION );
+        int s = Arrays.asList( dimensionTypes ).indexOf( RegistrationAxisType.SEQUENCE_DIMENSION );
         sequenceDimension = new SequenceDimension( s, interval.min( s ), interval.max( s ) );
 
         // set up other dimensions
@@ -133,14 +128,13 @@ public class ImageRegistration
 
         for ( int d = 0; d < dimensionTypes.length; ++d )
         {
-            switch ( dimensionTypes[ d ] )
+            if ( dimensionTypes[ d ].equals( RegistrationAxisType.TRANSFORMABLE_DIMENSION ) )
             {
-                case TRANSFORMABLE_DIMENSION:
-                    transformableDimensions.put( d, new long[]{ interval.min( d ), interval.max( d ) });
-                    break;
-                case FIXED_DIMENSION:
-                    fixedDimensionsReferenceCoordinates.put( d, interval.min( d ) );
-                    break;
+                transformableDimensions.put( d, new long[]{ interval.min( d ), interval.max( d ) } );
+            }
+            else if ( dimensionTypes[ d ].equals( RegistrationAxisType.FIXED_DIMENSION ) )
+            {
+                fixedDimensionsReferenceCoordinates.put( d, interval.min( d ) );
             }
         }
 
