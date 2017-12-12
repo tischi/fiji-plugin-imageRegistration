@@ -18,7 +18,7 @@ import java.util.Map;
 import static embl.almf.ImageRegistrationParameters.*;
 
 @Plugin(type = Command.class,
-        initializer = "initFields")
+        initializer = "init")
 public class SetSequenceAxisParameters extends DynamicCommand {
 
     // resolved

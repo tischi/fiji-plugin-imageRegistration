@@ -9,7 +9,6 @@ package embl.almf.gui;
  */
 
 
-import com.google.common.base.Enums;
 import embl.almf.*;
 import embl.almf.filter.ImageFilterType;
 import ij.IJ;
@@ -24,7 +23,6 @@ import net.imglib2.util.Intervals;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
-import org.scijava.command.Interactive;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -38,7 +36,7 @@ import static embl.almf.filter.ImageFilterParameters.*;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Image Registration",
-        initializer = "initFields")
+        initializer = "init")
 public class ImageRegistrationPlugin<T extends RealType<T>>
         extends DynamicCommand
 {
@@ -70,38 +68,38 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         return (MutableModuleItem<String>) getInfo().getInput( typeName( d ) );
     }
 
-
     @Override
     public void run() {
 
+        int numDimensions = dataset.numDimensions();
+
         // Transformation type
         //
-        TransformationType transformationType
-                = TransformationType.valueOf( transformationTypeInput );
+        TransformationTypes transformationType
+                = TransformationTypes.valueOf( transformationTypeInput );
 
-        TransformationFindingMethod transformationFindingMethod
-                = TransformationFindingMethod.valueOf( transformationFindingMethodInput );
+        TransformationFindingType transformationFindingMethod
+                = TransformationFindingType.valueOf( transformationFindingMethodInput );
 
-        // Get axis types and interval from GUI
+        // Get axis types, intervals and other coordinates from GUI
         //
         long[] min = Intervals.minAsLongArray( dataset );
         long[] max = Intervals.maxAsLongArray( dataset );
-        String[] axisTypes = new String[ dataset.numDimensions() ];
-        for ( int d = 0; d < dataset.numDimensions(); ++d )
+        long[] other = new long[ numDimensions ];
+        String[] axisTypes = new String[ numDimensions ];
+        for ( int d = 0; d < numDimensions; ++d )
         {
             axisTypes[ d ] = typeInput( d ).getValue( this );
             min[ d ] = varInput( d, "min" ).getValue( this );
             max[ d ] = varInput( d, "max" ).getValue( this );
+            other[ d ] = varInput( d, "other" ).getValue( this );
         }
         FinalInterval interval = new FinalInterval( min, max );
 
-        // Get search radius
 
         final Img<T> image = (Img<T>) dataset.getImgPlus();
 
 
-
-        IJ.log( " AAAAAA " );
         IJ.log( " AAAAAA " );
 
         //TransformationType.values();
@@ -127,13 +125,12 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         */
     }
 
-
-    protected void initFields()
+    protected void init()
     {
 
         int n = dataset.numDimensions();
 
-        ArrayList< String > axisTypes = TransformationAxisType.asStringList();
+        ArrayList< String > axisTypes = AxisTypes.asStringList();
         ArrayList< String > axisNames = ImageRegistrationParameters.getAxisNamesAsStringList( dataset );
 
         // Guess default axisType choices
@@ -174,15 +171,15 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             typeItem.setLabel( "Type" );
             typeItem.setChoices( axisTypes );
             if ( axisNames.get( d ).equals( sequenceDefault ) )
-                typeItem.setValue( this, "" + TransformationAxisType.SEQUENCE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.SEQUENCE_DIMENSION );
             else if ( axisNames.get( d ).equals( Axes.X.toString() ))
-                typeItem.setValue( this, "" + TransformationAxisType.TRANSFORMABLE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.TRANSFORMABLE_DIMENSION );
             else if ( axisNames.get( d ).equals( Axes.Y.toString() ))
-                typeItem.setValue( this, "" + TransformationAxisType.TRANSFORMABLE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.TRANSFORMABLE_DIMENSION );
             else if ( axisNames.get( d ).equals( Axes.Z.toString() ))
-                typeItem.setValue( this, "" + TransformationAxisType.TRANSFORMABLE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.TRANSFORMABLE_DIMENSION );
             else if ( axisNames.get( d ).equals( Axes.CHANNEL.toString() ))
-                typeItem.setValue( this, "" + TransformationAxisType.FIXED_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.FIXED_DIMENSION );
 
             // Interval minimum
             //
@@ -209,6 +206,21 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             maxItem.setMaximumValue( dataset.max( d ) );
 
 
+            // Other
+            // - Sequence axis: reference point
+            // - Transformation axis: maximal displacement
+            //
+            var = "other";
+            final MutableModuleItem<Long> otherItem =
+                    addInput( varName(d, var), Long.class);
+            otherItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
+            otherItem.setPersisted( false );
+            otherItem.setLabel( var );
+            otherItem.setValue(this, dataset.max( d ) );
+            otherItem.setMinimumValue( dataset.min( d ) );
+            otherItem.setMaximumValue( dataset.max( d ) );
+
+
         }
 
     }
@@ -223,7 +235,6 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     private String varName( final int d, final String var ) {
         return "var" + d + ":" + var;
     }
-
 
     /**
      * This main function serves for development purposes.
@@ -283,24 +294,33 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         else if ( TEST )
         {
 
-            String[] dimensionTypes = new String[ n ];
-            dimensionTypes[ 0 ] = ""+ TransformationAxisType.TRANSFORMABLE_DIMENSION;
-            dimensionTypes[ 1 ] = ""+ TransformationAxisType.TRANSFORMABLE_DIMENSION;
-            dimensionTypes[ 2 ] = ""+ TransformationAxisType.FIXED_DIMENSION;
-            dimensionTypes[ 3 ] = ""+ TransformationAxisType.SEQUENCE_DIMENSION;
+            int i;
+
+            AxisTypes[] axisTypes = new AxisTypes[ n ];
+            i = 0;
+            axisTypes[ i++ ] = AxisTypes.TRANSFORMABLE_DIMENSION;
+            axisTypes[ i++ ] = AxisTypes.TRANSFORMABLE_DIMENSION;
+            axisTypes[ i++ ] = AxisTypes.FIXED_DIMENSION;
+            axisTypes[ i++ ] = AxisTypes.SEQUENCE_DIMENSION;
+
 
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );
-            min[ 0 ] = 50; max[ 0 ] = 220;
-            min[ 1 ] = 50; max[ 1 ] = 220;
-            min[ 2 ] = 0; max[ 2 ] = 0; // fixed dimension, chosen reference
-            min[ 3 ] = 0; max[ 3 ] = 8; // sequence dimension, which time-points to register
+            i = 0;
+            min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
+            min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
+            min[ i ] = -1; max[ i++ ] = -1; // fixed dimension: not used
+            min[ i ] = 0; max[ i++ ] = 8; // sequence dimension: registration range
 
             FinalInterval interval = new FinalInterval( min, max );
 
-            long[] searchRadius = new long[ 2 ];
-            searchRadius[ 0 ] = 30;
-            searchRadius[ 1 ] = 30;
+            long[] other = Intervals.minAsLongArray( dataset );
+            i = 0;
+            other[ i++ ] = 30; // transformable dimension: maximal displacement
+            other[ i++ ] = 30; // transformable dimension: maximal displacement
+            other[ i++ ] = 0; // fixed dimension, chosen reference
+            other[ i++ ] = 0; // sequence dimension: reference
+
 
             // Configure image filtering
             //
@@ -325,9 +345,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             ImageRegistration imageRegistration =
                     new ImageRegistration(
                             dataset,
-                            dimensionTypes,
+                            axisTypes,
                             interval,
-                            searchRadius,
+                            other,
                             3,
                             imageFilterType,
                             imageFilterParameters,

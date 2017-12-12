@@ -2,7 +2,7 @@ package embl.almf;
 
 import java.util.ArrayList;
 
-public enum TransformationFindingMethod {
+public enum TransformationFindingType {
 
     PhaseCorrelation;
 

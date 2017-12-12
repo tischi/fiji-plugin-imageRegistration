@@ -2,7 +2,7 @@ package embl.almf;
 
 import java.util.ArrayList;
 
-public enum TransformationAxisType {
+public enum AxisTypes {
 
     SEQUENCE_DIMENSION( "Sequence" ),
     TRANSFORMABLE_DIMENSION( "Transformable" ),
@@ -10,7 +10,7 @@ public enum TransformationAxisType {
 
     private final String name;
 
-    private TransformationAxisType( final String name )
+    private AxisTypes( final String name )
     {
         this.name = name;
     }
@@ -24,7 +24,7 @@ public enum TransformationAxisType {
     {
         ArrayList<String> enumNames = new ArrayList<>(  );
 
-        for (TransformationAxisType registrationAxisType : values() )
+        for (AxisTypes registrationAxisType : values() )
         {
             enumNames.add( registrationAxisType.toString() );
         }

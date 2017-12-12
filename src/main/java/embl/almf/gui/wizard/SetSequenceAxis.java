@@ -1,6 +1,6 @@
 package embl.almf.gui.wizard;
 
-import embl.almf.TransformationAxisType;
+import embl.almf.AxisTypes;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
@@ -20,7 +20,7 @@ import static embl.almf.ImageRegistrationParameters.*;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Image Registration",
-        initializer = "initFields")
+        initializer = "init")
 public class SetSequenceAxis extends DynamicCommand {
 
     @Parameter
@@ -60,7 +60,7 @@ public class SetSequenceAxis extends DynamicCommand {
         // Create GUI
         //
 
-        List< String > choices = TransformationAxisType.asStringList();
+        List< String > choices = AxisTypes.asStringList();
 
         /*
         final MutableModuleItem<String> axisItem =
@@ -82,7 +82,7 @@ public class SetSequenceAxis extends DynamicCommand {
         typeItem.setPersisted( false );
         typeItem.setLabel( INPUT_SEQUENCE_AXIS );
         typeItem.setChoices( axisTypes );
-        typeItem.setValue(this, ""+ TransformationAxisType.SEQUENCE_DIMENSION );
+        typeItem.setValue(this, ""+ AxisTypes.SEQUENCE_DIMENSION );
 
     }
 

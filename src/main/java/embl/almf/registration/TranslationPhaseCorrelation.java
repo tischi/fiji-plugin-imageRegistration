@@ -37,8 +37,7 @@ public abstract class TranslationPhaseCorrelation {
     public static < R extends RealType< R > & NativeType< R > > RealTransform findTransform(
             RandomAccessibleInterval fixedRAI,
             RandomAccessible movingRA,
-            List< RandomAccessibleInterval < R > > fixedRAIList,
-            long[] searchRadius,
+            long[] searchRadii,
             ImageFilter imageFilter,
             ExecutorService service)
     {
@@ -52,7 +51,7 @@ public abstract class TranslationPhaseCorrelation {
 
         for ( int d = 0; d < n; ++d )
         {
-            minOverlap *= ( fixedRAI.dimension( d ) - searchRadius[ d ] );
+            minOverlap *= ( fixedRAI.dimension( d ) - searchRadii[ d ] );
         }
 
         final int extensionValue = 0; //(int) searchRadius[ 0 ];
@@ -64,28 +63,21 @@ public abstract class TranslationPhaseCorrelation {
 
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
 
-        // potentially filter the input images
+        // potentially filter the moving image (the fixed one is already filtered)
         //
         RandomAccessibleInterval filteredFixedRAI = fixedRAI;
         RandomAccessibleInterval filteredMovingRAI = movingRAI;
 
         if ( imageFilter != null )
         {
-            filteredFixedRAI = imageFilter.filter( fixedRAI );
             filteredMovingRAI = imageFilter.filter( movingRAI );
         }
 
-        if ( fixedRAIList != null )
-        {
-            fixedRAIList.add( filteredFixedRAI );
-        }
 
-        // TODO: remove below code!
+        // TODO: remove below code once possible!
         filteredFixedRAI = Views.zeroMin( filteredFixedRAI );
         filteredMovingRAI = Views.zeroMin( filteredMovingRAI );
 
-        //ImageJFunctions.show( fixedRAI );
-        //ImageJFunctions.show( movingRAI );
 
         // compute best shift
         //
