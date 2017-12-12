@@ -1,6 +1,6 @@
 package embl.almf.gui.wizard;
 
-import embl.almf.AxisTypes;
+import embl.almf.RegistrationAxisTypes;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
@@ -62,7 +62,7 @@ public class SetSequenceAxis extends DynamicCommand {
         // Create GUI
         //
 
-        List< String > choices = Stream.of( AxisTypes.values() ).map( AxisTypes::name ).collect( Collectors.toList() );
+        List< String > choices = Stream.of( RegistrationAxisTypes.values() ).map( RegistrationAxisTypes::name ).collect( Collectors.toList() );
 
         /*
         final MutableModuleItem<String> axisItem =
@@ -84,7 +84,7 @@ public class SetSequenceAxis extends DynamicCommand {
         typeItem.setPersisted( false );
         typeItem.setLabel( INPUT_SEQUENCE_AXIS );
         typeItem.setChoices( axisTypes );
-        typeItem.setValue(this, ""+ AxisTypes.Sequence );
+        typeItem.setValue(this, ""+ RegistrationAxisTypes.Sequence );
 
     }
 

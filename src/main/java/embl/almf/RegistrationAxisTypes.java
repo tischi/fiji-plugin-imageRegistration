@@ -2,7 +2,7 @@ package embl.almf;
 
 import java.util.ArrayList;
 
-public enum AxisTypes {
+public enum RegistrationAxisTypes {
 
     Sequence,
     Transformable,

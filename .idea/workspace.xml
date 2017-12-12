@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/tests/ops.txt" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/AxisTypes.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisTypes.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/AxisTypes.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/AxisTypes.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxis.java" afterPath="$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxis.java" />
@@ -31,8 +30,8 @@
       <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="235">
-              <caret line="484" column="62" lean-forward="false" selection-start-line="484" selection-start-column="62" selection-end-line="484" selection-end-column="62" />
+            <state relative-caret-position="219">
+              <caret line="309" column="0" lean-forward="true" selection-start-line="309" selection-start-column="0" selection-end-line="309" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#SequenceAxisSettings#0;class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="true" />
@@ -43,14 +42,13 @@
                 <element signature="method#getDimensionCoordinateMap#0;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#run#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="e#10727#10728#0" expanded="true" />
-                <element signature="e#10769#10770#0" expanded="true" />
-                <element signature="e#10835#10836#0" expanded="true" />
-                <element signature="e#10875#10876#0" expanded="true" />
+                <element signature="e#10990#10991#0" expanded="true" />
+                <element signature="e#11030#11031#0" expanded="true" />
                 <element signature="method#createTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getTransformableRAI#0;class#ImageRegistration#0" expanded="true" />
               </folding>
             </state>
@@ -60,42 +58,45 @@
       <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="688">
-              <caret line="412" column="0" lean-forward="false" selection-start-line="412" selection-start-column="0" selection-end-line="412" selection-end-column="0" />
+            <state relative-caret-position="348">
+              <caret line="386" column="47" lean-forward="true" selection-start-line="386" selection-start-column="47" selection-end-line="386" selection-end-column="47" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1918#1948#0" expanded="true" />
+                <element signature="e#1773#1803#0" expanded="true" />
                 <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
-                <element signature="e#2118#2148#0" expanded="true" />
+                <element signature="e#1973#2003#0" expanded="true" />
                 <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="method#init#0;class#ImageRegistrationPlugin#0" expanded="true" />
-                <element signature="e#8587#8588#0" expanded="true" />
-                <element signature="e#8620#8621#0" expanded="true" />
-                <element signature="e#8683#8684#0" expanded="true" />
-                <element signature="e#8727#8728#0" expanded="true" />
-                <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
-                <element signature="e#9271#9305#0" expanded="false" />
+                <element signature="e#8565#8566#0" expanded="true" />
+                <element signature="e#8598#8599#0" expanded="true" />
+                <element signature="e#8661#8662#0" expanded="true" />
+                <element signature="e#8705#8706#0" expanded="true" />
+                <element signature="e#9249#9283#0" expanded="false" />
+                <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DatasetService.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-common/0.24.4/imagej-common-0.24.4.jar!/net/imagej/DatasetService.class">
+      <file leaf-file-name="ImageRegistrationParameters.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationParameters.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="36" column="36" lean-forward="false" selection-start-line="36" selection-start-column="36" selection-end-line="36" selection-end-column="36" />
-              <folding />
+            <state relative-caret-position="285">
+              <caret line="15" column="38" lean-forward="false" selection-start-line="15" selection-start-column="38" selection-end-line="15" selection-end-column="38" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#getAxisNamesAsStringList#0;class#ImageRegistrationParameters#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CalibratedAxis.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-common/0.24.4/imagej-common-0.24.4.jar!/net/imagej/axis/CalibratedAxis.class">
+      <file leaf-file-name="RegistrationAxisTypes.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisTypes.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="60">
-              <caret line="7" column="23" lean-forward="false" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+              <caret line="4" column="24" lean-forward="false" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -116,16 +117,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="60">
               <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ImageFilterFactory.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -201,7 +192,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/views/ThresholdView.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilter.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterConstants.java" />
@@ -230,7 +220,6 @@
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/SetSequenceAxis.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisType.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationParameters.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/wizard/SetSequenceAxis.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/wizard/SetSequenceAxisParameters.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxisParameters.java" />
@@ -248,10 +237,12 @@
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ReferenceRegionTypes.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/tests/ops.txt" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/AxisTypes.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxis.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationParameters.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/AxisTypes.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisTypes.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
+        <option value="$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java" />
       </list>
     </option>
   </component>
@@ -615,6 +606,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -624,7 +616,7 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39177752" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19347037" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -635,7 +627,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4498186" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3555018" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -708,24 +700,24 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java</url>
-          <line>93</line>
+          <line>88</line>
           <properties />
           <option name="timeStamp" value="150" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java</url>
-          <line>407</line>
+          <line>418</line>
           <properties />
           <option name="timeStamp" value="162" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java</url>
-          <line>412</line>
+          <line>423</line>
           <properties />
           <option name="timeStamp" value="163" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="164" />
+      <option name="time" value="165" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -870,16 +862,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationParameters.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="17" column="56" lean-forward="false" selection-start-line="17" selection-start-column="56" selection-end-line="17" selection-end-column="56" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-legacy/0.25.0/imagej-legacy-0.25.0.jar!/net/imagej/legacy/ui/LegacyUI.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
@@ -992,14 +974,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/AxisTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxis.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="271">
@@ -1107,10 +1081,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationParameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="15" column="38" lean-forward="false" selection-start-line="15" selection-start-column="38" selection-end-line="15" selection-end-column="38" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getAxisNamesAsStringList#0;class#ImageRegistrationParameters#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisTypes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="24" lean-forward="false" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="484" column="62" lean-forward="false" selection-start-line="484" selection-start-column="62" selection-end-line="484" selection-end-column="62" />
+        <state relative-caret-position="219">
+          <caret line="309" column="0" lean-forward="true" selection-start-line="309" selection-start-column="0" selection-end-line="309" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#SequenceAxisSettings#0;class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="true" />
@@ -1121,14 +1114,13 @@
             <element signature="method#getDimensionCoordinateMap#0;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#ImageRegistration#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#run#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="e#10727#10728#0" expanded="true" />
-            <element signature="e#10769#10770#0" expanded="true" />
-            <element signature="e#10835#10836#0" expanded="true" />
-            <element signature="e#10875#10876#0" expanded="true" />
+            <element signature="e#10990#10991#0" expanded="true" />
+            <element signature="e#11030#11031#0" expanded="true" />
             <element signature="method#createTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#getMovingRA#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#getTransformableRAI#0;class#ImageRegistration#0" expanded="true" />
           </folding>
         </state>
@@ -1136,22 +1128,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="688">
-          <caret line="412" column="0" lean-forward="false" selection-start-line="412" selection-start-column="0" selection-end-line="412" selection-end-column="0" />
+        <state relative-caret-position="348">
+          <caret line="386" column="47" lean-forward="true" selection-start-line="386" selection-start-column="47" selection-end-line="386" selection-end-column="47" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1918#1948#0" expanded="true" />
+            <element signature="e#1773#1803#0" expanded="true" />
             <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
-            <element signature="e#2118#2148#0" expanded="true" />
+            <element signature="e#1973#2003#0" expanded="true" />
             <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="method#run#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="method#init#0;class#ImageRegistrationPlugin#0" expanded="true" />
-            <element signature="e#8587#8588#0" expanded="true" />
-            <element signature="e#8620#8621#0" expanded="true" />
-            <element signature="e#8683#8684#0" expanded="true" />
-            <element signature="e#8727#8728#0" expanded="true" />
-            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
-            <element signature="e#9271#9305#0" expanded="false" />
+            <element signature="e#8565#8566#0" expanded="true" />
+            <element signature="e#8598#8599#0" expanded="true" />
+            <element signature="e#8661#8662#0" expanded="true" />
+            <element signature="e#8705#8706#0" expanded="true" />
+            <element signature="e#9249#9283#0" expanded="false" />
+            <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
           </folding>
         </state>
       </provider>

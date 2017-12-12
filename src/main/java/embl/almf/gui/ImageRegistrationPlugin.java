@@ -11,8 +11,6 @@ package embl.almf.gui;
 
 import embl.almf.*;
 import embl.almf.filter.ImageFilterType;
-import ij.IJ;
-import net.imagej.Data;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ImgPlus;
@@ -20,9 +18,6 @@ import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
@@ -94,11 +89,11 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         long[] min = Intervals.minAsLongArray( dataset );
         long[] max = Intervals.maxAsLongArray( dataset );
         long[] other = new long[ numDimensions ];
-        AxisTypes[] axisTypes = new AxisTypes[ numDimensions ];
+        RegistrationAxisTypes[] axisTypes = new RegistrationAxisTypes[ numDimensions ];
 
         for ( int d = 0; d < numDimensions; ++d )
         {
-            axisTypes[ d ] = AxisTypes.valueOf( typeInput( d ).getValue( this ) );
+            axisTypes[ d ] = RegistrationAxisTypes.valueOf( typeInput( d ).getValue( this ) );
             min[ d ] = varInput( d, "min" ).getValue( this );
             max[ d ] = varInput( d, "max" ).getValue( this );
             other[ d ] = varInput( d, "other" ).getValue( this );
@@ -151,9 +146,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         int n = dataset.numDimensions();
 
         List< String > axisTypes =
-                Stream.of( AxisTypes.values() )
-                    .map(AxisTypes::name)
-                    .collect( Collectors.toList());
+                Stream.of( RegistrationAxisTypes.values() )
+                    .map( RegistrationAxisTypes::name )
+                    .collect( Collectors.toList() );
 
         ArrayList< String > axisNames = ImageRegistrationParameters.getAxisNamesAsStringList( dataset );
 
@@ -195,15 +190,15 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             typeItem.setLabel( "Type" );
             typeItem.setChoices( axisTypes );
             if ( axisNames.get( d ).equals( sequenceDefault ) )
-                typeItem.setValue( this, "" + AxisTypes.Sequence );
+                typeItem.setValue( this, "" + RegistrationAxisTypes.Sequence );
             else if ( axisNames.get( d ).equals( Axes.X.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
             else if ( axisNames.get( d ).equals( Axes.Y.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
             else if ( axisNames.get( d ).equals( Axes.Z.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
             else if ( axisNames.get( d ).equals( Axes.CHANNEL.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.Fixed );
+                typeItem.setValue( this, "" + RegistrationAxisTypes.Fixed );
 
             // Interval minimum
             //
@@ -320,12 +315,12 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
             int i;
 
-            AxisTypes[] axisTypes = new AxisTypes[ n ];
+            RegistrationAxisTypes[] registrationAxisTypes = new RegistrationAxisTypes[ n ];
             i = 0;
-            axisTypes[ i++ ] = AxisTypes.Transformable;
-            axisTypes[ i++ ] = AxisTypes.Transformable;
-            axisTypes[ i++ ] = AxisTypes.Fixed;
-            axisTypes[ i++ ] = AxisTypes.Sequence;
+            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Transformable;
+            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Transformable;
+            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Fixed;
+            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Sequence;
 
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );
@@ -368,7 +363,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             ImageRegistration imageRegistration =
                     new ImageRegistration(
                             dataset,
-                            axisTypes,
+                            registrationAxisTypes,
                             interval,
                             other,
                             3,
@@ -378,21 +373,30 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
             imageRegistration.run();
 
-            showRAI( ij,
-                    imageRegistration.getFixedSequenceOutput(),
-                    "fixed sequence",
-                    new AxisType[]{ Axes.X, Axes.Y, Axes.Z } );
+            ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+            for (int d = 0; d < dataset.numDimensions(); d++)
+            {
+                axisTypes.add( dataset.axis( d ).type() );
+            }
 
-            showRAI( ij,
-                    imageRegistration.getTransformedOutput(),
+            final ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
+            RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
+            showRAI(ij,
+                    raiFSO,
+                    "transformed reference sequence",
+                    axesIdsFixedSequenceOutput,
+                    axisTypes);
+
+            final ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
+            RandomAccessibleInterval raiTO = imageRegistration.getFixedSequenceOutput( axesIdsTransformedOutput );
+            showRAI(ij,
+                    raiTO,
                     "transformed input",
-                    new AxisType[]{ Axes.X, Axes.Y, Axes.CHANNEL, Axes.TIME } );
+                    axesIdsTransformedOutput,
+                    axisTypes);
 
 
         }
-
-
-
 
     }
 
@@ -401,9 +405,16 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             ImageJ ij,
             RandomAccessibleInterval rai,
             String title,
-            AxisType[] axisTypes )
+            ArrayList< Integer > axesIds,
+            ArrayList< AxisType > axisTypesInputDataset )
     {
         Dataset dataset = ij.dataset().create( Views.zeroMin( rai ) );
+
+        AxisType[] axisTypes = new AxisType[ axesIds.size() ];
+        for ( int i = 0; i < axisTypes.length; ++i )
+        {
+            axisTypes[ i ] = axisTypesInputDataset.get( axesIds.get( i ) ) ;
+        }
 
         ImgPlus img = new ImgPlus<>(
                 dataset,

@@ -6,7 +6,6 @@ import ij.IJ;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.realtransform.RealViews;
@@ -48,11 +47,11 @@ public class ImageRegistration
         long min;
         long max;
         long ref;
-        int dimension;
+        int axis;
 
         SequenceAxisSettings( int d, long min, long max, long ref )
         {
-            this.dimension = d;
+            this.axis = d;
             this.min = min;
             this.max = max;
             this.ref = ref;
@@ -62,7 +61,7 @@ public class ImageRegistration
 
     private class TransformableAxesSettings
     {
-        int[] dimensions;
+        int[] axes;
         FinalInterval referenceInterval;
         long[] maximalDisplacements;
 
@@ -71,7 +70,7 @@ public class ImageRegistration
                 FinalInterval referenceInterval,
                 long[] maximalDisplacements )
         {
-            this.dimensions = dimensions;
+            this.axes = dimensions;
             this.referenceInterval = referenceInterval;
             this.maximalDisplacements = maximalDisplacements;
         }
@@ -84,26 +83,26 @@ public class ImageRegistration
      */
     private class FixedAxesSettings
     {
-        int[] dimensions;
+        int[] axes;
         FinalInterval referenceInterval;
 
         FixedAxesSettings(
                 int[] dimensions,
                 FinalInterval referenceInterval )
         {
-            this.dimensions = dimensions;
+            this.axes = dimensions;
             this.referenceInterval = referenceInterval;
         }
 
         public long min( int d )
         {
-            int i = Arrays.asList( dimensions ).indexOf( d );
+            int i = Arrays.asList( axes ).indexOf( d );
             return referenceInterval.min( i );
         }
 
         public long max( int d )
         {
-            int i = Arrays.asList( dimensions ).indexOf( d );
+            int i = Arrays.asList( axes ).indexOf( d );
             return referenceInterval.max( i );
         }
 
@@ -111,9 +110,9 @@ public class ImageRegistration
         {
             HashMap< Integer, Long > map = new HashMap<>(  );
 
-            for ( int i = 0; i < dimensions.length; ++i )
+            for ( int i = 0; i < axes.length; ++i )
             {
-                map.put( dimensions[ i ], referenceInterval.min( i ) );
+                map.put( axes[ i ], referenceInterval.min( i ) );
             }
 
             return map;
@@ -132,7 +131,7 @@ public class ImageRegistration
 
     public ImageRegistration(
             final RandomAccessibleInterval< R > input,
-            final AxisTypes[] axisTypes,
+            final RegistrationAxisTypes[] axisTypes,
             final FinalInterval intervalInput,
             final long[] otherCoordinateInput,
             int numThreads,
@@ -164,7 +163,7 @@ public class ImageRegistration
 
         // Configure sequence axis
         //
-        int sequenceDimension = Arrays.asList( axisTypes ).indexOf( AxisTypes.Sequence );
+        int sequenceDimension = Arrays.asList( axisTypes ).indexOf( RegistrationAxisTypes.Sequence );
         sequenceAxisProperties =
                 new SequenceAxisSettings(
                         sequenceDimension,
@@ -175,7 +174,7 @@ public class ImageRegistration
 
         // Configure transformable axes
         //
-        int numTransformableDimensions = Collections.frequency( Arrays.asList( axisTypes ), AxisTypes.Transformable);
+        int numTransformableDimensions = Collections.frequency( Arrays.asList( axisTypes ), RegistrationAxisTypes.Transformable);
 
         int[] transformableDimensions = new int[ numTransformableDimensions ];
         long[] maximalDisplacements = new long[ numTransformableDimensions ];
@@ -184,7 +183,7 @@ public class ImageRegistration
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( axisTypes[ d ].equals( AxisTypes.Transformable ) )
+            if ( axisTypes[ d ].equals( RegistrationAxisTypes.Transformable ) )
             {
                 transformableDimensions[ i ] = d;
                 referenceIntervalMin[ i ] = intervalInput.min( d );
@@ -204,7 +203,7 @@ public class ImageRegistration
 
         // Configure fixed axes
         //
-        int numFixedDimensions = Collections.frequency( Arrays.asList( axisTypes ), AxisTypes.Fixed );
+        int numFixedDimensions = Collections.frequency( Arrays.asList( axisTypes ), RegistrationAxisTypes.Fixed );
 
         int[] fixedDimensions = new int[ numFixedDimensions ];
         long[] fixedDimensionsReferenceIntervalMin = new long[ numFixedDimensions ];
@@ -212,7 +211,7 @@ public class ImageRegistration
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( axisTypes[ d ].equals( AxisTypes.Fixed ) )
+            if ( axisTypes[ d ].equals( RegistrationAxisTypes.Fixed ) )
             {
                 fixedDimensions[ i ] = d;
                 // Stored as an interval, although the code currently only supports one fixed coordinate.
@@ -300,8 +299,17 @@ public class ImageRegistration
 
     }
 
-    public RandomAccessibleInterval getFixedSequenceOutput()
+    public RandomAccessibleInterval getFixedSequenceOutput(
+            ArrayList< Integer > axes
+    )
     {
+        for ( int a : transformableAxesSettings.axes )
+        {
+            axes.add( a );
+        }
+
+        axes.add( sequenceAxisProperties.axis );
+
         return fixedSequenceOutput;
     }
 
@@ -346,8 +354,8 @@ public class ImageRegistration
         {
             List< RandomAccessibleInterval< R > > transformedRaiList = new ArrayList<>();
 
-            for ( long s = inputRAI.min( sequenceAxisProperties.dimension );
-                  s <= inputRAI.max( sequenceAxisProperties.dimension );
+            for ( long s = inputRAI.min( sequenceAxisProperties.axis );
+                  s <= inputRAI.max( sequenceAxisProperties.axis );
                   ++s )
             {
                 if ( transformations.containsKey( s ) )
@@ -453,12 +461,12 @@ public class ImageRegistration
     {
 
 
-        // For each combination of the fixed dimensions ( Map< Integer, Long > )
+        // For each combination of the fixed axes ( Map< Integer, Long > )
         // generate a transformed RAI sequence
         Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap = new HashMap<>(  );
 
-        // Fixed dimensions map.
-        // This serves to indicate whether the dimension has been transformed already or not (null).
+        // Fixed axes map.
+        // This serves to indicate whether the axis has been transformed already or not (null).
         Map< Integer, Long > fixedDimensions = new HashMap<>( fixedAxesSettings.getDimensionCoordinateMap() );
         for ( int d : fixedDimensions.keySet() )
         {
@@ -475,7 +483,7 @@ public class ImageRegistration
 
         for ( Map< Integer, Long > fixedCoordinates : transformedSequenceMap.keySet() )
         {
-            IJ.log( "-- Transformed sequence at fixed dimensions:" );
+            IJ.log( "-- Transformed sequence at fixed axes:" );
             for ( Integer d : fixedCoordinates.keySet() )
             {
                 IJ.log( "Dimension " + d + "; Coordinate " + fixedCoordinates.get( d ) );
@@ -488,7 +496,7 @@ public class ImageRegistration
 
     /**
      * Returns a RandomAccessibleInterval which has the dimensionality
-     * of number of transformable dimensions, where the sequence dimension s
+     * of number of transformable axes, where the sequence axis s
      * and the fixedDimensions will be set (and dropped) as specified in the input.
      * @param s
      * @param fixedDimensions
@@ -502,8 +510,8 @@ public class ImageRegistration
         long[] min = Intervals.minAsLongArray( inputRAI );
         long[] max = Intervals.maxAsLongArray( inputRAI );
 
-        min[ sequenceAxisProperties.dimension ] = s;
-        max[ sequenceAxisProperties.dimension ] = s;
+        min[ sequenceAxisProperties.axis ] = s;
+        max[ sequenceAxisProperties.axis ] = s;
 
         for ( int d : fixedAxesDimensionCoordinateMap.keySet() )
         {
@@ -546,8 +554,8 @@ public class ImageRegistration
         {
             List< RandomAccessibleInterval< R > > transformedRaiList = new ArrayList<>();
 
-            for ( long s = inputRAI.min( sequenceAxisProperties.dimension );
-                  s <= inputRAI.max( sequenceAxisProperties.dimension );
+            for ( long s = inputRAI.min( sequenceAxisProperties.axis );
+                  s <= inputRAI.max( sequenceAxisProperties.axis );
                   ++s )
             {
                 if ( transformations.containsKey( s ) )
