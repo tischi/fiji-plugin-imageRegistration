@@ -15,6 +15,8 @@ import org.scijava.ui.UIService;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static embl.almf.ImageRegistrationParameters.*;
 
@@ -60,7 +62,7 @@ public class SetSequenceAxis extends DynamicCommand {
         // Create GUI
         //
 
-        List< String > choices = AxisTypes.asStringList();
+        List< String > choices = Stream.of( AxisTypes.values() ).map( AxisTypes::name ).collect( Collectors.toList() );
 
         /*
         final MutableModuleItem<String> axisItem =
@@ -82,7 +84,7 @@ public class SetSequenceAxis extends DynamicCommand {
         typeItem.setPersisted( false );
         typeItem.setLabel( INPUT_SEQUENCE_AXIS );
         typeItem.setChoices( axisTypes );
-        typeItem.setValue(this, ""+ AxisTypes.SEQUENCE_DIMENSION );
+        typeItem.setValue(this, ""+ AxisTypes.Sequence );
 
     }
 

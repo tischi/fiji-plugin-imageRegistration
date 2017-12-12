@@ -12,14 +12,20 @@ package embl.almf.gui;
 import embl.almf.*;
 import embl.almf.filter.ImageFilterType;
 import ij.IJ;
+import net.imagej.Data;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
-import net.imagej.axis.Axes;
+import net.imagej.ImgPlus;
+import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
@@ -31,6 +37,8 @@ import org.scijava.widget.NumberWidget;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static embl.almf.filter.ImageFilterParameters.*;
 
@@ -86,51 +94,67 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         long[] min = Intervals.minAsLongArray( dataset );
         long[] max = Intervals.maxAsLongArray( dataset );
         long[] other = new long[ numDimensions ];
-        String[] axisTypes = new String[ numDimensions ];
+        AxisTypes[] axisTypes = new AxisTypes[ numDimensions ];
+
         for ( int d = 0; d < numDimensions; ++d )
         {
-            axisTypes[ d ] = typeInput( d ).getValue( this );
+            axisTypes[ d ] = AxisTypes.valueOf( typeInput( d ).getValue( this ) );
             min[ d ] = varInput( d, "min" ).getValue( this );
             max[ d ] = varInput( d, "max" ).getValue( this );
             other[ d ] = varInput( d, "other" ).getValue( this );
         }
+
         FinalInterval interval = new FinalInterval( min, max );
 
-
-        final Img<T> image = (Img<T>) dataset.getImgPlus();
-
-
-        IJ.log( " AAAAAA " );
-
-        //TransformationType.values();
-
-        /*
-
+        // Configure image filtering
         //
-        // Enter inputRAI processing code here ...
-        // The following is just a Gauss filtering example
-        //
-        final double[] sigmas = {1.0, 3.0, 5.0};
+        // TODO: Get from GUI
+        Map< String, Object > imageFilterParameters = new HashMap<>();
 
-        List<RandomAccessibleInterval<T>> results = new ArrayList<>();
+        ImageFilterType imageFilterType = ImageFilterType.DOG_THRESHOLD;
 
-        for (double sigma : sigmas) {
-            results.add(opService.filter().gauss(inputRAI, sigma));
-        }
+        imageFilterParameters.put(
+                GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );
+        imageFilterParameters.put(
+                THRESHOLD_VALUE, 20.0D );
+        imageFilterParameters.put(
+                DOG_SIGMA_SMALLER, new double[]{ 1.0D, 1.0D} );
+        imageFilterParameters.put(
+                DOG_SIGMA_LARGER, new double[]{ 10.0D, 10.0D} );
 
-        // display result
-        for (RandomAccessibleInterval<T> elem : results) {
-            uiService.show(elem);
-        }
-        */
+
+        boolean showFixedImageSequence = true;
+
+        //imageFilterType = null;
+
+        ImageRegistration imageRegistration =
+                new ImageRegistration(
+                        dataset,
+                        axisTypes,
+                        interval,
+                        other,
+                        3,
+                        imageFilterType,
+                        imageFilterParameters,
+                        showFixedImageSequence );
+
+        imageRegistration.run();
+
+
     }
 
     protected void init()
     {
 
+        boolean persist = true;
+
         int n = dataset.numDimensions();
 
-        ArrayList< String > axisTypes = AxisTypes.asStringList();
+        List< String > axisTypes =
+                Stream.of( AxisTypes.values() )
+                    .map(AxisTypes::name)
+                    .collect( Collectors.toList());
+
         ArrayList< String > axisNames = ImageRegistrationParameters.getAxisNamesAsStringList( dataset );
 
         // Guess default axisType choices
@@ -158,7 +182,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             //
             final MutableModuleItem<String> axisItem =
                     addInput( axisNames.get( d ), String.class);
-            axisItem.setPersisted( false );
+            axisItem.setPersisted( persist );
             axisItem.setVisibility( ItemVisibility.MESSAGE );
             axisItem.setValue(this, axisNames.get( d ) );
 
@@ -167,19 +191,19 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             var = "type";
             final MutableModuleItem<String> typeItem =
                     addInput( typeName( d ), String.class);
-            typeItem.setPersisted( false );
+            typeItem.setPersisted( persist );
             typeItem.setLabel( "Type" );
             typeItem.setChoices( axisTypes );
             if ( axisNames.get( d ).equals( sequenceDefault ) )
-                typeItem.setValue( this, "" + AxisTypes.SEQUENCE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.Sequence );
             else if ( axisNames.get( d ).equals( Axes.X.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.TRANSFORMABLE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.Transformable );
             else if ( axisNames.get( d ).equals( Axes.Y.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.TRANSFORMABLE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.Transformable );
             else if ( axisNames.get( d ).equals( Axes.Z.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.TRANSFORMABLE_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.Transformable );
             else if ( axisNames.get( d ).equals( Axes.CHANNEL.toString() ))
-                typeItem.setValue( this, "" + AxisTypes.FIXED_DIMENSION );
+                typeItem.setValue( this, "" + AxisTypes.Fixed );
 
             // Interval minimum
             //
@@ -187,7 +211,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             final MutableModuleItem<Long> minItem =
                     addInput( varName(d, var), Long.class);
             minItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
-            minItem.setPersisted( false );
+            minItem.setPersisted( persist );
             minItem.setLabel( var );
             minItem.setValue(this, dataset.min( d ));
             minItem.setMinimumValue( dataset.min( d ) );
@@ -199,7 +223,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             final MutableModuleItem<Long> maxItem =
                     addInput( varName(d, var), Long.class);
             maxItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
-            maxItem.setPersisted( false );
+            maxItem.setPersisted( persist );
             maxItem.setLabel( var );
             maxItem.setValue(this, dataset.max( d ) );
             maxItem.setMinimumValue( dataset.min( d ) );
@@ -214,7 +238,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             final MutableModuleItem<Long> otherItem =
                     addInput( varName(d, var), Long.class);
             otherItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
-            otherItem.setPersisted( false );
+            otherItem.setPersisted( persist );
             otherItem.setLabel( var );
             otherItem.setValue(this, dataset.max( d ) );
             otherItem.setMinimumValue( dataset.min( d ) );
@@ -222,6 +246,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
 
         }
+
 
     }
 
@@ -249,10 +274,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-
-        boolean GUI = true;
-        boolean TEST = false;
-
+        boolean GUI = false;
+        boolean TEST = true;
 
         // ask the user for a file to open
         //final File file = ij.ui().chooseFile(null, "open");
@@ -271,6 +294,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             ij.ui().show( dataset );
 
 
+
 //            IJ.run("Image Sequence...",
 //                    "open=/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit sort use");
 //            ImagePlus imp = IJ.getImage(); n = 3;
@@ -281,7 +305,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 //            ImgPlus< UnsignedShortType > imgp = new ImgPlus<>( img, "title", new AxisType[]{ Axes.X, Axes.Y, Axes.Z } );
 ////            ij.get(LegacyService.class).getImageMap().addMapping(  ); // but it's private...
 //            //imp.hide(); ImageJFunctions.show( img );
-//            ij.ui().show( imgp );
+           // ij.convert().convert( RAI, Img.class );
         }
 
 
@@ -298,11 +322,10 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
             AxisTypes[] axisTypes = new AxisTypes[ n ];
             i = 0;
-            axisTypes[ i++ ] = AxisTypes.TRANSFORMABLE_DIMENSION;
-            axisTypes[ i++ ] = AxisTypes.TRANSFORMABLE_DIMENSION;
-            axisTypes[ i++ ] = AxisTypes.FIXED_DIMENSION;
-            axisTypes[ i++ ] = AxisTypes.SEQUENCE_DIMENSION;
-
+            axisTypes[ i++ ] = AxisTypes.Transformable;
+            axisTypes[ i++ ] = AxisTypes.Transformable;
+            axisTypes[ i++ ] = AxisTypes.Fixed;
+            axisTypes[ i++ ] = AxisTypes.Sequence;
 
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );
@@ -310,7 +333,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
             min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
             min[ i ] = -1; max[ i++ ] = -1; // fixed dimension: not used
-            min[ i ] = 0; max[ i++ ] = 8; // sequence dimension: registration range
+            min[ i ] = 0; max[ i++ ] = 3; // sequence dimension: registration range
 
             FinalInterval interval = new FinalInterval( min, max );
 
@@ -353,16 +376,41 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                             imageFilterParameters,
                             showFixedImageSequence );
 
-            /*
-            ImageJFunctions.show(
-                    imageRegistration.getFilteredImage(),
-                    "filtering preview");
-                    */
-
             imageRegistration.run();
+
+            showRAI( ij,
+                    imageRegistration.getFixedSequenceOutput(),
+                    "fixed sequence",
+                    new AxisType[]{ Axes.X, Axes.Y, Axes.Z } );
+
+            showRAI( ij,
+                    imageRegistration.getTransformedOutput(),
+                    "transformed input",
+                    new AxisType[]{ Axes.X, Axes.Y, Axes.CHANNEL, Axes.TIME } );
+
+
         }
 
 
+
+
+    }
+
+
+    public static void showRAI (
+            ImageJ ij,
+            RandomAccessibleInterval rai,
+            String title,
+            AxisType[] axisTypes )
+    {
+        Dataset dataset = ij.dataset().create( Views.zeroMin( rai ) );
+
+        ImgPlus img = new ImgPlus<>(
+                dataset,
+                title,
+                axisTypes );
+
+        ij.ui().show( img );
     }
 
 }

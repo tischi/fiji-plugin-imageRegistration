@@ -40,13 +40,15 @@ public class ImageRegistration
     ExecutorService service;
     private final boolean showFixedImageSequence;
 
+    RandomAccessibleInterval fixedSequenceOutput;
+    RandomAccessibleInterval transformedOutput;
 
     private class SequenceAxisSettings
     {
-        int dimension;
         long min;
         long max;
         long ref;
+        int dimension;
 
         SequenceAxisSettings( int d, long min, long max, long ref )
         {
@@ -162,7 +164,7 @@ public class ImageRegistration
 
         // Configure sequence axis
         //
-        int sequenceDimension = Arrays.asList( axisTypes ).indexOf( AxisTypes.SEQUENCE_DIMENSION );
+        int sequenceDimension = Arrays.asList( axisTypes ).indexOf( AxisTypes.Sequence );
         sequenceAxisProperties =
                 new SequenceAxisSettings(
                         sequenceDimension,
@@ -173,7 +175,7 @@ public class ImageRegistration
 
         // Configure transformable axes
         //
-        int numTransformableDimensions = Collections.frequency( Arrays.asList( axisTypes ), AxisTypes.TRANSFORMABLE_DIMENSION);
+        int numTransformableDimensions = Collections.frequency( Arrays.asList( axisTypes ), AxisTypes.Transformable);
 
         int[] transformableDimensions = new int[ numTransformableDimensions ];
         long[] maximalDisplacements = new long[ numTransformableDimensions ];
@@ -182,7 +184,7 @@ public class ImageRegistration
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( axisTypes[ d ].equals( AxisTypes.TRANSFORMABLE_DIMENSION ) )
+            if ( axisTypes[ d ].equals( AxisTypes.Transformable ) )
             {
                 transformableDimensions[ i ] = d;
                 referenceIntervalMin[ i ] = intervalInput.min( d );
@@ -202,7 +204,7 @@ public class ImageRegistration
 
         // Configure fixed axes
         //
-        int numFixedDimensions = Collections.frequency( Arrays.asList( axisTypes ), AxisTypes.FIXED_DIMENSION );
+        int numFixedDimensions = Collections.frequency( Arrays.asList( axisTypes ), AxisTypes.Fixed );
 
         int[] fixedDimensions = new int[ numFixedDimensions ];
         long[] fixedDimensionsReferenceIntervalMin = new long[ numFixedDimensions ];
@@ -210,7 +212,7 @@ public class ImageRegistration
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( axisTypes[ d ].equals( AxisTypes.FIXED_DIMENSION ) )
+            if ( axisTypes[ d ].equals( AxisTypes.Fixed ) )
             {
                 fixedDimensions[ i ] = d;
                 // Stored as an interval, although the code currently only supports one fixed coordinate.
@@ -290,15 +292,22 @@ public class ImageRegistration
 
         // Generate fixedRAI output sequence for the user to check if everything worked well
         //
-        RandomAccessibleInterval fixedRAISequence = Views.stack( fixedRAIList );
-        ImageJFunctions.show( fixedRAISequence, "reference region" );
+        fixedSequenceOutput = Views.stack( fixedRAIList );
 
         // Generate actual result, i.e. transform the whole input RAI
         //
-        RandomAccessibleInterval transformedInputRAI =
-                transformWholeInputRAI( transformations );
+        transformedOutput = transformWholeInputRAI( transformations );
 
-        ImageJFunctions.show( transformedInputRAI, "registered" );
+    }
+
+    public RandomAccessibleInterval getFixedSequenceOutput()
+    {
+        return fixedSequenceOutput;
+    }
+
+    public RandomAccessibleInterval getTransformedOutput()
+    {
+        return transformedOutput;
     }
 
     private RandomAccessibleInterval createTransformedRAI(
@@ -473,7 +482,7 @@ public class ImageRegistration
             }
         }
 
-        return transformedRAI;
+        return Views.dropSingletonDimensions( transformedRAI );
 
     }
 
