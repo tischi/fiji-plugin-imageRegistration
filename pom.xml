@@ -24,11 +24,11 @@
 	-->
 
 	<groupId>embl.almf</groupId>
-	<artifactId>Image_Registration</artifactId>
+	<artifactId>fiji-plugin-imageRegistration</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
 	<name>Fiji plugin for image registration</name>
-	<description>A plugin for multidimensional image registration with different methods.</description>
+	<description>A plugin for multidimensional image registration.</description>
 	<inceptionYear>2017</inceptionYear>
 	<organization>
 		<name>EMBL</name>
@@ -40,6 +40,8 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
+	<url>https://github.com/tischi/fiji-plugin-imageRegistration</url>
 
 	<developers>
 		<developer>
@@ -57,38 +59,42 @@
 	</developers>
 	<contributors>
 		<contributor>
-			<name>Aliaksandr Halavatyi</name>
-			<roles><role>founder</role></roles>
-			<properties><id>dscho</id></properties>
+			<name>None</name>
 		</contributor>
 	</contributors>
 
 
-	<!--
+
 	<scm>
-		<connection>scm:git:git://github.com/imagej/example-legacy-plugin</connection>
-		<developerConnection>scm:git:git@github.com:imagej/example-legacy-plugin</developerConnection>
+		<connection>scm:git:git://github.com/tischi/fiji-plugin-imageRegistration</connection>
+		<developerConnection>scm:git:git@github.com/tischi/fiji-plugin-imageRegistration</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/imagej/example-legacy-plugin</url>
+		<url>https://github.com/tischi/fiji-plugin-imageRegistration</url>
 	</scm>
-	-->
+
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
 
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/imagej/fiji-plugin-imageRegistration/issues</url>
+		<url>https://github.com/tischi/fiji-plugin-imageRegistration/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>None</system>
 	</ciManagement>
 
-	<!--
+
 	<properties>
-		<package-name>com.mycompany.imagej</package-name>
-		<main-class>com.mycompany.imagej.Process_Pixels</main-class>
+		<package-name>de.embl.cba</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>EMBL</license.copyrightOwners>
+		<imagej.app.directory>/Applications/Fiji.app/</imagej.app.directory>
 	</properties>
-	-->
 
 	<parent>
 		<groupId>org.scijava</groupId>
@@ -122,6 +128,12 @@
 			<groupId>net.preibisch</groupId>
 			<artifactId>BigStitcher</artifactId>
 			<version>0.1.1</version>
+		</dependency>
+
+		<!-- Bioformats dependencies -->
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>bio-formats_plugins</artifactId>
 		</dependency>
 
 		<!-- ImgLib2 dependencies -->
