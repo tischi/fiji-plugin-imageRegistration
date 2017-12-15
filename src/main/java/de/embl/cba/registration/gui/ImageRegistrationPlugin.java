@@ -29,6 +29,7 @@ import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.Interactive;
+import org.scijava.log.LogService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -42,7 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Plugin(type = Command.class,
-        menuPath = "Plugins>Image Registration",
+        menuPath = "Plugins>Registration>N-D Sequence Registration",
         initializer = "init")
 public class ImageRegistrationPlugin<T extends RealType<T>>
         extends DynamicCommand
@@ -59,51 +60,72 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     private DatasetService datasetService;
 
     @Parameter
+    private LogService logService;
+
+    @Parameter
     private OpService opService;
 
     @Parameter(label = "Transformation type and finder method",
-            choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"} )
+            choices = {"Translation__PhaseCorrelation"} ) //, "Rotation_Translation__PhaseCorrelation"} )
     private String transformationTypeInput;
 
-    @Parameter(label = "",
-    visibility = ItemVisibility.MESSAGE )
-    private String transformationParameterMessage01
-            = "Please enter below values as comma-separated list.";
-
-
-    @Parameter(label = "",
-            visibility = ItemVisibility.MESSAGE )
-    private String transformationParameterMessage02
-            = "For each transformable dimension there is one number required.";
-
-    @Parameter(label = "",
-            visibility = ItemVisibility.MESSAGE )
-    private String transformationParameterMessage03
-            = "The order must be the same as the order in which your axes appear down below.";
-
-    @Parameter(label = "Maximal translations between subsequent sequence coordinates" )
-    private String transformationParametersMaximalTranslationsInput = "";
-
-    @Parameter(label = "Maximal rotations between subsequent sequence coordinates" )
-    private String transformationParameterMaximalRotationsInput = "";
-
-    @Parameter(label = "Output view size",
+    @Parameter(label = "Output size",
             choices = {"ReferenceRegionSize", "InputDataSize"} )
     private String outputViewIntervalSizeTypeInput;
 
-    @Parameter(label = "Image processing",
-            choices = {"Threshold", "EnhanceEdgesAndThreshold"} )
+    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    private String message01
+            = "<html> "  +
+            "<br>MAXIMAL TRANSFORMATION RANGES<br>" +
+            "Please enter values as comma-separated list with one number per transformable dimension. <br>" +
+            "The order must be the same as your axes appear down below.<br>" +
+            "Maximal transformation values are between subsequent sequence coordinates.<br>";
+
+    @Parameter(label = "Maximal translations [pixels]", persist = false)
+    private String transformationParametersMaximalTranslationsInput = "20,20";
+
+    //@Parameter(label = "Maximal rotations [degrees]", persist = false)
+    private String transformationParameterMaximalRotationsInput = "20,20";
+
+    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    private String message02
+            = "<html> "  +
+            "<br>IMAGE PRE-PROCESSING<br>" +
+            "For finding the transformations it can help to preprocess the images.<br>" +
+            "For example, phase- and cross-correlation are very noise sensitive.<br>" +
+            "Typically it helps to threshold above the noise level.<br>";
+
+    @Parameter(label = "Image pre-processing",
+            choices = {"None", "Threshold", "DifferenceOfGaussianAndThreshold"} )
     private String imageFilterTypeInput;
 
     @Parameter(label = "Threshold value" )
     private Double imageFilterParameterThresholdInput;
 
-    public static ArrayList< String > getAxisNamesAsStringList( Dataset dataset )
+    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    private String message03
+            = "<html> "  +
+            "<br>AXES SET-UP<br>" +
+            "<li>" +
+            "Sequence: <b>One</b> axis along which you want to register, e.g. time or z.<br>" +
+            "Min and max values chose a subset of the full dataset.<br>" +
+            "</li>" +
+            "<li>" +
+            "Transformable: <b>Multiple</b> axes where the transformations occur, e.g. x and y.<br>" +
+            "Min and max values determine a reference region that should be stabilized." +
+            "</li>" +
+            "<li>" +
+            "Fixed: <b>Multiple</b> axes, for example your channel axis.<br>" +
+            "Currently only the min value is used to choose the, e.g., reference channel.<br>" +
+            "The transformation is applied to all coordinates for your fixed axes." +
+            "</li>";
+
+    public static ArrayList< AxisType > getAxisTypeList( Dataset dataset )
     {
-        ArrayList< String > axisTypes = new ArrayList<>(  );
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
         for (int d = 0; d < dataset.numDimensions(); d++)
         {
-            axisTypes.add( dataset.axis( d ).type().toString() );
+            axisTypes.add( dataset.axis( d ).type() );
         }
 
         return axisTypes;
@@ -120,11 +142,12 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         return (MutableModuleItem<String>) getInfo().getInput( typeName( d ) );
     }
 
-    @Parameter(label = "Compute transformationfinders", callback = "computeRegistration")
+    @Parameter(label = "Compute registration", callback = "computeRegistration")
     private Button computeRegistrationButton;
 
-    protected void computeRegistration() {
 
+    private void registrationThread()
+    {
         int numDimensions = dataset.numDimensions();
 
         // Output view size type
@@ -156,6 +179,10 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         ImageFilterType imageFilterType = ImageFilterType.valueOf( imageFilterTypeInput );
 
         imageFilterParameters.put(
+                ImageFilterParameters.FILTER_TYPE,
+                imageFilterType );
+
+        imageFilterParameters.put(
                 ImageFilterParameters.THRESHOLD_VALUE,
                 imageFilterParameterThresholdInput );
 
@@ -179,7 +206,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                 TransformationFinderType.valueOf( transformationTypeInput ) );
 
         tmp = transformationParametersMaximalTranslationsInput.split( "," );
-        double[] transformationParametersMaximalTranslations = new double[ tmp.length ];
+        Double[] transformationParametersMaximalTranslations = new Double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
             transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[i] );
@@ -190,7 +217,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
 
         tmp = transformationParameterMaximalRotationsInput.split( "," );
-        double[] transformationParametersMaximalRotations = new double[ tmp.length ];
+        Double[] transformationParametersMaximalRotations = new Double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
             transformationParametersMaximalRotations[ i ] = Double.parseDouble( tmp[i] );
@@ -209,7 +236,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                         transformationParameters,
                         3,
                         outputViewIntervalSizeType,
-                        showFixedImageSequence );
+                        showFixedImageSequence,
+                        logService );
 
         imageRegistration.run();
 
@@ -236,6 +264,21 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                 "transformed input",
                 axesIdsTransformedOutput,
                 axisTypes);
+
+
+    }
+
+    protected void computeRegistration() {
+
+        Thread thread = new Thread(new Runnable() {
+            public void run()
+            {
+                registrationThread();
+            }
+        } );
+
+        thread.run();
+
     }
 
     public void run() {
@@ -245,31 +288,31 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     protected void init()
     {
 
-        boolean persist = true;
+        boolean persist = false;
 
         int n = dataset.numDimensions();
 
-        List< String > axisTypes =
+        List< String > registrationAxisTypes =
                 Stream.of( RegistrationAxisTypes.values() )
                     .map( RegistrationAxisTypes::name )
                     .collect( Collectors.toList() );
 
-        ArrayList< String > axisNames = getAxisNamesAsStringList( dataset );
+        ArrayList< AxisType > axisTypes = getAxisTypeList( dataset );
 
         // Guess default axisType choices
         //
-        String sequenceDefault = axisNames.get( 0 );
-        if ( axisNames.contains( Axes.TIME.toString() ) )
+        AxisType sequenceDefault = axisTypes.get( 0 );
+        if ( axisTypes.contains( Axes.TIME ) )
         {
-            sequenceDefault = Axes.TIME.toString();
+            sequenceDefault = Axes.TIME;
         }
-        else if ( axisNames.contains( Axes.Z.toString() ) )
+        else if ( axisTypes.contains( Axes.Z ) )
         {
-            sequenceDefault = Axes.Z.toString();
+            sequenceDefault = Axes.Z;
         }
-        else if ( axisNames.contains( Axes.CHANNEL.toString() ) )
+        else if ( axisTypes.contains( Axes.CHANNEL ) )
         {
-            sequenceDefault = Axes.CHANNEL.toString();
+            sequenceDefault = Axes.CHANNEL;
         }
 
         for (int d = 0; d < dataset.numDimensions(); d++)
@@ -280,28 +323,28 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             // Message
             //
             final MutableModuleItem<String> axisItem =
-                    addInput( axisNames.get( d ), String.class);
+                    addInput( axisTypes.get( d ).toString(), String.class);
             axisItem.setPersisted( persist );
             axisItem.setVisibility( ItemVisibility.MESSAGE );
-            axisItem.setValue(this, axisNames.get( d ) );
+            axisItem.setValue(this, axisTypes.get( d ).toString() );
 
             // Axis type selection
             //
-            var = "type";
             final MutableModuleItem<String> typeItem =
                     addInput( typeName( d ), String.class);
             typeItem.setPersisted( persist );
             typeItem.setLabel( "Type" );
-            typeItem.setChoices( axisTypes );
-            if ( axisNames.get( d ).equals( sequenceDefault ) )
+            typeItem.setChoices( registrationAxisTypes );
+
+            if ( axisTypes.get( d ).equals( sequenceDefault ) )
                 typeItem.setValue( this, "" + RegistrationAxisTypes.Sequence );
-            else if ( axisNames.get( d ).equals( Axes.X.toString() ))
+            else if ( axisTypes.get( d ).equals( Axes.X ))
                 typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
-            else if ( axisNames.get( d ).equals( Axes.Y.toString() ))
+            else if ( axisTypes.get( d ).equals( Axes.Y ))
                 typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
-            else if ( axisNames.get( d ).equals( Axes.Z.toString() ))
+            else if ( axisTypes.get( d ).equals( Axes.Z ))
                 typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
-            else if ( axisNames.get( d ).equals( Axes.CHANNEL.toString() ))
+            else if ( axisTypes.get( d ).equals( Axes.CHANNEL ))
                 typeItem.setValue( this, "" + RegistrationAxisTypes.Fixed );
 
             // Interval minimum
@@ -314,7 +357,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             minItem.setLabel( var );
             minItem.setMinimumValue( dataset.min( d ) );
             minItem.setMaximumValue( dataset.max( d ) );
-            minItem.setValue(this, dataset.min( d ));
+            minItem.setDefaultValue( dataset.min( d ) );
 
             // Interval maximum
             //
@@ -326,7 +369,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             maxItem.setLabel( var );
             maxItem.setMinimumValue( dataset.min( d ) );
             maxItem.setMaximumValue( dataset.max( d ) );
-            maxItem.setValue(this, dataset.max( d ) );
+            maxItem.setDefaultValue( dataset.max( d ) );
 
 
             // Other
@@ -444,7 +487,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             //
             Map< String, Object > imageFilterParameters = new HashMap<>();
 
-            ImageFilterType imageFilterType = ImageFilterType.EnhanceEdgesAndThreshold;
+            ImageFilterType imageFilterType = ImageFilterType.DifferenceOfGaussianAndThreshold;
 
             imageFilterParameters.put(
                     ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );

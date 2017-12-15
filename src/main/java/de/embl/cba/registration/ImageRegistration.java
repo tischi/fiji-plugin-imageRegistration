@@ -1,5 +1,6 @@
 package de.embl.cba.registration;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterFactory;
 import de.embl.cba.registration.filter.ImageFilterParameters;
@@ -16,6 +17,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
+import org.scijava.log.LogService;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -77,8 +79,11 @@ public class ImageRegistration
             Map< String, Object > transformationParameters,
             int numThreads,
             final OutputViewIntervalSizeTypes outputViewIntervalSizeType,
-            boolean showFixedImageSequence )
+            boolean showFixedImageSequence,
+            LogService logService )
     {
+
+        PackageLogService.logService = logService;
 
         this.outputViewIntervalSizeType = outputViewIntervalSizeType;
         this.showFixedImageSequence = showFixedImageSequence;
@@ -94,6 +99,7 @@ public class ImageRegistration
         //
         if ( imageFilterParameters.get( ImageFilterParameters.FILTER_TYPE ) != null )
         {
+            imageFilterParameters.put( GlobalParameters.LOG_SERVICE, logService );
             imageFilterParameters.put( ImageFilterParameters.NUM_THREADS, numThreads );
             imageFilterParameters.put( ImageFilterParameters.EXECUTOR_SERVICE, service );
             this.imageFilter = ImageFilterFactory.create( imageFilterParameters );
@@ -105,6 +111,7 @@ public class ImageRegistration
 
         // Init transformation finder
         //
+        transformationParameters.put( GlobalParameters.LOG_SERVICE, logService );
         transformationFinder =
                 TransformationFinderFactory.create(
                     transformationParameters,
@@ -256,8 +263,7 @@ public class ImageRegistration
     }
 
     public RandomAccessibleInterval getFixedSequenceOutput(
-            ArrayList< Integer > axes
-    )
+            ArrayList< Integer > axes )
     {
         for ( int a : transformableAxesSettings.axes )
         {
@@ -270,8 +276,7 @@ public class ImageRegistration
     }
 
     public RandomAccessibleInterval getTransformedOutput(
-            ArrayList< Integer > axes
-    )
+            ArrayList< Integer > axes )
     {
         for ( int a : transformableAxesSettings.axes )
         {
@@ -533,7 +538,6 @@ public class ImageRegistration
             Map< Long, T > transformations )
     {
 
-
         // For each combination of the fixed axes ( Map< Integer, Long > )
         // generate a transformed RAI sequence
         Map< Map< Integer, Long >, RandomAccessibleInterval < R > >
@@ -559,10 +563,10 @@ public class ImageRegistration
         //
         for ( Map< Integer, Long > fixedCoordinates : transformedSequenceMap.keySet() )
         {
-            IJ.log( "-- Transformed sequence at fixed axes:" );
+            PackageLogService.logService.info( "-- Transformed sequence at fixed axes:" );
             for ( Integer d : fixedCoordinates.keySet() )
             {
-                IJ.log( "Dimension " + d + "; Coordinate " + fixedCoordinates.get( d ) );
+                PackageLogService.logService.info( "Dimension " + d + "; Coordinate " + fixedCoordinates.get( d ) );
             }
         }
 

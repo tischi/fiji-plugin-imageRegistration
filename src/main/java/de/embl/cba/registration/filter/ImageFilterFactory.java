@@ -23,7 +23,7 @@ public abstract class ImageFilterFactory < R extends RealType< R > & NativeType<
         {
             return new ImageFilterDog( parameters );
         }
-        else if ( imageFilterType.equals ( ImageFilterType.EnhanceEdgesAndThreshold ) )
+        else if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussianAndThreshold ) )
         {
             return new ImageFilterDogThreshold( parameters );
         }

@@ -2,9 +2,10 @@ package de.embl.cba.registration.filter;
 
 public enum ImageFilterType
 {
+    None,
     Threshold,
     Gauss,
-    DifferenceOfGaussian,  // actually a DoG
-    EnhanceEdgesAndThreshold;  // actually a DoG
+    DifferenceOfGaussian,
+    DifferenceOfGaussianAndThreshold;
 
 }
