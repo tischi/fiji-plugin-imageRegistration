@@ -1,0 +1,40 @@
+<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-legacy</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>net.preibisch</groupId>
+			<artifactId>BigStitcher</artifactId>
+			<version>0.1.1</version>
+		</dependency>
+
+		<!-- Bioformats dependencies -->
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>bio-formats_plugins</artifactId>
+		</dependency>
+
+		<!-- ImgLib2 dependencies -->
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2</artifactId>
+		</dependency>
+
+		<!-- ImageJ dependencies -->
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+
+		<!-- SCIFIO dependencies -->
+
+		<dependency>
+			<groupId>io.scif</groupId>
+			<artifactId>scifio</artifactId>
+		</dependency>
+

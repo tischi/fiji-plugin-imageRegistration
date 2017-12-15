@@ -5,27 +5,9 @@
 		http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!--
-	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>14.0.0</version>
-		<relativePath />
-	</parent>
-	-->
-
-	<!--
-	<parent>
-		<groupId>net.imglib2</groupId>
-		<artifactId>pom-imglib2</artifactId>
-		<version>9.0.0</version>
-		<relativePath />
-	</parent>
-	-->
-
-	<groupId>embl.almf</groupId>
+	<groupId>embl.cba</groupId>
 	<artifactId>fiji-plugin-imageRegistration</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 
 	<name>Fiji plugin for image registration</name>
 	<description>A plugin for multidimensional image registration.</description>
@@ -63,15 +45,12 @@
 		</contributor>
 	</contributors>
 
-
-
 	<scm>
 		<connection>scm:git:git://github.com/tischi/fiji-plugin-imageRegistration</connection>
 		<developerConnection>scm:git:git@github.com/tischi/fiji-plugin-imageRegistration</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/tischi/fiji-plugin-imageRegistration</url>
 	</scm>
-
 
 	<mailingLists>
 		<mailingList>
@@ -88,9 +67,8 @@
 		<system>None</system>
 	</ciManagement>
 
-
 	<properties>
-		<package-name>de.embl.cba</package-name>
+		<package-name>de.embl.cba.registration</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>EMBL</license.copyrightOwners>
 		<imagej.app.directory>/Applications/Fiji.app/</imagej.app.directory>
@@ -102,7 +80,6 @@
 		<version>17.1.1</version>
 		<relativePath />
 	</parent>
-
 
 	<repositories>
 		<!-- NB: for SciJava dependencies -->
@@ -121,44 +98,20 @@
 
 		<dependency>
 			<groupId>net.imagej</groupId>
-			<artifactId>imagej-legacy</artifactId>
+			<artifactId>ij</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>net.preibisch</groupId>
-			<artifactId>BigStitcher</artifactId>
-			<version>0.1.1</version>
-		</dependency>
-
-		<!-- Bioformats dependencies -->
-		<dependency>
-			<groupId>ome</groupId>
-			<artifactId>bio-formats_plugins</artifactId>
-		</dependency>
-
-		<!-- ImgLib2 dependencies -->
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2</artifactId>
 		</dependency>
 
-		<!-- ImageJ dependencies -->
+		<!-- phase correlation -->
 		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>imagej-common</artifactId>
+			<groupId>net.preibisch</groupId>
+			<artifactId>BigStitcher</artifactId>
+			<version>0.1.1</version>
 		</dependency>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij</artifactId>
-		</dependency>
-
-		<!-- SCIFIO dependencies -->
-
-		<dependency>
-			<groupId>io.scif</groupId>
-			<artifactId>scifio</artifactId>
-		</dependency>
-
 
 	</dependencies>
 

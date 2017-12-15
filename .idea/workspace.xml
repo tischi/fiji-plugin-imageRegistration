@@ -2,53 +2,57 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/OutputViewIntervalSizeTypes.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationFindingTypes.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SettingsInterface.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dependencies.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationType.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterType.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderFactory.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderType.java" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/TransformationFindingType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/sequence/SettingsInterface.java" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistration.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationParameters.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistrationParameters.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/IntervalUtils.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/IntervalUtils.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/Questions.txt" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/Questions.txt" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/ReferenceRegionTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/ReferenceRegionTypes.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/RegistrationAxisTypes.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/TransformationTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationTypes.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/Utils.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/Utils.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilter.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterDog.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDog.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterDogThreshold.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDogThreshold.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterFactory.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterGauss.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterParameters.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterParameters.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterThreshold.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterThreshold.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterType.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterType.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/filter/ThresholdFilterView.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ThresholdFilterView.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxis.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxis.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/gui/wizard/SetSequenceAxisParameters.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxisParameters.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/image/ImageInterface.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/image/ImageInterface.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/PhaseCorrelationTest.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/PhaseCorrelationTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/RegistrationsIO.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/RegistrationsIO.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/TranslationPhaseCorrelation.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TranslationPhaseCorrelation.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/sequence/MethodSettings.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/MethodSettings.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/sequence/SequenceRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SequenceRegistration.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/sequence/SequenceRegistrationInterface.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SequenceRegistrationInterface.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/sequence/SequenceRegistrationSettings.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SequenceRegistrationSettings.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/sequence/Test_Class.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/Test_Class.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/single/RegistrationInterface.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/single/RegistrationInterface.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/registration/single/Transformation.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/single/Transformation.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/streaming/ConvertVirtualStackToCellImg.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/streaming/ConvertVirtualStackToCellImg.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/tests/LearnImglib2.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/LearnImglib2.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/tests/RealTransfromTranslationAlongZ.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/RealTransfromTranslationAlongZ.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/tests/RegistrationsIOTest.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/RegistrationsIOTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/tests/ops.txt" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/ops.txt" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/embl/almf/views/ThresholdView.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/views/ThresholdView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistrationParameters.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationTypes.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/image/ImageInterface.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/MethodSettings.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SequenceRegistration.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SequenceRegistrationInterface.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SequenceRegistrationSettings.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/SettingsInterface.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/sequence/Test_Class.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/single/RegistrationInterface.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/single/Transformation.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/IntervalUtils.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/IntervalUtils.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/OutputViewIntervalSizeTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/OutputViewIntervalSizeTypes.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/Questions.txt" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/Questions.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/ReferenceRegionTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ReferenceRegionTypes.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/RegistrationAxisTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/RegistrationAxisTypes.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationFindingTypes.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationFindingTypes.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/Utils.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/Utils.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilter.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilter.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDog.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDog.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDogThreshold.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDogThreshold.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterFactory.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterFactory.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterGauss.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterGauss.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterParameters.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterParameters.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterThreshold.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterThreshold.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ThresholdFilterView.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ThresholdFilterView.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxis.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/wizard/SetSequenceAxis.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxisParameters.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/wizard/SetSequenceAxisParameters.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/PhaseCorrelationTest.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/PhaseCorrelationTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TranslationPhaseCorrelation.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderTranslationPhaseCorrelation.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/streaming/ConvertVirtualStackToCellImg.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/streaming/ConvertVirtualStackToCellImg.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/LearnImglib2.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/LearnImglib2.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/RealTransfromTranslationAlongZ.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/RealTransfromTranslationAlongZ.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/RegistrationsIOTest.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/RegistrationsIOTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/tests/ops.txt" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/ops.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/views/ThresholdView.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/views/ThresholdView.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Image_Registration.iml" afterPath="$PROJECT_DIR$/Image_Registration.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/RegistrationsIO.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/RegistrationsIO.java" />
     </list>
     <ignored path="fiji-plugin-imageRegistration.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -68,32 +72,31 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistration.java">
+      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="312" column="11" lean-forward="false" selection-start-line="312" selection-start-column="4" selection-end-line="312" selection-end-column="11" />
+            <state relative-caret-position="-63">
+              <caret line="181" column="13" lean-forward="false" selection-start-line="181" selection-start-column="13" selection-end-line="181" selection-end-column="13" />
               <folding>
-                <element signature="e#1809#1847#0" expanded="false" />
-                <element signature="e#3802#3828#0" expanded="false" />
-                <element signature="e#4266#4297#0" expanded="false" />
-                <element signature="e#5975#5998#0" expanded="false" />
-                <element signature="e#6571#6660#0" expanded="false" />
-                <element signature="e#7489#7517#0" expanded="false" />
-                <element signature="e#7992#8050#0" expanded="false" />
-                <element signature="e#8236#8294#0" expanded="false" />
-                <element signature="e#8496#8518#0" expanded="false" />
-                <element signature="e#8888#8911#0" expanded="false" />
-                <element signature="e#9296#9380#0" expanded="false" />
-                <element signature="e#9469#9530#0" expanded="false" />
-                <element signature="method#setCorners#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="method#createTransformedInputRAISequence#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="e#18645#18711#0" expanded="false" />
-                <element signature="e#18896#18914#0" expanded="false" />
-                <element signature="e#19487#19509#0" expanded="false" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#4844#4875#0" expanded="false" />
+                <element signature="e#6706#6729#0" expanded="false" />
+                <element signature="e#8211#8239#0" expanded="false" />
+                <element signature="method#run#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="e#8715#8773#0" expanded="false" />
+                <element signature="e#8966#9024#0" expanded="false" />
+                <element signature="e#9226#9248#0" expanded="false" />
+                <element signature="e#9494#9517#0" expanded="false" />
+                <element signature="e#9902#9986#0" expanded="false" />
+                <element signature="e#10075#10136#0" expanded="false" />
+                <element signature="method#getTransformableDimensionsOutputInterval#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getTransformationsUnion#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="e#19026#19092#0" expanded="false" />
+                <element signature="e#19277#19295#0" expanded="false" />
+                <element signature="e#19868#19890#0" expanded="false" />
                 <element signature="docComment;method#getTransformableRAI#0;class#ImageRegistration#0" expanded="false" />
                 <element signature="class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="false" />
-                <element signature="class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+                <element signature="method#TransformableAxesSettings#0;class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="docComment;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
                 <element signature="class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
               </folding>
@@ -101,40 +104,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OutputViewIntervalSizeTypes.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/OutputViewIntervalSizeTypes.java">
+      <file leaf-file-name="ImageFilterDogThreshold.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDogThreshold.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TransformationFindingTypes.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationFindingTypes.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="38" lean-forward="false" selection-start-line="4" selection-start-column="38" selection-end-line="4" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="742">
-              <caret line="289" column="24" lean-forward="true" selection-start-line="285" selection-start-column="8" selection-end-line="289" selection-end-column="24" />
+            <state relative-caret-position="115">
+              <caret line="22" column="30" lean-forward="false" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="30" />
               <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#1962#1992#0" expanded="true" />
-                <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
-                <element signature="e#2162#2192#0" expanded="true" />
-                <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
-                <element signature="e#5967#5977#0" expanded="false" />
-                <element signature="e#10056#10090#0" expanded="false" />
-                <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="method#filter#0;class#ImageFilterDogThreshold#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -143,45 +119,100 @@
       <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="103" column="13" lean-forward="false" selection-start-line="103" selection-start-column="13" selection-end-line="103" selection-end-column="13" />
+            <state relative-caret-position="265">
+              <caret line="76" column="0" lean-forward="false" selection-start-line="76" selection-start-column="0" selection-end-line="81" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImageRegistrationParameters.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistrationParameters.java">
+      <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="15" column="38" lean-forward="false" selection-start-line="15" selection-start-column="38" selection-end-line="15" selection-end-column="38" />
+            <state relative-caret-position="123">
+              <caret line="67" column="13" lean-forward="false" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#getAxisNamesAsStringList#0;class#ImageRegistrationParameters#0" expanded="true" />
+                <element signature="method#getAxisNamesAsStringList#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="method#computeRegistration#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="e#9075#9076#0" expanded="true" />
+                <element signature="e#9148#9149#0" expanded="true" />
+                <element signature="method#init#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="e#10155#10165#0" expanded="false" />
+                <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="e#13962#13996#0" expanded="false" />
+                <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RegistrationAxisTypes.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/RegistrationAxisTypes.java">
+      <file leaf-file-name="Parameter.java" pinned="false" current-in-tab="true">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/scijava/scijava-common/2.65.0/scijava-common-2.65.0-sources.jar!/org/scijava/plugin/Parameter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="24" lean-forward="false" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
+            <state relative-caret-position="-9">
+              <caret line="54" column="18" lean-forward="false" selection-start-line="54" selection-start-column="18" selection-end-line="54" selection-end-column="18" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImageFilterDogThreshold.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDogThreshold.java">
+      <file leaf-file-name="TransformationFinderTranslationPhaseCorrelation.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderTranslationPhaseCorrelation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+            <state relative-caret-position="345">
+              <caret line="56" column="0" lean-forward="false" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="method#ImageFilterDogThreshold#0;class#ImageFilterDogThreshold#0" expanded="true" />
+                <element signature="method#TransformationFinderTranslationPhaseCorrelation#0;class#TransformationFinderTranslationPhaseCorrelation#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ImageFilterFactory.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterFactory.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="9" column="30" lean-forward="false" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+              <folding>
+                <element signature="method#create#0;class#ImageFilterFactory#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TransformationFinderFactory.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderFactory.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="19">
+              <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#create#0;class#TransformationFinderFactory#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TransformationFinderType.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderType.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="95">
+              <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TransformationFinderParameters.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="38">
+              <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -192,6 +223,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -206,7 +238,6 @@
       <find>dimensionT</find>
       <find>initFie</find>
       <find>sort</find>
-      <find>main</find>
       <find>throws</find>
       <find>choices</find>
       <find>Slide</find>
@@ -215,8 +246,14 @@
       <find>Stream</find>
       <find>ui</find>
       <find>mailing</find>
-      <find>GUI</find>
       <find>get</find>
+      <find>GUI</find>
+      <find>persit</find>
+      <find>main</find>
+      <find>init</find>
+      <find>GAUSS</find>
+      <find>FinalIn</find>
+      <find>value</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$</dir>
@@ -233,25 +270,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/Parameters.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/PhaseCorrelationTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/streaming/ConvertVirtualStackToCellImg.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterGauss.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterParameters.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterThreshold.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterDog.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterType.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterFactory.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/filter/ImageFilterDogThreshold.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/registration/RegistrationsIO.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/tests/RegistrationsIOtest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/tests/RegistrationsIoTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/tests/RegistrationsIOTest.java" />
-        <option value="$PROJECT_DIR$/src/main/resources/scripts/Plugins/wizard2.groovy" />
-        <option value="$PROJECT_DIR$/src/main/resources/scripts/Plugins/wizard_1.groovy" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/GuiNextStep.java" />
-        <option value="$PROJECT_DIR$/src/main/java/embl/almf/GuiEntryPoint.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/SetSequenceAxis.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistrationPlugin.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisType.java" />
@@ -278,12 +296,31 @@
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/RegistrationAxisTypes.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/ImageRegistration.java" />
         <option value="$PROJECT_DIR$/src/main/java/embl/almf/gui/ImageRegistrationPlugin.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationFindingType.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationFindingTypes.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/OutputViewTypes.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxisParameters.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistration.java" />
+        <option value="$PROJECT_DIR$/dependencies.txt" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxis.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterType.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterTypes.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationParameters.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/registration/TranslationPhaseCorrelation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/registration/TransformationFinderTranslationPhaseCorrelation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinder.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationTypes.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterParameters.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderTypes.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderFactory.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderTranslationPhaseCorrelation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterFactory.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDogThreshold.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
       </list>
     </option>
   </component>
@@ -330,6 +367,7 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="AndroidView" />
       <pane id="Scope" />
       <pane id="ProjectPane">
@@ -365,16 +403,33 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="cba" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="fiji-plugin-imageRegistration" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fiji-plugin-imageRegistration" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="cba" type="462c0819:PsiDirectoryNode" />
+              <item name="registration" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="fiji-plugin-imageRegistration" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fiji-plugin-imageRegistration" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="cba" type="462c0819:PsiDirectoryNode" />
+              <item name="registration" type="462c0819:PsiDirectoryNode" />
+              <item name="gui" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
-    <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="fileTemplates" />
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -383,6 +438,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="de.embl.cba.registration.gui.ImageRegistrationPlugin" />
       <recent name="embl.almf.RegistrationAxisType" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -408,7 +464,7 @@
   <component name="RunManager" selected="Application.ImageRegistrationPlugin">
     <configuration name="ImageRegistrationPlugin" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="de.embl.cba.gui.ImageRegistrationPlugin" />
+      <option name="MAIN_CLASS_NAME" value="de.embl.cba.registration.gui.ImageRegistrationPlugin" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -639,13 +695,13 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.041112456" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14306152" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28053203" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15593705" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19027181" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32769045" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -668,26 +724,27 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.042918455" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Dynamic Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42563483" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38573155" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.47400242" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20677146" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12091898" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26180258" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277635" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2274678" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32769045" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
     </layout-to-restore>
   </component>
@@ -706,7 +763,7 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/tests/LearnImglib2.java</url>
+          <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/LearnImglib2.java</url>
           <line>58</line>
           <properties />
         </line-breakpoint>
@@ -723,16 +780,10 @@
           <option name="timeStamp" value="144" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java</url>
-          <line>96</line>
+          <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java</url>
+          <line>136</line>
           <properties />
           <option name="timeStamp" value="150" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java</url>
-          <line>441</line>
-          <properties />
-          <option name="timeStamp" value="166" />
         </line-breakpoint>
       </breakpoints>
       <option name="time" value="169" />
@@ -744,59 +795,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/IntervalUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="31" column="43" lean-forward="false" selection-start-line="31" selection-start-column="43" selection-end-line="31" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterGauss.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="649">
-          <caret line="38" column="31" lean-forward="false" selection-start-line="38" selection-start-column="31" selection-end-line="38" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/tests/RegistrationsIOTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="31" column="52" lean-forward="false" selection-start-line="31" selection-start-column="52" selection-end-line="31" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/RegistrationsIO.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/scripts/Plugins/wizard2.groovy" />
-    <entry file="file://$PROJECT_DIR$/src/main/resources/scripts/Plugins/wizard_1.groovy" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterParameters.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="9" selection-end-column="65" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/scijava/scijava-common/2.65.0/scijava-common-2.65.0.jar!/org/scijava/module/MutableModuleItem.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
@@ -838,18 +836,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="163">
           <caret line="52" column="22" lean-forward="false" selection-start-line="52" selection-start-column="22" selection-end-line="52" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxisParameters.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="71" column="0" lean-forward="false" selection-start-line="71" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="method#run#0;class#SetSequenceAxisParameters#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -857,10 +843,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
           <caret line="132" column="0" lean-forward="false" selection-start-line="132" selection-start-column="0" selection-end-line="132" selection-end-column="0" />
-          <folding>
-            <element signature="e#4509#4709#0" expanded="true" />
-            <element signature="e#4708#4709#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -868,7 +850,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
           <caret line="366" column="0" lean-forward="false" selection-start-line="366" selection-start-column="0" selection-end-line="366" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -876,7 +857,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
           <caret line="223" column="0" lean-forward="false" selection-start-line="223" selection-start-column="0" selection-end-line="223" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -884,7 +864,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
           <caret line="192" column="0" lean-forward="false" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -892,7 +871,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
           <caret line="309" column="0" lean-forward="false" selection-start-line="309" selection-start-column="0" selection-end-line="309" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -900,7 +878,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="111">
           <caret line="692" column="0" lean-forward="false" selection-start-line="692" selection-start-column="0" selection-end-line="692" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -908,10 +885,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
           <caret line="74" column="25" lean-forward="false" selection-start-line="74" selection-start-column="25" selection-end-line="74" selection-end-column="25" />
-          <folding>
-            <element signature="e#2699#2700#0" expanded="false" />
-            <element signature="e#2733#2734#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -923,7 +896,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/ReferenceRegionTypes.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ReferenceRegionTypes.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="88">
           <caret line="4" column="4" lean-forward="false" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
@@ -931,49 +904,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="4" column="31" lean-forward="false" selection-start-line="4" selection-start-column="31" selection-end-line="4" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/streaming/ConvertVirtualStackToCellImg.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="34" column="43" lean-forward="false" selection-start-line="34" selection-start-column="43" selection-end-line="34" selection-end-column="43" />
-          <folding>
-            <element signature="method#load#0;class#1199:1707" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/tests/ops.txt">
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/ops.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="20" column="10" lean-forward="false" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/gui/wizard/SetSequenceAxis.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="70" column="57" lean-forward="true" selection-start-line="70" selection-start-column="57" selection-end-line="70" selection-end-column="57" />
-          <folding>
-            <element signature="method#run#0;class#SetSequenceAxis#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TranslationPhaseCorrelation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="36" column="80" lean-forward="false" selection-start-line="36" selection-start-column="80" selection-end-line="36" selection-end-column="80" />
-          <folding>
-            <element signature="method#findTransform#0;class#TranslationPhaseCorrelation#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -981,9 +915,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="395">
           <caret line="178" column="55" lean-forward="false" selection-start-line="178" selection-start-column="55" selection-end-line="178" selection-end-column="55" />
-          <folding>
-            <element signature="method#show#7;class#ImageJFunctions#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -995,15 +926,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterThreshold.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterThreshold.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
@@ -1013,22 +936,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/filter/ImageFilterDogThreshold.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#ImageFilterDogThreshold#0;class#ImageFilterDogThreshold#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-common/0.24.4/imagej-common-0.24.4.jar!/net/imagej/axis/TypedAxis.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1036,7 +947,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="7" column="23" lean-forward="false" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1044,7 +954,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="20" column="43" lean-forward="false" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1052,7 +961,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="222">
           <caret line="36" column="36" lean-forward="false" selection-start-line="36" selection-start-column="36" selection-end-line="36" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1060,67 +968,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/RegistrationAxisTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="24" lean-forward="false" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="103" column="13" lean-forward="false" selection-start-line="103" selection-start-column="13" selection-end-line="103" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistrationParameters.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="15" column="38" lean-forward="false" selection-start-line="15" selection-start-column="38" selection-end-line="15" selection-end-column="38" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#getAxisNamesAsStringList#0;class#ImageRegistrationParameters#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/gui/ImageRegistrationPlugin.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="742">
-          <caret line="289" column="24" lean-forward="true" selection-start-line="285" selection-start-column="8" selection-end-line="289" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1962#1992#0" expanded="true" />
-            <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
-            <element signature="e#2162#2192#0" expanded="true" />
-            <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
-            <element signature="e#5967#5977#0" expanded="false" />
-            <element signature="e#10056#10090#0" expanded="false" />
-            <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/TransformationFindingTypes.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationFindingTypes.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="4" column="38" lean-forward="false" selection-start-line="4" selection-start-column="38" selection-end-line="4" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/OutputViewIntervalSizeTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1128,7 +982,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="7" column="39" lean-forward="true" selection-start-line="7" selection-start-column="39" selection-end-line="7" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1136,40 +989,228 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="21" column="11" lean-forward="false" selection-start-line="21" selection-start-column="11" selection-end-line="21" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/OutputViewIntervalSizeTypes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="40">
+          <caret line="2" column="39" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/streaming/ConvertVirtualStackToCellImg.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="28" lean-forward="false" selection-start-line="4" selection-start-column="28" selection-end-line="4" selection-end-column="28" />
           <folding>
-            <element signature="method#BoundingBox#1;class#BoundingBox#0" expanded="true" />
+            <element signature="method#getCellImgUnsignedShort#0;class#ConvertVirtualStackToCellImg#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/ImageRegistration.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/wizard/SetSequenceAxis.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="312" column="11" lean-forward="false" selection-start-line="312" selection-start-column="4" selection-end-line="312" selection-end-column="11" />
+        <state relative-caret-position="1230">
+          <caret line="107" column="7" lean-forward="false" selection-start-line="107" selection-start-column="7" selection-end-line="107" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/wizard/SetSequenceAxisParameters.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="346">
+          <caret line="43" column="0" lean-forward="false" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dependencies.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="9" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/RegistrationAxisTypes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="24" lean-forward="false" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistrationParameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
           <folding>
-            <element signature="e#1809#1847#0" expanded="false" />
-            <element signature="e#3802#3828#0" expanded="false" />
-            <element signature="e#4266#4297#0" expanded="false" />
-            <element signature="e#5975#5998#0" expanded="false" />
-            <element signature="e#6571#6660#0" expanded="false" />
-            <element signature="e#7489#7517#0" expanded="false" />
-            <element signature="e#7992#8050#0" expanded="false" />
-            <element signature="e#8236#8294#0" expanded="false" />
-            <element signature="e#8496#8518#0" expanded="false" />
-            <element signature="e#8888#8911#0" expanded="false" />
-            <element signature="e#9296#9380#0" expanded="false" />
-            <element signature="e#9469#9530#0" expanded="false" />
-            <element signature="method#setCorners#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#createTransformedInputRAISequence#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="e#18645#18711#0" expanded="false" />
-            <element signature="e#18896#18914#0" expanded="false" />
-            <element signature="e#19487#19509#0" expanded="false" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationParameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/TransformationType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterParameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="95">
+          <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#create#0;class#TransformationFinderFactory#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderTranslationPhaseCorrelation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="56" column="0" lean-forward="false" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#TransformationFinderTranslationPhaseCorrelation#0;class#TransformationFinderTranslationPhaseCorrelation#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-63">
+          <caret line="181" column="13" lean-forward="false" selection-start-line="181" selection-start-column="13" selection-end-line="181" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#4844#4875#0" expanded="false" />
+            <element signature="e#6706#6729#0" expanded="false" />
+            <element signature="e#8211#8239#0" expanded="false" />
+            <element signature="method#run#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="e#8715#8773#0" expanded="false" />
+            <element signature="e#8966#9024#0" expanded="false" />
+            <element signature="e#9226#9248#0" expanded="false" />
+            <element signature="e#9494#9517#0" expanded="false" />
+            <element signature="e#9902#9986#0" expanded="false" />
+            <element signature="e#10075#10136#0" expanded="false" />
+            <element signature="method#getTransformableDimensionsOutputInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformationsUnion#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="e#19026#19092#0" expanded="false" />
+            <element signature="e#19277#19295#0" expanded="false" />
+            <element signature="e#19868#19890#0" expanded="false" />
             <element signature="docComment;method#getTransformableRAI#0;class#ImageRegistration#0" expanded="false" />
             <element signature="class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="method#TransformableAxesSettings#0;class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="true" />
             <element signature="docComment;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
             <element signature="class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="9" column="30" lean-forward="false" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+          <folding>
+            <element signature="method#create#0;class#ImageFilterFactory#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDogThreshold.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="22" column="30" lean-forward="false" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="30" />
+          <folding>
+            <element signature="method#filter#0;class#ImageFilterDogThreshold#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="265">
+          <caret line="76" column="0" lean-forward="false" selection-start-line="76" selection-start-column="0" selection-end-line="81" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="123">
+          <caret line="67" column="13" lean-forward="false" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getAxisNamesAsStringList#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#computeRegistration#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="e#9075#9076#0" expanded="true" />
+            <element signature="e#9148#9149#0" expanded="true" />
+            <element signature="method#init#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="e#10155#10165#0" expanded="false" />
+            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="e#13962#13996#0" expanded="false" />
+            <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scijava/scijava-common/2.65.0/scijava-common-2.65.0-sources.jar!/org/scijava/plugin/Parameter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9">
+          <caret line="54" column="18" lean-forward="false" selection-start-line="54" selection-start-column="18" selection-end-line="54" selection-end-column="18" />
+          <folding />
         </state>
       </provider>
     </entry>
