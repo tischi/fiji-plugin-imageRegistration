@@ -14,8 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 
-public class ImageFilterDog
-    < R extends RealType< R > & NativeType< R > >
+public class ImageFilterDog< R extends RealType< R > & NativeType< R > >
     implements ImageFilter< R, FloatType > {
 
     private Map< String, Object > parameters;

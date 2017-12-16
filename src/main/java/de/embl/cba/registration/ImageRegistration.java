@@ -1,18 +1,15 @@
 package de.embl.cba.registration;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterFactory;
 import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.transformationfinders.TransformationFinder;
 import de.embl.cba.registration.transformationfinders.TransformationFinderFactory;
-import ij.IJ;
+import de.embl.cba.registration.transformationfinders.TransformationFinderParameters;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
-import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
-import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
@@ -41,7 +38,7 @@ public class ImageRegistration
 
     ReferenceRegionTypes referenceRegionType;
 
-    ExecutorService service;
+    ExecutorService executorService;
     private final boolean showFixedImageSequence;
     private final OutputViewIntervalSizeTypes outputViewIntervalSizeType;
 
@@ -93,7 +90,7 @@ public class ImageRegistration
         this.inputRAI = inputRAI;
         int numDimensions = this.inputRAI.numDimensions();
 
-        this.service = Executors.newFixedThreadPool( numThreads );
+        this.executorService = Executors.newFixedThreadPool( numThreads );
 
         // Init image filter
         //
@@ -101,7 +98,7 @@ public class ImageRegistration
         {
             imageFilterParameters.put( GlobalParameters.LOG_SERVICE, logService );
             imageFilterParameters.put( ImageFilterParameters.NUM_THREADS, numThreads );
-            imageFilterParameters.put( ImageFilterParameters.EXECUTOR_SERVICE, service );
+            imageFilterParameters.put( ImageFilterParameters.EXECUTOR_SERVICE, executorService );
             this.imageFilter = ImageFilterFactory.create( imageFilterParameters );
         }
         else
@@ -112,10 +109,10 @@ public class ImageRegistration
         // Init transformation finder
         //
         transformationParameters.put( GlobalParameters.LOG_SERVICE, logService );
-        transformationFinder =
-                TransformationFinderFactory.create(
-                    transformationParameters,
-                    imageFilter );
+        transformationParameters.put( GlobalParameters.EXECUTOR_SERVICE, executorService );
+        transformationParameters.put( TransformationFinderParameters.IMAGE_FILTER, imageFilter );
+
+        transformationFinder = TransformationFinderFactory.create( transformationParameters );
 
 
         // Configure sequence axis
@@ -202,7 +199,7 @@ public class ImageRegistration
 
         // Configure multi-threading
         //
-        service = Executors.newFixedThreadPool( numThreads );
+        executorService = Executors.newFixedThreadPool( numThreads );
 
 
     }
@@ -235,7 +232,7 @@ public class ImageRegistration
                     .findTransform(
                             fixedRAI,
                             movingRA,
-                            service );
+                            executorService );
 
             // Store transformation
             //
@@ -464,7 +461,7 @@ public class ImageRegistration
         else if (  transform != null && referenceRegionType == ReferenceRegionTypes.Moving )
         {
             rai = getTransformableRAI( s, fixedAxesSettings.getReferenceAxisCoordinateMap() );
-            RandomAccessible ra = getTransformedRA( rai, transform );
+            RandomAccessible ra = ImageRegistrationUtils.getTransformedRA( rai, transform );
             rai = Views.interval( ra, transformableAxesSettings.referenceInterval );
         }
 
@@ -494,27 +491,11 @@ public class ImageRegistration
         }
         else
         {
-            ra = getTransformedRA( rai, transform );
+            ra = ImageRegistrationUtils.getTransformedRA( rai, transform );
         }
 
         return ra;
 
-    }
-
-    private RandomAccessible getTransformedRA(
-            RandomAccessibleInterval rai,
-            InvertibleRealTransform transform )
-    {
-
-        RealRandomAccessible rra
-                = RealViews.transform(
-                    Views.interpolate( Views.extendBorder( rai ),
-                            new NLinearInterpolatorFactory() ),
-                                transform );
-
-        RandomAccessible ra = Views.raster( rra );
-
-        return ra;
     }
 
     private RandomAccessibleInterval getTransformedRAI(
@@ -528,7 +509,7 @@ public class ImageRegistration
         rai = getTransformableRAI( s, fixedDimensions );
 
         rai = Views.interval(
-                getTransformedRA( rai, transform ),
+                ImageRegistrationUtils.getTransformedRA( rai, transform ),
                 transformableDimensionsInterval );
 
         return rai;

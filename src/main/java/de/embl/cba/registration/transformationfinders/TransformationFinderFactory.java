@@ -11,9 +11,7 @@ import static de.embl.cba.registration.transformationfinders.TransformationFinde
 
 public abstract class TransformationFinderFactory < R extends RealType< R > & NativeType< R > > {
 
-    public static TransformationFinder create(
-            Map< String, Object > transformationParameters,
-            ImageFilter imageFilter )
+    public static TransformationFinder create( Map< String, Object > transformationParameters )
     {
         TransformationFinderType transformationFinderType
                 = (TransformationFinderType) transformationParameters.get(
@@ -22,14 +20,12 @@ public abstract class TransformationFinderFactory < R extends RealType< R > & Na
         if ( transformationFinderType.equals(
                 TransformationFinderType.Translation__PhaseCorrelation ) )
         {
-            return new TransformationFinderTranslationPhaseCorrelation(
-                    transformationParameters, imageFilter );
+            return new TransformationFinderTranslationPhaseCorrelation( transformationParameters );
         }
         if ( transformationFinderType.equals(
                 TransformationFinderType.Rotation_Translation__PhaseCorrelation ) )
         {
-            return new TransformationFinderTranslationPhaseCorrelation(
-                    transformationParameters, imageFilter );
+            return new TransformationFinderRotationTranslationPhaseCorrelation( transformationParameters );
         }
         else
         {

@@ -3,8 +3,7 @@ package de.embl.cba.registration.transformationfinders;
 import de.embl.cba.registration.GlobalParameters;
 import de.embl.cba.registration.PackageLogService;
 import de.embl.cba.registration.filter.ImageFilter;
-import ij.IJ;
-import jdk.nashorn.internal.objects.Global;
+import de.embl.cba.registration.filter.ImageFilterCopyToRAM;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
@@ -21,33 +20,35 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
 
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
-import org.scijava.log.LogService;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 
-public class TransformationFinderTranslationPhaseCorrelation implements TransformationFinder {
+public class TransformationFinderTranslationPhaseCorrelation
+        < R extends RealType< R > & NativeType< R > >
+        implements TransformationFinder {
 
     Double[] maximalTranslations;
     ImageFilter imageFilter;
+    ExecutorService service;
 
-    TransformationFinderTranslationPhaseCorrelation(
-            Map< String, Object > transformationParameters,
-            ImageFilter imageFilter )
+    TransformationFinderTranslationPhaseCorrelation( final Map< String, Object > transformationParameters )
     {
-        this.maximalTranslations =
-                (Double[]) transformationParameters
+        this.maximalTranslations = (Double[]) transformationParameters
                         .get( TransformationFinderParameters.MAXIMAL_TRANSLATIONS );
 
-        this.imageFilter = imageFilter;
+        this.service = (ExecutorService) transformationParameters
+                        .get( GlobalParameters.EXECUTOR_SERVICE );
+
+        this.imageFilter = ( ImageFilter ) transformationParameters
+                        .get( TransformationFinderParameters.IMAGE_FILTER );
 
     }
 
-    public < R extends RealType< R > & NativeType< R > > RealTransform findTransform(
-            RandomAccessibleInterval fixedRAI,
-            RandomAccessible movingRA,
-            ExecutorService service)
+    public RealTransform findTransform(
+             RandomAccessibleInterval fixedRAI,
+             RandomAccessible movingRA )
     {
 
         PackageLogService.logService.info("### TransformationFinderTranslationPhaseCorrelation");
@@ -74,7 +75,8 @@ public class TransformationFinderTranslationPhaseCorrelation implements Transfor
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
 
         // potentially filter the moving image (the fixed one is already filtered)
-        //
+        // TODO: why filter the fixed one outside?
+
         RandomAccessibleInterval filteredFixedRAI = fixedRAI;
         RandomAccessibleInterval filteredMovingRAI = movingRAI;
 
@@ -83,18 +85,23 @@ public class TransformationFinderTranslationPhaseCorrelation implements Transfor
             filteredMovingRAI = imageFilter.filter( movingRAI );
         }
 
-
         // TODO: remove below code once possible!
         filteredFixedRAI = Views.zeroMin( filteredFixedRAI );
         filteredMovingRAI = Views.zeroMin( filteredMovingRAI );
 
+        // copy to RAM for speed
+        //
+        ImageFilter copyToRAM = new ImageFilterCopyToRAM( null );
+
+        final RandomAccessibleInterval< R >  finalFixedRAI =  copyToRAM.filter( filteredFixedRAI );
+        final RandomAccessibleInterval< R >  finalMovingRAI =  copyToRAM.filter( filteredMovingRAI );
 
         // compute best shift
         //
         final RandomAccessibleInterval< FloatType > pcm =
                 PhaseCorrelation2.calculatePCM(
-                        filteredFixedRAI,
-                        filteredMovingRAI,
+                        finalFixedRAI,
+                        finalMovingRAI,
                         extension,
                         new ArrayImgFactory< FloatType >(),
                         new FloatType(),
@@ -105,8 +112,8 @@ public class TransformationFinderTranslationPhaseCorrelation implements Transfor
         final PhaseCorrelationPeak2 shiftPeak =
                 PhaseCorrelation2.getShift(
                         pcm,
-                        filteredFixedRAI,
-                        filteredMovingRAI,
+                        finalFixedRAI,
+                        finalMovingRAI,
                         numPeaksToCheck,
                         minOverlap,
                         doSubpixel,

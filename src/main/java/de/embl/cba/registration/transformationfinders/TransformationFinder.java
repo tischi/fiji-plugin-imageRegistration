@@ -8,10 +8,8 @@ import net.imglib2.type.numeric.RealType;
 
 import java.util.concurrent.ExecutorService;
 
-public interface TransformationFinder {
+public interface TransformationFinder < R extends RealType< R > & NativeType< R > > {
 
-    < R extends RealType< R > & NativeType< R > > RealTransform findTransform(
-            RandomAccessibleInterval fixedRAI,
-            RandomAccessible movingRA,
-            ExecutorService service);
+     RealTransform findTransform( RandomAccessibleInterval< R > fixedRAI, RandomAccessible< R > movingRA );
+
 }

@@ -1,44 +1,74 @@
 package de.embl.cba.registration.transformationfinders;
 
+import de.embl.cba.registration.ImageRegistration;
+import de.embl.cba.registration.ImageRegistrationUtils;
 import de.embl.cba.registration.filter.ImageFilter;
+import net.imglib2.FinalInterval;
+import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
+import net.imglib2.realtransform.AffineTransform;
+import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.RealTransform;
+import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 public class TransformationFinderRotationTranslationPhaseCorrelation
+        < R extends RealType< R > & NativeType < R > >
         implements TransformationFinder {
 
     Double[] maximalTranslations;
     Double[] maximalRotations;
-    ImageFilter imageFilter;
+    FinalRealInterval rotationInterval;
 
-    TransformationFinderRotationTranslationPhaseCorrelation(
-            Map< String, Object > transformationParameters,
-            ImageFilter imageFilter )
+    double rotationStep = 1.0D;
+    private RandomAccessibleInterval fixedRAI;
+    private RandomAccessible movingRA;
+    private TransformationFinder transformationFinderTranslationPhaseCorrelation;
+
+
+    TransformationFinderRotationTranslationPhaseCorrelation( Map< String, Object > transformationParameters )
     {
         this.maximalTranslations =
                 ( Double[] ) transformationParameters
                         .get( TransformationFinderParameters.MAXIMAL_TRANSLATIONS );
+
         this.maximalRotations =
                 ( Double[] ) transformationParameters
                         .get( TransformationFinderParameters.MAXIMAL_ROTATIONS );
-        this.imageFilter = imageFilter;
+
+        double[] min = Arrays.stream( maximalRotations ).mapToDouble( x -> -x ).toArray();
+        double[] max = Arrays.stream( maximalRotations ).mapToDouble( x -> x ).toArray();
+        this.rotationInterval = new FinalRealInterval( min, max );
+
+
+        // get a transformationFinder for the translation
+
+        Map< String, Object > transformationTranslationParameters
+                = new HashMap<>( transformationParameters );
+
+        transformationTranslationParameters.put(
+                TransformationFinderParameters.TRANSFORMATION_FINDER_TYPE,
+                TransformationFinderType.Translation__PhaseCorrelation );
+
+        this.transformationFinderTranslationPhaseCorrelation
+                = TransformationFinderFactory.create( transformationTranslationParameters );
+
     }
 
-    public < R extends RealType< R > & NativeType< R > > RealTransform findTransform(
-            RandomAccessibleInterval fixedRAI,
-            RandomAccessible movingRA,
-            ExecutorService service )
+    public RealTransform findTransform(
+             RandomAccessibleInterval fixedRAI,
+             RandomAccessible movingRA )
     {
+
+        this.fixedRAI = fixedRAI;
+        this.movingRA = movingRA;
 
         // Recursively loop through all possible rotations
         // - calling the TransformationFinderTranslationPhaseCorrelation
@@ -46,77 +76,59 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
         // return the best one
 
 
-
         return null;
     }
 
 
-    private void testRotations(
-            Map< Double[], Double[] >  rotationsTranslationsMap,
-            Map< Integer, Long > dimensionCoordinateMap,
-            Map< Long, T > transformations )
+    //    https://de.wikipedia.org/wiki/Eulersche_Winkel#Standard-x-Konvention_(z,_x%E2%80%B2,_z%E2%80%B3)
+
+    private void testRotation(
+            Double[] rotations,
+            ArrayList< ArrayList< Double[] > > rotationsTranslationsXCorrList
+    )
     {
-        /*
-        if ( dimensionCoordinateMap.containsValue( null ) )
+
+        for ( int d = 0; d < rotations.length; ++d )
         {
-            List< RandomAccessibleInterval< R > > dimensionCoordinateRAIList = new ArrayList<>(  );
-
-            for ( int d : dimensionCoordinateMap.keySet() )
+            if ( rotations[ d ] == Double.NaN )
             {
-                if ( dimensionCoordinateMap.get( d ) == null )
+                for ( Double r = rotationInterval.realMin( d );
+                      r <= rotationInterval.realMax( d );
+                      r += rotationStep )
                 {
-                    List < RandomAccessibleInterval< R > > sequenceCoordinateRAIList = new ArrayList<>(  );
-                    for ( long c = inputRAI.min( d ); c <= inputRAI.max( d ); ++c )
-                    {
-                        Map< Integer, Long > newFixedDimensions =
-                                new LinkedHashMap<>( dimensionCoordinateMap );
-
-                        newFixedDimensions.put( d, c );
-
-                        sequenceCoordinateRAIList.add(
-                                createTransformedInputRAISequence(
-                                        transformedSequenceMap,
-                                        newFixedDimensions,
-                                        transformations ) );
-
-                    }
-                    dimensionCoordinateRAIList.add(  Views.stack( sequenceCoordinateRAIList ) );
+                    rotations[ d ] = r;
+                    testRotation( rotations,
+                            rotationsTranslationsXCorrList );
                 }
             }
 
-            return Views.stack( dimensionCoordinateRAIList );
-
         }
-        else
+
+        // all rotations are set => compute best shift and add to list
+
+
+        AffineTransform3D rotation3D = new AffineTransform3D();
+
+        for ( int d = 0; d < rotations.length; ++d )
         {
-            List< RandomAccessibleInterval< R > > transformedRAIList = new ArrayList<>();
-
-            for ( long s = inputRAI.min( sequenceAxisProperties.axis );
-                  s <= inputRAI.max( sequenceAxisProperties.axis );
-                  ++s )
-            {
-                if ( transformations.containsKey( s ) )
-                {
-
-                    transformedRAIList.add(
-                            getTransformedRAI(
-                                    s,
-                                    transformations.get( s ),
-                                    dimensionCoordinateMap,
-                                    getTransformableDimensionsOutputInterval()
-                            ) );
-                }
-
-            }
-
-            // combine time-series of multiple channels into a channel stack
-            RandomAccessibleInterval< R > transformedSequence = Views.stack( transformedRAIList );
-
-            transformedSequenceMap.put( dimensionCoordinateMap, transformedSequence );
-
-            return transformedSequence;
+            rotation3D.rotate( d, rotations[ d ] );
         }
-        */
+
+        RandomAccessible< R > rotatedMovingRA = ImageRegistrationUtils.getTransformedRA( movingRA, rotation3D );
+
+
+        transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA );
+
     }
+
+
+    private RandomAccessible< R > getRotatedView(
+            RandomAccessible< R > ra,
+            Double[] rotations )
+    {
+        return null;
+    }
+
+
 
 }
