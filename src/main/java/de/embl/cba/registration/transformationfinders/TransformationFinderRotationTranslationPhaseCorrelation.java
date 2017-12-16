@@ -1,52 +1,43 @@
 package de.embl.cba.registration.transformationfinders;
 
-import de.embl.cba.registration.ImageRegistration;
 import de.embl.cba.registration.ImageRegistrationUtils;
-import de.embl.cba.registration.filter.ImageFilter;
-import net.imglib2.FinalInterval;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
-import net.imglib2.realtransform.AffineTransform;
+import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.RealTransform;
-import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 
 public class TransformationFinderRotationTranslationPhaseCorrelation
         < R extends RealType< R > & NativeType < R > >
         implements TransformationFinder {
 
-    Double[] maximalTranslations;
-    Double[] maximalRotations;
     FinalRealInterval rotationInterval;
-
     double rotationStep = 1.0D;
+
     private RandomAccessibleInterval fixedRAI;
     private RandomAccessible movingRA;
-    private TransformationFinder transformationFinderTranslationPhaseCorrelation;
+    private TransformationFinderTranslationPhaseCorrelation transformationFinderTranslationPhaseCorrelation;
 
+    private static final String CROSS_CORRELATION = "CrossCorrelation";
+    private static final String TRANSLATIONS = "Translations";
+    private static final String ROTATIONS = "Rotations";
 
-    TransformationFinderRotationTranslationPhaseCorrelation( Map< String, Object > transformationParameters )
+    TransformationFinderRotationTranslationPhaseCorrelation(
+            Map< String, Object > transformationParameters )
     {
-        this.maximalTranslations =
-                ( Double[] ) transformationParameters
-                        .get( TransformationFinderParameters.MAXIMAL_TRANSLATIONS );
 
-        this.maximalRotations =
-                ( Double[] ) transformationParameters
+        double[] maximalRotations =
+                ( double[] ) transformationParameters
                         .get( TransformationFinderParameters.MAXIMAL_ROTATIONS );
 
-        double[] min = Arrays.stream( maximalRotations ).mapToDouble( x -> -x ).toArray();
-        double[] max = Arrays.stream( maximalRotations ).mapToDouble( x -> x ).toArray();
-        this.rotationInterval = new FinalRealInterval( min, max );
-
+        double[] minRotations = Arrays.stream( maximalRotations ).map( x -> -x ).toArray();
+        double[] maxRotations = maximalRotations;
+        this.rotationInterval = new FinalRealInterval( minRotations, maxRotations );
 
         // get a transformationFinder for the translation
 
@@ -58,7 +49,7 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
                 TransformationFinderType.Translation__PhaseCorrelation );
 
         this.transformationFinderTranslationPhaseCorrelation
-                = TransformationFinderFactory.create( transformationTranslationParameters );
+                = new TransformationFinderTranslationPhaseCorrelation( transformationParameters );
 
     }
 
@@ -70,65 +61,104 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
         this.fixedRAI = fixedRAI;
         this.movingRA = movingRA;
 
-        // Recursively loop through all possible rotations
-        // - calling the TransformationFinderTranslationPhaseCorrelation
-        // - keeping the rotations, translations and x-correlations in a list
-        // return the best one
+        // Recursively loop through all possible rotations and compute best translation
+        ArrayList< Map< String, Object > > rotationsTranslationsXCorrList = new ArrayList<>(  );
+
+        double[] rotations = new double[ rotationInterval.numDimensions() ];
+        Arrays.fill( rotations, Double.MAX_VALUE );
+
+        computeCrossCorrelationAndTranslation( rotations, rotationsTranslationsXCorrList );
+
+        // go through list and and find the best transformation
+
+        double largestCrossCorrelation = Double.MIN_VALUE;
+        double[] bestRotations = null;
+        double[] bestTranslations = null;
+
+        for ( Map< String, Object > rotationsTranslationsXCorr : rotationsTranslationsXCorrList )
+        {
+            if ( (double) rotationsTranslationsXCorr.get( CROSS_CORRELATION ) > largestCrossCorrelation )
+            {
+                largestCrossCorrelation = (double) rotationsTranslationsXCorr.get( CROSS_CORRELATION );
+                bestRotations = (double[]) rotationsTranslationsXCorr.get( ROTATIONS );
+                bestTranslations = (double[]) rotationsTranslationsXCorr.get( TRANSLATIONS );
+            }
+        }
+
 
 
         return null;
     }
 
-
-    //    https://de.wikipedia.org/wiki/Eulersche_Winkel#Standard-x-Konvention_(z,_x%E2%80%B2,_z%E2%80%B3)
-
-    private void testRotation(
-            Double[] rotations,
-            ArrayList< ArrayList< Double[] > > rotationsTranslationsXCorrList
-    )
+    private void computeCrossCorrelationAndTranslation(
+            double[] rotations,
+            ArrayList< Map< String, Object > > rotationsTranslationsXCorrList )
     {
 
         for ( int d = 0; d < rotations.length; ++d )
         {
-            if ( rotations[ d ] == Double.NaN )
+            if ( rotations[ d ] == Double.MAX_VALUE)
             {
-                for ( Double r = rotationInterval.realMin( d );
+                for ( double r = rotationInterval.realMin( d );
                       r <= rotationInterval.realMax( d );
                       r += rotationStep )
                 {
                     rotations[ d ] = r;
-                    testRotation( rotations,
+                    computeCrossCorrelationAndTranslation( rotations,
                             rotationsTranslationsXCorrList );
                 }
             }
 
         }
 
-        // all rotations are set => compute best shift and add to list
+        // all rotations are set => compute best translation and add to list
 
+        // rotate
+        RandomAccessible< R > rotatedMovingRA;
 
-        AffineTransform3D rotation3D = new AffineTransform3D();
-
-        for ( int d = 0; d < rotations.length; ++d )
+        if ( rotations.length == 1 )
         {
-            rotation3D.rotate( d, rotations[ d ] );
+            AffineTransform2D rotation2D = new AffineTransform2D();
+            rotation2D.rotate( rotations[ 0 ] );
+            rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation2D );
+        }
+        else if ( rotations.length == 3)
+        {
+            AffineTransform3D rotation3D = new AffineTransform3D();
+            for ( int d = 0; d < rotations.length; ++d )
+            {
+                rotation3D.rotate( d, rotations[ d ] );
+            }
+            rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation3D );
+        }
+        else
+        {
+            // TODO: throw error (or even better: this should not happen)
+            rotatedMovingRA = null;
         }
 
-        RandomAccessible< R > rotatedMovingRA = ImageRegistrationUtils.getTransformedRA( movingRA, rotation3D );
-
-
+        // find best translation for this rotation
         transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA );
 
+        // add result to list
+        Map< String, Object > rotationsTranslationsXCorr = new HashMap<>(  );
+
+        rotationsTranslationsXCorr.put(
+                ROTATIONS,
+                rotations );
+
+        rotationsTranslationsXCorr.put(
+                TRANSLATIONS,
+                transformationFinderTranslationPhaseCorrelation.getTranslation() );
+
+        rotationsTranslationsXCorr.put(
+                CROSS_CORRELATION,
+                transformationFinderTranslationPhaseCorrelation.getCrossCorrelation() );
+
+        rotationsTranslationsXCorrList.add( rotationsTranslationsXCorr );
+
+
     }
-
-
-    private RandomAccessible< R > getRotatedView(
-            RandomAccessible< R > ra,
-            Double[] rotations )
-    {
-        return null;
-    }
-
 
 
 }

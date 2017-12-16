@@ -206,7 +206,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                 TransformationFinderType.valueOf( transformationTypeInput ) );
 
         tmp = transformationParametersMaximalTranslationsInput.split( "," );
-        Double[] transformationParametersMaximalTranslations = new Double[ tmp.length ];
+        double[] transformationParametersMaximalTranslations = new double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
             transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[i] );
@@ -217,7 +217,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
 
         tmp = transformationParameterMaximalRotationsInput.split( "," );
-        Double[] transformationParametersMaximalRotations = new Double[ tmp.length ];
+        double[] transformationParametersMaximalRotations = new double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
             transformationParametersMaximalRotations[ i ] = Double.parseDouble( tmp[i] );

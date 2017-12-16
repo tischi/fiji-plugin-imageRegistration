@@ -29,13 +29,16 @@ public class TransformationFinderTranslationPhaseCorrelation
         < R extends RealType< R > & NativeType< R > >
         implements TransformationFinder {
 
-    Double[] maximalTranslations;
+    double[] maximalTranslations;
     ImageFilter imageFilter;
     ExecutorService service;
 
+    private double[] translation;
+    private double crossCorrelation;
+
     TransformationFinderTranslationPhaseCorrelation( final Map< String, Object > transformationParameters )
     {
-        this.maximalTranslations = (Double[]) transformationParameters
+        this.maximalTranslations = (double[]) transformationParameters
                         .get( TransformationFinderParameters.MAXIMAL_TRANSLATIONS );
 
         this.service = (ExecutorService) transformationParameters
@@ -122,53 +125,68 @@ public class TransformationFinderTranslationPhaseCorrelation
 
         //System.out.println( "Actual overlap of best shift is: " + shiftPeak.getnPixel() )
 
-        final double[] shift = new double[ n ];
+        translation = new double[ n ];
 
         if ( shiftPeak != null || ! Double.isInfinite( shiftPeak.getCrossCorr() ) )
         {
             if ( shiftPeak.getSubpixelShift() == null )
-                shiftPeak.getShift().localize( shift );
+                shiftPeak.getShift().localize( translation );
             else
-                shiftPeak.getSubpixelShift().localize( shift );
+                shiftPeak.getSubpixelShift().localize( translation );
 
-            for ( double s : shift )
+            for ( double s : translation )
             {
                 PackageLogService.logService.info( "translation "+ s );
             }
             PackageLogService.logService.info("x-corr " + shiftPeak.getCrossCorr());
+
+            crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
             PackageLogService.logService.info(
                     "No sensible translation found => returning zero translation.\n" +
                     "Consider increasing the maximal translation range." );
+
+            crossCorrelation = Double.NaN;
         }
 
-        for ( int d = 0; d < shift.length; ++d )
+        for ( int d = 0; d < translation.length; ++d )
         {
-            if ( Math.abs( shift[ d  ] ) > maximalTranslations[ d ] )
+            if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
-                shift[ d ] = maximalTranslations[ d ] * Math.signum( shift[ d ] );
+                translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
                 PackageLogService.logService.info(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }
         }
 
-        if ( shift.length == 2 )
+        if ( translation.length == 2 )
         {
-            return new Translation2D( shift );
+            return new Translation2D( translation );
         }
-        else if ( shift.length == 3 )
+        else if ( translation.length == 3 )
         {
-            return new Translation3D( shift );
+            return new Translation3D( translation );
         }
         else
         {
             // TODO: still bug with concatenate?
-            return new Translation( shift );
+            return new Translation( translation );
         }
 
     }
+
+    public double[] getTranslation()
+    {
+        return translation;
+    }
+
+    public double getCrossCorrelation()
+    {
+        return crossCorrelation;
+    }
+
 
 }

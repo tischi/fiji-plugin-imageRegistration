@@ -229,10 +229,7 @@ public class ImageRegistration
             // Find transformation
             //
             T relativeTransformation = ( T ) transformationFinder
-                    .findTransform(
-                            fixedRAI,
-                            movingRA,
-                            executorService );
+                    .findTransform( fixedRAI, movingRA );
 
             // Store transformation
             //
@@ -461,7 +458,7 @@ public class ImageRegistration
         else if (  transform != null && referenceRegionType == ReferenceRegionTypes.Moving )
         {
             rai = getTransformableRAI( s, fixedAxesSettings.getReferenceAxisCoordinateMap() );
-            RandomAccessible ra = ImageRegistrationUtils.getTransformedRA( rai, transform );
+            RandomAccessible ra = ImageRegistrationUtils.getRAIasTransformedRA( rai, transform );
             rai = Views.interval( ra, transformableAxesSettings.referenceInterval );
         }
 
@@ -491,7 +488,7 @@ public class ImageRegistration
         }
         else
         {
-            ra = ImageRegistrationUtils.getTransformedRA( rai, transform );
+            ra = ImageRegistrationUtils.getRAIasTransformedRA( rai, transform );
         }
 
         return ra;
@@ -509,7 +506,7 @@ public class ImageRegistration
         rai = getTransformableRAI( s, fixedDimensions );
 
         rai = Views.interval(
-                ImageRegistrationUtils.getTransformedRA( rai, transform ),
+                ImageRegistrationUtils.getRAIasTransformedRA( rai, transform ),
                 transformableDimensionsInterval );
 
         return rai;
