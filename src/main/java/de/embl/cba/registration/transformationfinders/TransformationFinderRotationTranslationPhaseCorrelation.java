@@ -124,66 +124,64 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             ArrayList< Result > rotationsTranslationsXCorrList )
     {
 
-        if ( Arrays.asList(  rotations ).contains( Double.MAX_VALUE ) )
+        for ( int d = 0; d < rotations.length; ++d )
         {
+            if ( rotations[ d ] == Double.MAX_VALUE )
+            {
+                for ( double r = rotationInterval.realMin( d );
+                      r <= rotationInterval.realMax( d );
+                      r += rotationStep )
+                {
+                    rotations[ d ] = r;
+                    computeCrossCorrelationAndTranslation(
+                            rotations,
+                            rotationsTranslationsXCorrList );
+                }
+
+                return;
+            }
+
+        }
+
+         // all rotations are set => compute best translations and add to list
+
+        // rotate
+        RandomAccessible< R > rotatedMovingRA;
+
+        if ( rotations.length == 1 )
+        {
+            AffineTransform2D rotation2D = new AffineTransform2D();
+            rotation2D.rotate(  rotations[ 0 ]  );
+            rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation2D );
+        }
+        else if ( rotations.length == 3)
+        {
+            AffineTransform3D rotation3D = new AffineTransform3D();
             for ( int d = 0; d < rotations.length; ++d )
             {
-                if ( rotations[ d ] == Double.MAX_VALUE )
-                {
-                    for ( double r = rotationInterval.realMin( d );
-                          r <= rotationInterval.realMax( d );
-                          r += rotationStep )
-                    {
-                        rotations[ d ] = r;
-                        computeCrossCorrelationAndTranslation(
-                                rotations,
-                                rotationsTranslationsXCorrList );
-                    }
-                }
+                rotation3D.rotate( d, rotations[ d ] );
             }
+            rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation3D );
         }
         else
         {
-            // all rotations are set => compute best translations and add to list
-
-            // rotate
-            RandomAccessible< R > rotatedMovingRA;
-
-            if ( rotations.length == 1 )
-            {
-                AffineTransform2D rotation2D = new AffineTransform2D();
-                rotation2D.rotate(  rotations[ 0 ]  );
-                rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation2D );
-            }
-            else if ( rotations.length == 3)
-            {
-                AffineTransform3D rotation3D = new AffineTransform3D();
-                for ( int d = 0; d < rotations.length; ++d )
-                {
-                    rotation3D.rotate( d, rotations[ d ] );
-                }
-                rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation3D );
-            }
-            else
-            {
-                // TODO: throw error (or even better: this should not happen)
-                rotatedMovingRA = null;
-            }
-
-            // find best translations for this rotation
-            transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA );
-
-            // add result to list
-            Result result = new Result();
-            result.crossCorrelation = transformationFinderTranslationPhaseCorrelation.getCrossCorrelation();
-            result.rotations = rotations.clone();
-            result.translations = transformationFinderTranslationPhaseCorrelation.getTranslation();
-
-            rotationsTranslationsXCorrList.add( result );
-
+            // TODO: throw error (or even better: this should not happen)
+            rotatedMovingRA = null;
         }
+
+        // find best translations for this rotation
+        transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA );
+
+        // add result to list
+        Result result = new Result();
+        result.crossCorrelation = transformationFinderTranslationPhaseCorrelation.getCrossCorrelation();
+        result.rotations = rotations.clone();
+        result.translations = transformationFinderTranslationPhaseCorrelation.getTranslation();
+
+        rotationsTranslationsXCorrList.add( result );
+
     }
-    
+
     private class Result
     {
         double[] rotations;
