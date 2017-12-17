@@ -8,6 +8,7 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.RealTransform;
 
 import net.imglib2.realtransform.Translation;
@@ -99,6 +100,9 @@ public class TransformationFinderTranslationPhaseCorrelation
         final RandomAccessibleInterval< R >  finalFixedRAI =  copyToRAM.filter( filteredFixedRAI );
         final RandomAccessibleInterval< R >  finalMovingRAI =  copyToRAM.filter( filteredMovingRAI );
 
+        //ImageJFunctions.show( finalFixedRAI );
+        //ImageJFunctions.show( finalMovingRAI );
+
         // compute best shift
         //
         final RandomAccessibleInterval< FloatType > pcm =
@@ -136,7 +140,7 @@ public class TransformationFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                PackageLogService.logService.info( "translation "+ s );
+                PackageLogService.logService.info( "translations "+ s );
             }
             PackageLogService.logService.info("x-corr " + shiftPeak.getCrossCorr());
 
@@ -145,8 +149,8 @@ public class TransformationFinderTranslationPhaseCorrelation
         else
         {
             PackageLogService.logService.info(
-                    "No sensible translation found => returning zero translation.\n" +
-                    "Consider increasing the maximal translation range." );
+                    "No sensible translations found => returning zero translations.\n" +
+                    "Consider increasing the maximal translations range." );
 
             crossCorrelation = Double.NaN;
         }

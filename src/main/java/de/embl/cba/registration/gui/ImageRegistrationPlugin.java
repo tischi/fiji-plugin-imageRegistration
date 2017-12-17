@@ -66,14 +66,16 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     private OpService opService;
 
     @Parameter(label = "Transformation type and finder method",
-            choices = {"Translation__PhaseCorrelation"} ) //, "Rotation_Translation__PhaseCorrelation"} )
-    private String transformationTypeInput;
+            choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"},
+            persist = false )
+    private String transformationTypeInput = "Rotation_Translation__PhaseCorrelation";
 
     @Parameter(label = "Output size",
-            choices = {"ReferenceRegionSize", "InputDataSize"} )
-    private String outputViewIntervalSizeTypeInput;
+            choices = {"ReferenceRegionSize", "InputDataSize"},
+            persist = false )
+    private String outputViewIntervalSizeTypeInput = "ReferenceRegionSize";
 
-    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message01
             = "<html> "  +
             "<br>MAXIMAL TRANSFORMATION RANGES<br>" +
@@ -81,13 +83,15 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             "The order must be the same as your axes appear down below.<br>" +
             "Maximal transformation values are between subsequent sequence coordinates.<br>";
 
-    @Parameter(label = "Maximal translations [pixels]", persist = false)
-    private String transformationParametersMaximalTranslationsInput = "20,20";
+    @Parameter(label = "Maximal translations [pixels]",
+            persist = false)
+    private String transformationParametersMaximalTranslationsInput = "30,30";
 
-    //@Parameter(label = "Maximal rotations [degrees]", persist = false)
-    private String transformationParameterMaximalRotationsInput = "20,20";
+    @Parameter(label = "Maximal rotations [degrees]",
+            persist = false)
+    private String transformationParameterMaximalRotationsInput = "2";
 
-    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message02
             = "<html> "  +
             "<br>IMAGE PRE-PROCESSING<br>" +
@@ -95,9 +99,10 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             "For example, phase- and cross-correlation are very noise sensitive.<br>" +
             "Typically it helps to threshold above the noise level.<br>";
 
-    @Parameter(label = "Image pre-processing",
-            choices = {"None", "Threshold", "DifferenceOfGaussianAndThreshold"} )
-    private String imageFilterTypeInput;
+    @Parameter( label = "Image pre-processing",
+            choices = {"None", "Threshold", "DifferenceOfGaussianAndThreshold"},
+            persist = false )
+    private String imageFilterTypeInput = "None";
 
     @Parameter(label = "Threshold value" )
     private Double imageFilterParameterThresholdInput;
@@ -420,7 +425,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         //final File file = ij.ui().chooseFile(null, "open");
 
         final File file =
-                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur.tif");
+                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur_noise.tif");
 
         Dataset dataset = null;
         int n = 0;
