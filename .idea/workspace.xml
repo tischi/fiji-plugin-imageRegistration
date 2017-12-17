@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java" />
     </list>
     <ignored path="fiji-plugin-imageRegistration.iws" />
@@ -23,37 +25,46 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="394">
-              <caret line="235" column="39" lean-forward="true" selection-start-line="235" selection-start-column="39" selection-end-line="235" selection-end-column="39" />
+            <state relative-caret-position="-1179">
+              <caret line="226" column="0" lean-forward="true" selection-start-line="226" selection-start-column="0" selection-end-line="226" selection-end-column="0" />
               <folding>
-                <element signature="e#1867#1905#0" expanded="false" />
+                <element signature="e#1845#1883#0" expanded="false" />
                 <element signature="docComment;method#ImageRegistration#0;class#ImageRegistration#0" expanded="false" />
-                <element signature="e#3702#3722#0" expanded="false" />
-                <element signature="e#4271#4300#0" expanded="false" />
-                <element signature="e#4690#4716#0" expanded="false" />
-                <element signature="e#5231#5262#0" expanded="false" />
-                <element signature="e#7093#7116#0" expanded="false" />
-                <element signature="e#7689#7778#0" expanded="false" />
-                <element signature="e#8598#8626#0" expanded="false" />
-                <element signature="e#9110#9168#0" expanded="false" />
-                <element signature="e#9361#9419#0" expanded="false" />
-                <element signature="e#9621#9643#0" expanded="false" />
-                <element signature="e#9796#9819#0" expanded="false" />
-                <element signature="e#10204#10288#0" expanded="false" />
-                <element signature="e#10377#10438#0" expanded="false" />
-                <element signature="e#12186#12234#0" expanded="false" />
+                <element signature="e#3680#3700#0" expanded="false" />
+                <element signature="e#4249#4278#0" expanded="false" />
+                <element signature="e#4668#4694#0" expanded="false" />
+                <element signature="e#5209#5240#0" expanded="false" />
+                <element signature="e#7071#7094#0" expanded="false" />
+                <element signature="e#7667#7756#0" expanded="false" />
+                <element signature="e#8576#8604#0" expanded="false" />
+                <element signature="e#9166#9224#0" expanded="false" />
+                <element signature="e#9333#9391#0" expanded="false" />
+                <element signature="e#9593#9615#0" expanded="false" />
+                <element signature="e#10179#10263#0" expanded="false" />
+                <element signature="e#10352#10413#0" expanded="false" />
+                <element signature="method#getTransformableDimensionsOutputInterval#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getTransformationsUnion#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#getCorners#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="e#12601#12649#0" expanded="false" />
+                <element signature="method#setCorners#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#createTransformedInputRAISequence#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="e#18933#18999#0" expanded="false" />
-                <element signature="e#19184#19202#0" expanded="false" />
-                <element signature="e#19775#19797#0" expanded="false" />
+                <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="e#19333#19399#0" expanded="false" />
+                <element signature="e#19584#19602#0" expanded="false" />
+                <element signature="e#20175#20197#0" expanded="false" />
                 <element signature="docComment;method#getTransformableRAI#0;class#ImageRegistration#0" expanded="false" />
                 <element signature="class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="false" />
-                <element signature="class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+                <element signature="method#TransformableAxesSettings#0;class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="true" />
+                <element signature="e#22803#22804#0" expanded="true" />
+                <element signature="e#22845#22846#0" expanded="true" />
                 <element signature="docComment;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
                 <element signature="class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+                <marker date="1513533592000" expanded="false" signature="10547:10942" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -62,17 +73,17 @@
       <file leaf-file-name="ImageRegistrationPlugin.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="70">
-              <caret line="155" column="52" lean-forward="true" selection-start-line="155" selection-start-column="52" selection-end-line="155" selection-end-column="52" />
+            <state relative-caret-position="110">
+              <caret line="427" column="136" lean-forward="false" selection-start-line="427" selection-start-column="136" selection-end-line="427" selection-end-column="136" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#getAxisTypeList#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
+                <element signature="method#registrationThread#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="method#computeRegistration#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="method#init#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="e#11905#11915#0" expanded="false" />
-                <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
                 <element signature="e#15682#15716#0" expanded="false" />
                 <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
               </folding>
@@ -83,8 +94,8 @@
       <file leaf-file-name="ImageRegistrationUtils.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistrationUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="29" column="21" lean-forward="false" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
+            <state relative-caret-position="230">
+              <caret line="15" column="25" lean-forward="false" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#getRAIasTransformedRA#0;class#ImageRegistrationUtils#0" expanded="true" />
@@ -94,49 +105,29 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TransformationFinderRotationTranslationPhaseCorrelation.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TransformationFinderRotationTranslationPhaseCorrelation.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
-              <caret line="77" column="0" lean-forward="false" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+            <state relative-caret-position="209">
+              <caret line="21" column="41" lean-forward="false" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#TransformationFinderRotationTranslationPhaseCorrelation#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
+                <element signature="method#findTransform#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
                 <element signature="method#computeCrossCorrelationAndTranslation#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
+                <element signature="method#toString#0;class#Result#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TransformationFinderParameters.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java">
+      <file leaf-file-name="AffineTransform2D.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineTransform2D.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TransformationFinderFactory.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="22" column="98" lean-forward="true" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="98" />
+            <state relative-caret-position="179">
+              <caret line="295" column="16" lean-forward="false" selection-start-line="295" selection-start-column="16" selection-end-line="295" selection-end-column="16" />
               <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TransformationFinder.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinder.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="17" lean-forward="false" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
-              <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="method#translate#0;class#AffineTransform2D#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -198,8 +189,8 @@
       <find>value</find>
       <find>.log</find>
       <find>logSet</find>
-      <find>Transformed se</find>
       <find>defau</find>
+      <find>Transformed se</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$</dir>
@@ -262,10 +253,10 @@
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDog.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinder.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistrationUtils.java" />
-        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java" />
-        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderTranslationPhaseCorrelation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
+        <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java" />
       </list>
     </option>
@@ -654,6 +645,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -663,18 +655,18 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30350664" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.11003628" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17095852" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32618025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32769045" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42563483" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2140266" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -748,30 +740,36 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java</url>
-          <line>77</line>
+          <line>81</line>
           <properties />
           <option name="timeStamp" value="190" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java</url>
-          <line>134</line>
+          <line>138</line>
           <properties />
           <option name="timeStamp" value="193" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java</url>
-          <line>72</line>
+          <line>76</line>
           <properties />
           <option name="timeStamp" value="194" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java</url>
-          <line>150</line>
+          <line>154</line>
           <properties />
           <option name="timeStamp" value="198" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java</url>
+          <line>516</line>
+          <properties />
+          <option name="timeStamp" value="199" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="199" />
+      <option name="time" value="200" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -780,51 +778,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scijava/scijava-common/2.65.0/scijava-common-2.65.0-sources.jar!/org/scijava/module/AbstractModuleInfo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="74" column="25" lean-forward="false" selection-start-line="74" selection-start-column="25" selection-end-line="74" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-legacy/0.25.0/imagej-legacy-0.25.0.jar!/net/imagej/legacy/LegacyImageMap.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ReferenceRegionTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="4" column="4" lean-forward="false" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/tests/ops.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="10" lean-forward="false" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-ij/2.0.0-beta-38/imglib2-ij-2.0.0-beta-38.jar!/net/imglib2/img/display/imagej/ImageJFunctions.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="178" column="55" lean-forward="false" selection-start-line="178" selection-start-column="55" selection-end-line="178" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scijava/scijava-common/2.65.0/scijava-common-2.65.0-sources.jar!/org/scijava/ui/UIService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="153" column="9" lean-forward="false" selection-start-line="153" selection-start-column="9" selection-end-line="153" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/net/imagej/imagej-common/0.24.4/imagej-common-0.24.4.jar!/net/imagej/axis/TypedAxis.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
@@ -1042,18 +995,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineTransform3D.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="25" column="41" lean-forward="false" selection-start-line="25" selection-start-column="41" selection-end-line="25" selection-end-column="41" />
-          <folding>
-            <element signature="e#831#832#0" expanded="true" />
-            <element signature="e#891#892#0" expanded="true" />
-            <element signature="method#AffineMatrix3D#0;class#AffineMatrix3D#0;class#AffineTransform3D#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/GlobalParameters.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -1096,42 +1037,8 @@
         <state relative-caret-position="198">
           <caret line="54" column="31" lean-forward="false" selection-start-line="54" selection-start-column="31" selection-end-line="54" selection-end-column="31" />
           <folding>
-            <element signature="e#22432#22433#0" expanded="true" />
-            <element signature="e#22507#22508#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="235" column="39" lean-forward="true" selection-start-line="235" selection-start-column="39" selection-end-line="235" selection-end-column="39" />
-          <folding>
-            <element signature="e#1867#1905#0" expanded="false" />
-            <element signature="docComment;method#ImageRegistration#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="e#3702#3722#0" expanded="false" />
-            <element signature="e#4271#4300#0" expanded="false" />
-            <element signature="e#4690#4716#0" expanded="false" />
-            <element signature="e#5231#5262#0" expanded="false" />
-            <element signature="e#7093#7116#0" expanded="false" />
-            <element signature="e#7689#7778#0" expanded="false" />
-            <element signature="e#8598#8626#0" expanded="false" />
-            <element signature="e#9110#9168#0" expanded="false" />
-            <element signature="e#9361#9419#0" expanded="false" />
-            <element signature="e#9621#9643#0" expanded="false" />
-            <element signature="e#9796#9819#0" expanded="false" />
-            <element signature="e#10204#10288#0" expanded="false" />
-            <element signature="e#10377#10438#0" expanded="false" />
-            <element signature="e#12186#12234#0" expanded="false" />
-            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="e#18933#18999#0" expanded="false" />
-            <element signature="e#19184#19202#0" expanded="false" />
-            <element signature="e#19775#19797#0" expanded="false" />
-            <element signature="docComment;method#getTransformableRAI#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="docComment;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
-            <element signature="class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="e#22432#22433#0" expanded="false" />
+            <element signature="e#22507#22508#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1149,7 +1056,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderFactory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
-          <caret line="22" column="98" lean-forward="true" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="98" />
+          <caret line="22" column="98" lean-forward="false" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="98" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1167,30 +1074,8 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderParameters.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
-          <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistrationUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="29" column="21" lean-forward="false" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#getRAIasTransformedRA#0;class#ImageRegistrationUtils#0" expanded="true" />
-            <element signature="method#getRAasTransformedRA#0;class#ImageRegistrationUtils#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineTransform2D.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="179">
-          <caret line="275" column="16" lean-forward="false" selection-start-line="275" selection-start-column="16" selection-end-line="275" selection-end-column="16" />
-          <folding>
-            <element signature="method#rotate#0;class#AffineTransform2D#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1199,8 +1084,8 @@
         <state relative-caret-position="195">
           <caret line="234" column="18" lean-forward="false" selection-start-line="234" selection-start-column="18" selection-end-line="234" selection-end-column="18" />
           <folding>
-            <element signature="e#10065#10066#0" expanded="true" />
-            <element signature="e#10148#10149#0" expanded="true" />
+            <element signature="e#10065#10066#0" expanded="false" />
+            <element signature="e#10148#10149#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1228,33 +1113,162 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/view/Views.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="413" column="47" lean-forward="false" selection-start-line="413" selection-start-column="47" selection-end-line="413" selection-end-column="47" />
+          <folding>
+            <element signature="method#subsample#0;class#Views#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="70">
-          <caret line="155" column="52" lean-forward="true" selection-start-line="155" selection-start-column="52" selection-end-line="155" selection-end-column="52" />
+        <state relative-caret-position="110">
+          <caret line="427" column="136" lean-forward="false" selection-start-line="427" selection-start-column="136" selection-end-line="427" selection-end-column="136" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#getAxisTypeList#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="method#varInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="method#typeInput#0;class#ImageRegistrationPlugin#0" expanded="true" />
+            <element signature="method#registrationThread#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="method#computeRegistration#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="method#init#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="e#11905#11915#0" expanded="false" />
-            <element signature="method#main#0;class#ImageRegistrationPlugin#0" expanded="true" />
             <element signature="e#15682#15716#0" expanded="false" />
             <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineTransform2D.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="179">
+          <caret line="295" column="16" lean-forward="false" selection-start-line="295" selection-start-column="16" selection-end-line="295" selection-end-column="16" />
+          <folding>
+            <element signature="method#translate#0;class#AffineTransform2D#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineGet.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="10" column="17" lean-forward="false" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2/4.2.1/imglib2-4.2.1.jar!/net/imglib2/concatenate/PreConcatenable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="8" column="23" lean-forward="false" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineTransform3D.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="152" column="35" lean-forward="false" selection-start-line="152" selection-start-column="35" selection-end-line="152" selection-end-column="35" />
+          <folding>
+            <element signature="method#concatenate#1;class#AffineTransform3D#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/TranslationGet.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/Translation3D.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="13" column="93" lean-forward="false" selection-start-line="13" selection-start-column="79" selection-end-line="13" selection-end-column="93" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/net/imglib2/imglib2-realtransform/2.0.0-beta-38/imglib2-realtransform-2.0.0-beta-38.jar!/net/imglib2/realtransform/AffineTransform.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-51">
+          <caret line="16" column="11" lean-forward="false" selection-start-line="16" selection-start-column="11" selection-end-line="16" selection-end-column="11" />
+          <folding>
+            <element signature="method#AffineTransform#0;class#AffineTransform#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistrationUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="15" column="25" lean-forward="false" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getRAIasTransformedRA#0;class#ImageRegistrationUtils#0" expanded="true" />
+            <element signature="method#getRAasTransformedRA#0;class#ImageRegistrationUtils#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="77" column="0" lean-forward="false" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
+        <state relative-caret-position="209">
+          <caret line="21" column="41" lean-forward="false" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#TransformationFinderRotationTranslationPhaseCorrelation#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
+            <element signature="method#findTransform#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
             <element signature="method#computeCrossCorrelationAndTranslation#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
+            <element signature="method#toString#0;class#Result#0;class#TransformationFinderRotationTranslationPhaseCorrelation#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1179">
+          <caret line="226" column="0" lean-forward="true" selection-start-line="226" selection-start-column="0" selection-end-line="226" selection-end-column="0" />
+          <folding>
+            <element signature="e#1845#1883#0" expanded="false" />
+            <element signature="docComment;method#ImageRegistration#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="e#3680#3700#0" expanded="false" />
+            <element signature="e#4249#4278#0" expanded="false" />
+            <element signature="e#4668#4694#0" expanded="false" />
+            <element signature="e#5209#5240#0" expanded="false" />
+            <element signature="e#7071#7094#0" expanded="false" />
+            <element signature="e#7667#7756#0" expanded="false" />
+            <element signature="e#8576#8604#0" expanded="false" />
+            <element signature="e#9166#9224#0" expanded="false" />
+            <element signature="e#9333#9391#0" expanded="false" />
+            <element signature="e#9593#9615#0" expanded="false" />
+            <element signature="e#10179#10263#0" expanded="false" />
+            <element signature="e#10352#10413#0" expanded="false" />
+            <element signature="method#getTransformableDimensionsOutputInterval#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformationsUnion#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getCorners#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="e#12601#12649#0" expanded="false" />
+            <element signature="method#setCorners#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#createTransformedInputRAISequence#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="e#19333#19399#0" expanded="false" />
+            <element signature="e#19584#19602#0" expanded="false" />
+            <element signature="e#20175#20197#0" expanded="false" />
+            <element signature="docComment;method#getTransformableRAI#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="class#SequenceAxisSettings#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="method#TransformableAxesSettings#0;class#TransformableAxesSettings#0;class#ImageRegistration#0" expanded="true" />
+            <element signature="e#22803#22804#0" expanded="true" />
+            <element signature="e#22845#22846#0" expanded="true" />
+            <element signature="docComment;class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+            <element signature="class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
+            <marker date="1513533592000" expanded="false" signature="10547:10942" ph="{...}" />
           </folding>
         </state>
       </provider>

@@ -425,7 +425,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         //final File file = ij.ui().chooseFile(null, "open");
 
         final File file =
-                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur_noise.tif");
+                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur_noise_rotate.tif");
 
         Dataset dataset = null;
         int n = 0;

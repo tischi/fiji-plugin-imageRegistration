@@ -18,7 +18,10 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
         implements TransformationFinder {
 
     FinalRealInterval rotationInterval;
-    double rotationStep = 2D * Math.PI / 360D; //TODO: make configurable
+
+    //TODO: make rotationStep configurable
+    //TODO: maybe first look, e.g., every 5 degree and then finer, e.g. 1 degree.
+    double rotationStep = 2D * Math.PI / 360D;
 
     private RandomAccessibleInterval fixedRAI;
     private RandomAccessible movingRA;
@@ -51,7 +54,8 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
                 TransformationFinderType.Translation__PhaseCorrelation );
 
         this.transformationFinderTranslationPhaseCorrelation
-                = new TransformationFinderTranslationPhaseCorrelation( transformationParameters );
+                = new TransformationFinderTranslationPhaseCorrelation(
+                        transformationParameters );
 
     }
 
@@ -87,17 +91,18 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             }
         }
 
+        PackageLogService.logService.info( "\n### Result" );
+        PackageLogService.logService.info( bestResult.toString() );
+
         // Combine translations and rotations and return result
 
-        PackageLogService.logService.info( "### Result" );
 
         RealTransform bestTransform;
         if ( bestResult.rotations.length == 1 )
         {
             AffineTransform2D affineTransform2D = new AffineTransform2D();
-            affineTransform2D.rotate( -1D * bestResult.rotations[ 0 ] );
+            affineTransform2D.rotate( bestResult.rotations[ 0 ] );
             affineTransform2D.translate( bestResult.translations );
-            PackageLogService.logService.info( affineTransform2D.toString() );
             bestTransform = affineTransform2D;
         }
         else if ( bestResult.rotations.length == 3)
@@ -105,10 +110,9 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             AffineTransform3D affineTransform3D = new AffineTransform3D();
             for ( int d = 0; d < bestResult.rotations.length; ++d )
             {
-                affineTransform3D.rotate( d, -1D * bestResult.rotations[ d ]);
+                affineTransform3D.rotate( d, bestResult.rotations[ d ]);
             }
             affineTransform3D.translate( bestResult.translations );
-            PackageLogService.logService.info( affineTransform3D.toString() );
             bestTransform = affineTransform3D;
         }
         else
@@ -187,6 +191,22 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
         double[] rotations;
         double[] translations;
         double crossCorrelation;
+
+        @Override
+        public String toString()
+        {
+            double[] rotationsDegrees =
+                    Arrays.stream( rotations )
+                    .map( x -> 360D * x / (2 * Math.PI))
+                    .toArray();
+
+            String out = "";
+            out += "Rotations : " + Arrays.toString( rotationsDegrees ) + "\n";
+            out += "Translations : " + Arrays.toString( translations )  + "\n";
+            out += "CrossCorrelation : " + crossCorrelation  + "\n";
+
+            return out;
+        }
 
 
     }

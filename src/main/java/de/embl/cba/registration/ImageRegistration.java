@@ -9,7 +9,7 @@ import de.embl.cba.registration.transformationfinders.TransformationFinderParame
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
-import net.imglib2.realtransform.InvertibleRealTransform;
+import net.imglib2.realtransform.*;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
@@ -210,16 +210,15 @@ public class ImageRegistration
         List< RandomAccessibleInterval < R > > fixedRAIList = new ArrayList<>(  );
         RandomAccessible movingRA;
 
-        T absoluteTransformation = null;
+        // init transformations map
         transformations = new HashMap<>(  );
+        transformations.put( sequenceAxisProperties.min, identityTransformation() );
 
-        for ( long s = sequenceAxisProperties.min; s <= sequenceAxisProperties.max; s += 1 )
+        for ( long s = sequenceAxisProperties.min; s < sequenceAxisProperties.max; s += 1 )
         {
-
             // Get next fixedRAI, transformed and potentially filtered
             //
             fixedRAI = getFixedRAI( s, transformations.get( s ), imageFilter );
-            fixedRAIList.add( fixedRAI ); // not really used, just to show the user
 
             // Get next movingRA, transformed view,  but not filtered.
             // For performance reasons the potential filtering has to happen during the findTransform
@@ -228,21 +227,17 @@ public class ImageRegistration
 
             // Find transformation
             //
-            T relativeTransformation = ( T ) transformationFinder
-                    .findTransform( fixedRAI, movingRA );
+            T relativeTransformation =
+                    ( T ) transformationFinder.findTransform( fixedRAI, movingRA );
 
-            // Store transformation
-            //
-            if ( absoluteTransformation != null )
-            {
-                absoluteTransformation.preConcatenate( relativeTransformation );
-            }
-            else
-            {
-                absoluteTransformation = relativeTransformation;
-            }
+            // Concatenate transformation to previous one
+            // and add to list
+            T absoluteTransformation = ( T ) transformations.get( s ).copy();
+            absoluteTransformation.preConcatenate( relativeTransformation );
+            transformations.put( s + 1, ( T ) absoluteTransformation );
 
-            transformations.put( s + 1, ( T ) absoluteTransformation.copy() );
+            // Store fixed RAI for debugging
+            fixedRAIList.add( fixedRAI );
 
         }
 
@@ -253,6 +248,23 @@ public class ImageRegistration
         // Generate actual result, i.e. transform the whole input RAI
         //
         transformedOutput = transformWholeInputRAI( transformations );
+
+    }
+
+    private T identityTransformation()
+    {
+        if ( transformableAxesSettings.numDimensions() == 2 )
+        {
+            return (T) new AffineTransform2D();
+        }
+        else if ( transformableAxesSettings.numDimensions() == 3 )
+        {
+            return (T) new AffineTransform3D();
+        }
+        else
+        {
+            return (T) new AffineTransform( transformableAxesSettings.numDimensions() );
+        }
 
     }
 
@@ -390,6 +402,7 @@ public class ImageRegistration
                 if ( dimensionCoordinateMap.get( d ) == null )
                 {
                     List < RandomAccessibleInterval< R > > sequenceCoordinateRAIList = new ArrayList<>(  );
+
                     for ( long c = inputRAI.min( d ); c <= inputRAI.max( d ); ++c )
                     {
                         Map< Integer, Long > newFixedDimensions =
@@ -407,9 +420,7 @@ public class ImageRegistration
                     dimensionCoordinateRAIList.add(  Views.stack( sequenceCoordinateRAIList ) );
                 }
             }
-
             return Views.stack( dimensionCoordinateRAIList );
-
         }
         else
         {
@@ -427,12 +438,10 @@ public class ImageRegistration
                                     s,
                                     transformations.get( s ),
                                     dimensionCoordinateMap,
-                                    getTransformableDimensionsOutputInterval()
-                                    ) );
+                                    getTransformableDimensionsOutputInterval() )
+                    );
                 }
-
             }
-
             // combine time-series of multiple channels into a channel stack
             RandomAccessibleInterval< R > transformedSequence = Views.stack( transformedRAIList );
 
@@ -507,7 +516,7 @@ public class ImageRegistration
 
         rai = Views.interval(
                 ImageRegistrationUtils.getRAIasTransformedRA( rai, transform ),
-                transformableDimensionsInterval );
+                    transformableDimensionsInterval );
 
         return rai;
     }
@@ -622,6 +631,12 @@ public class ImageRegistration
             this.inputInterval = inputInterval;
 //            this.maximalDisplacements = maximalDisplacements;
         }
+
+        public int numDimensions()
+        {
+            return axes.length;
+        }
+
 
     }
 
