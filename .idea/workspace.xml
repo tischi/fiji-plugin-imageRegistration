@@ -3,9 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b92e955b-af9f-416a-8870-62ee9454db6c" name="Default" comment="">
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java" afterPath="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
     </list>
     <ignored path="fiji-plugin-imageRegistration.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -25,11 +24,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ImageRegistration.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1179">
-              <caret line="226" column="0" lean-forward="true" selection-start-line="226" selection-start-column="0" selection-end-line="226" selection-end-column="0" />
+            <state relative-caret-position="453">
+              <caret line="388" column="5" lean-forward="false" selection-start-line="388" selection-start-column="5" selection-end-line="388" selection-end-column="5" />
               <folding>
                 <element signature="e#1845#1883#0" expanded="false" />
                 <element signature="docComment;method#ImageRegistration#0;class#ImageRegistration#0" expanded="false" />
@@ -40,17 +39,14 @@
                 <element signature="e#7071#7094#0" expanded="false" />
                 <element signature="e#7667#7756#0" expanded="false" />
                 <element signature="e#8576#8604#0" expanded="false" />
+                <element signature="method#run#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="e#9166#9224#0" expanded="false" />
                 <element signature="e#9333#9391#0" expanded="false" />
                 <element signature="e#9593#9615#0" expanded="false" />
                 <element signature="e#10179#10263#0" expanded="false" />
                 <element signature="e#10352#10413#0" expanded="false" />
                 <element signature="method#getTransformableDimensionsOutputInterval#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="method#getTransformationsUnion#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="method#getCorners#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="e#12601#12649#0" expanded="false" />
-                <element signature="method#setCorners#0;class#ImageRegistration#0" expanded="true" />
-                <element signature="method#createTransformedInputRAISequence#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
                 <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
@@ -87,6 +83,16 @@
                 <element signature="e#15682#15716#0" expanded="false" />
                 <element signature="method#showRAI#0;class#ImageRegistrationPlugin#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="18" column="14" lean-forward="false" selection-start-line="18" selection-start-column="14" selection-end-line="18" selection-end-column="14" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -243,7 +249,6 @@
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterFactory.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterDogThreshold.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterType.java" />
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterParameters.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/PackageLogService.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterCopy.java" />
@@ -258,6 +263,7 @@
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/gui/ImageRegistrationPlugin.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java" />
         <option value="$PROJECT_DIR$/src/main/java/de/embl/cba/registration/transformationfinders/TransformationFinderRotationTranslationPhaseCorrelation.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
@@ -645,7 +651,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -654,13 +659,13 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.11003628" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22460657" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30350664" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32618025" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23462088" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32769045" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -932,14 +937,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="15" lean-forward="false" selection-start-line="23" selection-start-column="15" selection-end-line="23" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/filter/ImageFilterParameters.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
@@ -977,7 +974,7 @@
         <state relative-caret-position="540">
           <caret line="51" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
           <folding>
-            <element signature="method#filter#0;class#ImageFilterThreshold#0" expanded="true" />
+            <element signature="method#filter#0;class#ImageFilterThreshold#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -987,10 +984,10 @@
         <state relative-caret-position="200">
           <caret line="23" column="4" lean-forward="true" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="4" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#883#884#0" expanded="true" />
-            <element signature="e#927#928#0" expanded="true" />
-            <element signature="method#filter#0;class#ImageFilterCopyToRAM#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#883#884#0" expanded="false" />
+            <element signature="e#927#928#0" expanded="false" />
+            <element signature="method#filter#0;class#ImageFilterCopyToRAM#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1008,7 +1005,7 @@
         <state relative-caret-position="90">
           <caret line="16" column="27" lean-forward="false" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
           <folding>
-            <element signature="method#filter#0;class#ImageFilterDog#0" expanded="true" />
+            <element signature="method#filter#0;class#ImageFilterDog#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1048,7 +1045,7 @@
         <state relative-caret-position="170">
           <caret line="10" column="17" lean-forward="false" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1058,7 +1055,7 @@
         <state relative-caret-position="330">
           <caret line="22" column="98" lean-forward="false" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="98" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1232,8 +1229,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/de/embl/cba/registration/ImageRegistration.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1179">
-          <caret line="226" column="0" lean-forward="true" selection-start-line="226" selection-start-column="0" selection-end-line="226" selection-end-column="0" />
+        <state relative-caret-position="453">
+          <caret line="388" column="5" lean-forward="false" selection-start-line="388" selection-start-column="5" selection-end-line="388" selection-end-column="5" />
           <folding>
             <element signature="e#1845#1883#0" expanded="false" />
             <element signature="docComment;method#ImageRegistration#0;class#ImageRegistration#0" expanded="false" />
@@ -1244,17 +1241,14 @@
             <element signature="e#7071#7094#0" expanded="false" />
             <element signature="e#7667#7756#0" expanded="false" />
             <element signature="e#8576#8604#0" expanded="false" />
+            <element signature="method#run#0;class#ImageRegistration#0" expanded="true" />
             <element signature="e#9166#9224#0" expanded="false" />
             <element signature="e#9333#9391#0" expanded="false" />
             <element signature="e#9593#9615#0" expanded="false" />
             <element signature="e#10179#10263#0" expanded="false" />
             <element signature="e#10352#10413#0" expanded="false" />
             <element signature="method#getTransformableDimensionsOutputInterval#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#getTransformationsUnion#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#getCorners#0;class#ImageRegistration#0" expanded="true" />
             <element signature="e#12601#12649#0" expanded="false" />
-            <element signature="method#setCorners#0;class#ImageRegistration#0" expanded="true" />
-            <element signature="method#createTransformedInputRAISequence#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#getFixedRAI#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#getTransformedRAI#0;class#ImageRegistration#0" expanded="true" />
             <element signature="method#transformWholeInputRAI#0;class#ImageRegistration#0" expanded="true" />
@@ -1270,6 +1264,14 @@
             <element signature="class#FixedAxesSettings#0;class#ImageRegistration#0" expanded="false" />
             <marker date="1513533592000" expanded="false" signature="10547:10942" ph="{...}" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="14" lean-forward="false" selection-start-line="18" selection-start-column="14" selection-end-line="18" selection-end-column="14" />
+          <folding />
         </state>
       </provider>
     </entry>
