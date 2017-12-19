@@ -64,7 +64,7 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        PackageLogService.logService.info( "## TransformationFinderRotationTranslationPhaseCorrelation" );
+        PackageLogService.info( "## TransformationFinderRotationTranslationPhaseCorrelation" );
 
         this.fixedRAI = fixedRAI;
         this.movingRA = movingRA;
@@ -91,8 +91,8 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             }
         }
 
-        PackageLogService.logService.info( "\n### Result" );
-        PackageLogService.logService.info( bestResult.toString() );
+        PackageLogService.info( "\n### Result" );
+        PackageLogService.info( bestResult.toString() );
 
         // Combine translations and rotations and return result
 

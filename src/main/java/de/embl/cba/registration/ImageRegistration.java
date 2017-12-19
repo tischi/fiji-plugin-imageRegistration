@@ -525,6 +525,7 @@ public class ImageRegistration
             Map< Long, T > transformations )
     {
 
+        PackageLogService.info( "# Transforming input series ..." );
         // For each combination of the fixed axes ( Map< Integer, Long > )
         // generate a transformed RAI sequence
         Map< Map< Integer, Long >, RandomAccessibleInterval < R > >
@@ -546,17 +547,7 @@ public class ImageRegistration
                     fixedDimensions,
                     transformations );
 
-        // just for logging...
-        //
-        for ( Map< Integer, Long > fixedCoordinates : transformedSequenceMap.keySet() )
-        {
-            PackageLogService.logService.info( "-- Transformed sequence at fixed axes:" );
-            for ( Integer d : fixedCoordinates.keySet() )
-            {
-                PackageLogService.logService.info( "Dimension " + d + "; Coordinate " + fixedCoordinates.get( d ) );
-            }
-        }
-
+        PackageLogService.info( "...done." );
         return Views.dropSingletonDimensions( transformedRAI );
 
     }

@@ -55,7 +55,7 @@ public class TransformationFinderTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        PackageLogService.logService.info("### TransformationFinderTranslationPhaseCorrelation");
+        PackageLogService.info("### TransformationFinderTranslationPhaseCorrelation");
 
         final int n = fixedRAI.numDimensions();
 
@@ -140,15 +140,15 @@ public class TransformationFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                PackageLogService.logService.info( "translations "+ s );
+                PackageLogService.info( "translations "+ s );
             }
-            PackageLogService.logService.info("x-corr " + shiftPeak.getCrossCorr());
+            PackageLogService.info("x-corr " + shiftPeak.getCrossCorr());
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            PackageLogService.logService.info(
+            PackageLogService.info(
                     "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
@@ -160,7 +160,7 @@ public class TransformationFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                PackageLogService.logService.info(
+                PackageLogService.info(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }

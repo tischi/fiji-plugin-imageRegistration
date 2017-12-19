@@ -14,14 +14,16 @@ import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.filter.ImageFilterType;
 import de.embl.cba.registration.transformationfinders.TransformationFinderParameters;
 import de.embl.cba.registration.transformationfinders.TransformationFinderType;
-import net.imagej.Dataset;
-import net.imagej.DatasetService;
-import net.imagej.ImageJ;
-import net.imagej.ImgPlus;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.VirtualStack;
+import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
@@ -54,6 +56,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     private Dataset dataset;
 
     @Parameter
+    private ImagePlus imagePlus;
+
+    @Parameter
     private UIService uiService;
 
     @Parameter
@@ -68,12 +73,12 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     @Parameter(label = "Transformation type and finder method",
             choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"},
             persist = false )
-    private String transformationTypeInput = "Rotation_Translation__PhaseCorrelation";
+    private String transformationTypeInput = "Translation__PhaseCorrelation";
 
     @Parameter(label = "Output size",
             choices = {"ReferenceRegionSize", "InputDataSize"},
             persist = false )
-    private String outputViewIntervalSizeTypeInput = "ReferenceRegionSize";
+    private String outputViewIntervalSizeTypeInput = "InputDataSize";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message01
@@ -104,10 +109,11 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             persist = false )
     private String imageFilterTypeInput = "None";
 
-    @Parameter(label = "Threshold value" )
-    private Double imageFilterParameterThresholdInput;
+    @Parameter(label = "Threshold values [min,max]"
+            , persist = false  )
+    private String imageFilterParameterThresholdInput = "0,255";
 
-    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message03
             = "<html> "  +
             "<br>AXES SET-UP<br>" +
@@ -124,6 +130,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             "Currently only the min value is used to choose the, e.g., reference channel.<br>" +
             "The transformation is applied to all coordinates for your fixed axes." +
             "</li>";
+
+    Img img;
 
     public static ArrayList< AxisType > getAxisTypeList( Dataset dataset )
     {
@@ -147,12 +155,16 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         return (MutableModuleItem<String>) getInfo().getInput( typeName( d ) );
     }
 
-    @Parameter(label = "Compute registration", callback = "computeRegistration")
+    @Parameter(label = "Compute registration",
+            callback = "computeRegistration" )
     private Button computeRegistrationButton;
 
 
     private void registrationThread()
     {
+
+        PackageLogService.info( "# Finding transformations...");
+
         int numDimensions = dataset.numDimensions();
 
         // Output view size type
@@ -187,9 +199,14 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                 ImageFilterParameters.FILTER_TYPE,
                 imageFilterType );
 
+        String[] thresholdMinMax = imageFilterParameterThresholdInput.split( "," );
         imageFilterParameters.put(
-                ImageFilterParameters.THRESHOLD_VALUE,
-                imageFilterParameterThresholdInput );
+                ImageFilterParameters.THRESHOLD_MIN_VALUE,
+                Double.parseDouble( thresholdMinMax[0].trim() ) );
+        imageFilterParameters.put(
+                ImageFilterParameters.THRESHOLD_MAX_VALUE,
+                Double.parseDouble( thresholdMinMax[1].trim() ) );
+
 
         // below are currently hard coded and cannot be changed from the GUI
         imageFilterParameters.put(
@@ -214,7 +231,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         double[] transformationParametersMaximalTranslations = new double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
-            transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[i] );
+            transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[i].trim() );
         }
         transformationParameters.put(
                 TransformationFinderParameters.MAXIMAL_TRANSLATIONS,
@@ -244,31 +261,42 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                         showFixedImageSequence,
                         logService );
 
-        imageRegistration.run();
+        Thread thread = new Thread(new Runnable() {
+            public void run()
+            {
+                imageRegistration.run();
 
-        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
-        for (int d = 0; d < dataset.numDimensions(); d++)
-        {
-            axisTypes.add( dataset.axis( d ).type() );
-        }
+                ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+                for (int d = 0; d < dataset.numDimensions(); d++)
+                {
+                    axisTypes.add( dataset.axis( d ).type() );
+                }
 
-        ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
-        RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
-        showRAI(uiService,
-                datasetService,
-                raiFSO,
-                "transformed reference sequence",
-                axesIdsFixedSequenceOutput,
-                axisTypes);
+                PackageLogService.info( "# Showing transformed input series... " );
 
-        ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-        RandomAccessibleInterval raiTO = imageRegistration.getTransformedOutput( axesIdsTransformedOutput );
-        showRAI(uiService,
-                datasetService,
-                raiTO,
-                "transformed input",
-                axesIdsTransformedOutput,
-                axisTypes);
+                ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
+                RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
+                showRAI(uiService,
+                        datasetService,
+                        raiFSO,
+                        "transformed reference sequence",
+                        axesIdsFixedSequenceOutput,
+                        axisTypes);
+
+                ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
+                RandomAccessibleInterval raiTO = imageRegistration.getTransformedOutput( axesIdsTransformedOutput );
+                showRAI(uiService,
+                        datasetService,
+                        raiTO,
+                        "transformed input",
+                        axesIdsTransformedOutput,
+                        axisTypes);
+
+                PackageLogService.info( "...done." );
+            }
+        } );
+        thread.run();
+
 
 
     }
@@ -281,7 +309,6 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                 registrationThread();
             }
         } );
-
         thread.run();
 
     }
@@ -292,6 +319,15 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     protected void init()
     {
+
+        PackageLogService.info( "# Initializing UI...");
+
+        String a = imagePlus.getTitle();
+
+        if ( imagePlus.getStack() instanceof VirtualStack )
+        {
+            img = ImageJFunctions.wrap( imagePlus );
+        }
 
         boolean persist = false;
 
@@ -391,6 +427,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 //            otherItem.setMinimumValue( dataset.min( d ) );
 //            otherItem.setMaximumValue( dataset.max( d ) );
 
+            PackageLogService.info( "...done.");
+
 
         }
 
@@ -420,23 +458,27 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
         boolean GUI = true;
         boolean TEST = false;
-
-        // ask the user for a file to open
-        //final File file = ij.ui().chooseFile(null, "open");
-
-        final File file =
-                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur_noise_rotate.tif");
+        boolean LOAD_IJ1_VS = true;
+        boolean LOAD_IJ2_DATASET = true;
 
         Dataset dataset = null;
         int n = 0;
-        if (file != null)
-        {
-            // load and show dataset
-            //
-            dataset = ij.scifio().datasetIO().open( file.getPath() );
-            n = dataset.numDimensions();
-            ij.ui().show( dataset );
 
+        // Load data
+        if ( LOAD_IJ1_VS )
+        {
+            IJ.run("Image Sequence...", "open=/Users/tischer/Documents/fiji-plugin-imageRegistration--data/mri-stack sort use");
+        }
+        else if ( LOAD_IJ2_DATASET ) {
+            final File file = new File(
+                    "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif");
+
+            if (file != null) {
+                dataset = ij.scifio().datasetIO().open(file.getPath());
+                n = dataset.numDimensions();
+                ij.ui().show(dataset);
+            }
+        }
 
 
 //            IJ.run("Image Sequence...",
@@ -449,9 +491,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 //            ImgPlus< UnsignedShortType > imgp = new ImgPlus<>( img, "title", new AxisType[]{ Axes.X, Axes.Y, Axes.Z } );
 ////            ij.get(LegacyService.class).getImageMap().addMapping(  ); // but it's private...
 //            //imp.hide(); ImageJFunctions.show( img );
-           // ij.convert().convert( RAI, Img.class );
-        }
-
+           // ij.convert().convert( RAI, Img.class )
 
         if ( GUI )
         {
@@ -497,7 +537,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             imageFilterParameters.put(
                     ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );
             imageFilterParameters.put(
-                    ImageFilterParameters.THRESHOLD_VALUE, 20.0D );
+                    ImageFilterParameters.THRESHOLD_MIN_VALUE, 20.0D );
             imageFilterParameters.put(
                     ImageFilterParameters.DOG_SIGMA_SMALLER, new double[]{ 2.0D, 2.0D} );
             imageFilterParameters.put(

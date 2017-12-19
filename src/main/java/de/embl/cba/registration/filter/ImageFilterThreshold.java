@@ -18,22 +18,24 @@ public class ImageFilterThreshold
         < R extends RealType< R > & NativeType < R > >
         implements ImageFilter< R, BitType > {
 
-    private Map< String, Object > parameters;
+    double minValue;
+    double maxValue;
 
-    public ImageFilterThreshold( Map< String, Object > parameters )
-    {
-        this.parameters = parameters;
+    public ImageFilterThreshold( Map< String, Object > parameters ) {
+
+        minValue = (double) parameters.get(ImageFilterParameters.THRESHOLD_MIN_VALUE);
+        maxValue = (double) parameters.get(ImageFilterParameters.THRESHOLD_MAX_VALUE);
     }
 
     @Override
     public RandomAccessibleInterval< BitType > filter( RandomAccessibleInterval< R > source )
     {
-        double threshold = (double) parameters.get( ImageFilterParameters.THRESHOLD_VALUE );
+
         ArrayImg< BitType, LongArray > output = ArrayImgs
                 .bits( Intervals.dimensionsAsLongArray( source ) );
 
         RandomAccessibleInterval< BitType > converted = Converters.convert( source, ( s, t ) -> {
-            t.set( s.getRealDouble() > threshold );
+            t.set( ( s.getRealDouble() >= minValue ) && ( s.getRealDouble() <= maxValue ) );
         }, new BitType() );
         for ( Pair< BitType, BitType > p : Views.interval( Views.pair( Views.zeroMin( converted ), output ), output ) )
             p.getB().set( p.getA() );
