@@ -1,7 +1,7 @@
 package de.embl.cba.registration.transformationfinders;
 
 import de.embl.cba.registration.ImageRegistrationUtils;
-import de.embl.cba.registration.PackageLogService;
+import de.embl.cba.registration.LogServiceImageRegistration;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -64,7 +64,7 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        PackageLogService.info( "## TransformationFinderRotationTranslationPhaseCorrelation" );
+        LogServiceImageRegistration.info( "## TransformationFinderRotationTranslationPhaseCorrelation" );
 
         this.fixedRAI = fixedRAI;
         this.movingRA = movingRA;
@@ -91,8 +91,8 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             }
         }
 
-        PackageLogService.info( "\n### Result" );
-        PackageLogService.info( bestResult.toString() );
+        LogServiceImageRegistration.info( "\n### Result" );
+        LogServiceImageRegistration.info( bestResult.toString() );
 
         // Combine translations and rotations and return result
 

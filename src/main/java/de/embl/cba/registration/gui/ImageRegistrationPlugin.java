@@ -17,6 +17,10 @@ import de.embl.cba.registration.transformationfinders.TransformationFinderType;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
+import ij.gui.ImageRoi;
+import ij.gui.Overlay;
+import ij.gui.Roi;
+import ij.process.ImageProcessor;
 import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
@@ -27,7 +31,9 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
+import org.omg.CORBA.DATA_CONVERSION;
 import org.scijava.ItemVisibility;
+import org.scijava.app.StatusService;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.Interactive;
@@ -39,8 +45,10 @@ import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 import org.scijava.widget.NumberWidget;
 
+import java.awt.*;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,6 +77,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     @Parameter
     private OpService opService;
+
+    @Parameter
+    private StatusService statusService;
 
     @Parameter(label = "Transformation type and finder method",
             choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"},
@@ -159,11 +170,83 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             callback = "computeRegistration" )
     private Button computeRegistrationButton;
 
+    private void minMaxChanged()
+    {
+        UIInput uiInput = getUIValues();
+        updateReferenceRegionOverlay( uiInput );
+    }
+
+    private void updateReferenceRegionOverlay(UIInput uiInput )
+    {
+        long xMin = 0, xMax = 0, yMin = 0, yMax = 0;
+
+        for (int d = 0; d < dataset.numDimensions(); ++d )
+        {
+            if ( uiInput.registrationAxisTypes[ d ] == RegistrationAxisTypes.Transformable )
+            {
+                if ( dataset.axis( d ).type() == Axes.X )
+                {
+                    xMin = varInput( d, "min" ).getValue( this );
+                    xMax = varInput( d, "max" ).getValue( this );
+                }
+
+                if ( dataset.axis( d ).type() == Axes.Y )
+                {
+                    yMin = varInput( d, "min" ).getValue( this );
+                    yMax = varInput( d, "max" ).getValue( this );
+                }
+
+            }
+        }
+
+        ImageProcessor ip = imagePlus.getProcessor();
+        ip.setRoi((int) xMin, (int) yMin, (int) (xMax-xMin), (int) (yMax-yMin) );
+        ip = ip.crop();
+        ip.setColor( 0x00FF00 );
+        ip.set( ip.maxValue() );
+        //ip.setFont(new Font("SansSerif",Font.PLAIN,28));
+        //ip.drawString("Transparent\nImage\nOverlay", 0, 40);
+        ImageRoi imageRoi = new ImageRoi( (int) xMin , (int) yMin, ip );
+        imageRoi.setOpacity( 0.5D );
+        //imageRoi.setZeroTransparent(true);
+        Overlay overlay = new Overlay( imageRoi );
+        imagePlus.setOverlay(overlay);
+
+    }
+
+    private class UIInput
+    {
+        RegistrationAxisTypes[] registrationAxisTypes;
+        FinalInterval interval;
+    }
+
+
+    private UIInput getUIValues()
+    {
+        UIInput uiInput = new UIInput();
+
+        long[] min = Intervals.minAsLongArray( dataset );
+        long[] max = Intervals.maxAsLongArray( dataset );
+        // long[] other = new long[ numDimensions ];
+        uiInput.registrationAxisTypes = new RegistrationAxisTypes[ dataset.numDimensions() ];
+
+        for ( int d = 0; d < dataset.numDimensions(); ++d )
+        {
+            uiInput.registrationAxisTypes[ d ] = RegistrationAxisTypes.valueOf( typeInput( d ).getValue( this ) );
+            min[ d ] = varInput( d, "min" ).getValue( this );
+            max[ d ] = varInput( d, "max" ).getValue( this );
+            // other[ d ] = varInput( d, "other" ).getValue( this );
+        }
+
+        uiInput.interval = new FinalInterval( min, max );
+
+        return uiInput;
+    }
 
     private void registrationThread()
     {
 
-        PackageLogService.info( "# Finding transformations...");
+        LogServiceImageRegistration.info( "# Finding transformations...");
 
         int numDimensions = dataset.numDimensions();
 
@@ -174,20 +257,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
         // Get axis types, intervals and other coordinates from GUI
         //
-        long[] min = Intervals.minAsLongArray( dataset );
-        long[] max = Intervals.maxAsLongArray( dataset );
-        // long[] other = new long[ numDimensions ];
-        RegistrationAxisTypes[] registrationAxisTypes = new RegistrationAxisTypes[ numDimensions ];
-
-        for ( int d = 0; d < numDimensions; ++d )
-        {
-            registrationAxisTypes[ d ] = RegistrationAxisTypes.valueOf( typeInput( d ).getValue( this ) );
-            min[ d ] = varInput( d, "min" ).getValue( this );
-            max[ d ] = varInput( d, "max" ).getValue( this );
-            // other[ d ] = varInput( d, "other" ).getValue( this );
-        }
-
-        FinalInterval registrationRangeAndReferenceInterval = new FinalInterval( min, max );
+        UIInput uiInput = getUIValues();
 
         // Configure image filtering
         //
@@ -252,8 +322,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         ImageRegistration imageRegistration =
                 new ImageRegistration(
                         dataset,
-                        registrationAxisTypes,
-                        registrationRangeAndReferenceInterval,
+                        uiInput.registrationAxisTypes,
+                        uiInput.interval,
                         imageFilterParameters,
                         transformationParameters,
                         3,
@@ -261,43 +331,37 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                         showFixedImageSequence,
                         logService );
 
-        Thread thread = new Thread(new Runnable() {
-            public void run()
-            {
-                imageRegistration.run();
+        imageRegistration.run();
 
-                ArrayList< AxisType > axisTypes = new ArrayList<>(  );
-                for (int d = 0; d < dataset.numDimensions(); d++)
-                {
-                    axisTypes.add( dataset.axis( d ).type() );
-                }
+        // Show results
 
-                PackageLogService.info( "# Showing transformed input series... " );
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+        for (int d = 0; d < dataset.numDimensions(); d++)
+        {
+            axisTypes.add( dataset.axis( d ).type() );
+        }
 
-                ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
-                RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
-                showRAI(uiService,
-                        datasetService,
-                        raiFSO,
-                        "transformed reference sequence",
-                        axesIdsFixedSequenceOutput,
-                        axisTypes);
+        long startTimeMilliseconds = LogServiceImageRegistration.start( "# Showing transformed input series... " );
 
-                ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-                RandomAccessibleInterval raiTO = imageRegistration.getTransformedOutput( axesIdsTransformedOutput );
-                showRAI(uiService,
-                        datasetService,
-                        raiTO,
-                        "transformed input",
-                        axesIdsTransformedOutput,
-                        axisTypes);
+        ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
+        RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
+        showRAI(uiService,
+                datasetService,
+                raiFSO,
+                "transformed reference sequence",
+                axesIdsFixedSequenceOutput,
+                axisTypes);
 
-                PackageLogService.info( "...done." );
-            }
-        } );
-        thread.run();
+        ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
+        RandomAccessibleInterval raiTO = imageRegistration.getTransformedOutput( axesIdsTransformedOutput );
+        showRAI(uiService,
+                datasetService,
+                raiTO,
+                "transformed input",
+                axesIdsTransformedOutput,
+                axisTypes);
 
-
+        LogServiceImageRegistration.doneInDuration( startTimeMilliseconds );
 
     }
 
@@ -309,18 +373,18 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                 registrationThread();
             }
         } );
-        thread.run();
+        thread.start();
 
     }
 
-    public void run() {
-        uiService.log().info( "ImageRegistrationPlugin started" );
-    }
+    public void run() { }
 
     protected void init()
     {
 
-        PackageLogService.info( "# Initializing UI...");
+        LogServiceImageRegistration.statusService = statusService;
+
+        LogServiceImageRegistration.info( "# Initializing UI...");
 
         String a = imagePlus.getTitle();
 
@@ -399,6 +463,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             minItem.setMinimumValue( dataset.min( d ) );
             minItem.setMaximumValue( dataset.max( d ) );
             minItem.setDefaultValue( dataset.min( d ) );
+            minItem.setCallback( "minMaxChanged" );
 
             // Interval maximum
             //
@@ -411,6 +476,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             maxItem.setMinimumValue( dataset.min( d ) );
             maxItem.setMaximumValue( dataset.max( d ) );
             maxItem.setDefaultValue( dataset.max( d ) );
+            maxItem.setCallback( "minMaxChanged" );
 
 
             // Other
@@ -427,7 +493,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 //            otherItem.setMinimumValue( dataset.min( d ) );
 //            otherItem.setMaximumValue( dataset.max( d ) );
 
-            PackageLogService.info( "...done.");
+            LogServiceImageRegistration.info( "...done.");
 
 
         }
@@ -467,7 +533,9 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         // Load data
         if ( LOAD_IJ1_VS )
         {
-            IJ.run("Image Sequence...", "open=/Users/tischer/Documents/fiji-plugin-imageRegistration--data/mri-stack sort use");
+            //IJ.run("Image Sequence...", "open=/Users/tischer/Documents/fiji-plugin-imageRegistration--data/mri-stack sort use");
+            ImagePlus imp = IJ.openImage("/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif");
+            imp.show();
         }
         else if ( LOAD_IJ2_DATASET ) {
             final File file = new File(

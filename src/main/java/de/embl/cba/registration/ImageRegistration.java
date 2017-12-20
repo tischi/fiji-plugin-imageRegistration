@@ -80,7 +80,7 @@ public class ImageRegistration
             LogService logService )
     {
 
-        PackageLogService.logService = logService;
+        LogServiceImageRegistration.logService = logService;
 
         this.outputViewIntervalSizeType = outputViewIntervalSizeType;
         this.showFixedImageSequence = showFixedImageSequence;
@@ -206,6 +206,9 @@ public class ImageRegistration
 
     public void run()
     {
+
+        long startTimeMilliseconds = LogServiceImageRegistration.start( "# Finding transformations..." );
+
         RandomAccessibleInterval fixedRAI;
         List< RandomAccessibleInterval < R > > fixedRAIList = new ArrayList<>(  );
         RandomAccessible movingRA;
@@ -240,6 +243,8 @@ public class ImageRegistration
             fixedRAIList.add( fixedRAI );
 
         }
+
+        LogServiceImageRegistration.doneInDuration( startTimeMilliseconds );
 
         // Generate fixedRAI output sequence for the user to check if everything worked well
         //
@@ -525,7 +530,8 @@ public class ImageRegistration
             Map< Long, T > transformations )
     {
 
-        PackageLogService.info( "# Transforming input series ..." );
+        long startTimeMilliseconds = LogServiceImageRegistration.start( "# Transforming input series ..." );
+
         // For each combination of the fixed axes ( Map< Integer, Long > )
         // generate a transformed RAI sequence
         Map< Map< Integer, Long >, RandomAccessibleInterval < R > >
@@ -547,7 +553,9 @@ public class ImageRegistration
                     fixedDimensions,
                     transformations );
 
-        PackageLogService.info( "...done." );
+
+        LogServiceImageRegistration.doneInDuration( startTimeMilliseconds );
+
         return Views.dropSingletonDimensions( transformedRAI );
 
     }

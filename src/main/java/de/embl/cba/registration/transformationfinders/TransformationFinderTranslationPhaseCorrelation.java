@@ -1,14 +1,13 @@
 package de.embl.cba.registration.transformationfinders;
 
 import de.embl.cba.registration.GlobalParameters;
-import de.embl.cba.registration.PackageLogService;
+import de.embl.cba.registration.LogServiceImageRegistration;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterCopyToRAM;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.RealTransform;
 
 import net.imglib2.realtransform.Translation;
@@ -55,7 +54,7 @@ public class TransformationFinderTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        PackageLogService.info("### TransformationFinderTranslationPhaseCorrelation");
+        LogServiceImageRegistration.info("### TransformationFinderTranslationPhaseCorrelation");
 
         final int n = fixedRAI.numDimensions();
 
@@ -140,15 +139,15 @@ public class TransformationFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                PackageLogService.info( "translations "+ s );
+                LogServiceImageRegistration.info( "translations "+ s );
             }
-            PackageLogService.info("x-corr " + shiftPeak.getCrossCorr());
+            LogServiceImageRegistration.info("x-corr " + shiftPeak.getCrossCorr());
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            PackageLogService.info(
+            LogServiceImageRegistration.info(
                     "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
@@ -160,7 +159,7 @@ public class TransformationFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                PackageLogService.info(
+                LogServiceImageRegistration.info(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }

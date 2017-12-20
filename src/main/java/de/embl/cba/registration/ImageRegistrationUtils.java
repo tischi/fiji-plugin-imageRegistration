@@ -19,7 +19,7 @@ public abstract class ImageRegistrationUtils  {
         RealRandomAccessible rra
                 = RealViews.transform(
                         Views.interpolate( Views.extendBorder( rai ), new NLinearInterpolatorFactory() ),
-                                transform );
+                                    transform );
 
         RandomAccessible transformedRA = Views.raster( rra );
 
