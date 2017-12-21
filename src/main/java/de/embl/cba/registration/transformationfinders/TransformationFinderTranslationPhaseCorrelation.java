@@ -46,7 +46,6 @@ public class TransformationFinderTranslationPhaseCorrelation
 
         this.imageFilter = ( ImageFilter ) transformationParameters
                         .get( TransformationFinderParameters.IMAGE_FILTER );
-
     }
 
     public RealTransform findTransform(
@@ -54,7 +53,7 @@ public class TransformationFinderTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        LogServiceImageRegistration.info("### TransformationFinderTranslationPhaseCorrelation");
+        LogServiceImageRegistration.debug("### TransformationFinderTranslationPhaseCorrelation");
 
         final int n = fixedRAI.numDimensions();
 
@@ -139,15 +138,15 @@ public class TransformationFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                LogServiceImageRegistration.info( "translations "+ s );
+                LogServiceImageRegistration.debug( "translations "+ s );
             }
-            LogServiceImageRegistration.info("x-corr " + shiftPeak.getCrossCorr());
+            LogServiceImageRegistration.debug("x-corr " + shiftPeak.getCrossCorr());
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            LogServiceImageRegistration.info(
+            LogServiceImageRegistration.debug(
                     "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
@@ -159,7 +158,7 @@ public class TransformationFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                LogServiceImageRegistration.info(
+                LogServiceImageRegistration.debug(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }

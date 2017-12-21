@@ -6,9 +6,15 @@ import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.transformationfinders.TransformationFinder;
 import de.embl.cba.registration.transformationfinders.TransformationFinderFactory;
 import de.embl.cba.registration.transformationfinders.TransformationFinderParameters;
+import net.imagej.Dataset;
+import net.imagej.DatasetService;
+import net.imagej.DefaultDatasetService;
+import net.imagej.ImgPlus;
+import net.imagej.axis.AxisType;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
+import net.imglib2.img.Img;
 import net.imglib2.realtransform.*;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -20,12 +26,15 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static de.embl.cba.registration.LogServiceImageRegistration.*;
+
 public class ImageRegistration
         < R extends RealType< R > & NativeType < R >,
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable < T > > {
 
 
-    final RandomAccessibleInterval< R > inputRAI;
+    final RandomAccessibleInterval< R > input;
+    RandomAccessibleInterval< R >  output;
 
     private final ImageFilter imageFilter;
     private final TransformationFinder transformationFinder;
@@ -43,9 +52,11 @@ public class ImageRegistration
     private final OutputViewIntervalSizeTypes outputViewIntervalSizeType;
 
     RandomAccessibleInterval referenceImageSequenceOutput;
-    RandomAccessibleInterval transformedOutput;
 
     Map< Long, T > transformations;
+
+    final Dataset dataset;
+    final DatasetService datasetService;
 
 
     // TODO: read and write registrations:
@@ -69,7 +80,8 @@ public class ImageRegistration
      * @param showFixedImageSequence
      */
     public ImageRegistration(
-            final RandomAccessibleInterval< R > inputRAI,
+            final Dataset dataset,
+            final DatasetService datasetService,
             final RegistrationAxisTypes[] axisTypes,
             final FinalInterval intervalInput,
             Map< String, Object > imageFilterParameters,
@@ -80,6 +92,10 @@ public class ImageRegistration
             LogService logService )
     {
 
+        this.dataset = dataset;
+        this.datasetService = datasetService;
+        this.input = (RandomAccessibleInterval<R>) dataset;
+
         LogServiceImageRegistration.logService = logService;
 
         this.outputViewIntervalSizeType = outputViewIntervalSizeType;
@@ -87,8 +103,7 @@ public class ImageRegistration
 
         this.referenceRegionType = ReferenceRegionTypes.Moving; // TODO: get from GUI
 
-        this.inputRAI = inputRAI;
-        int numDimensions = this.inputRAI.numDimensions();
+        int numDimensions = this.input.numDimensions();
 
         this.executorService = Executors.newFixedThreadPool( numThreads );
 
@@ -132,7 +147,6 @@ public class ImageRegistration
         int numTransformableDimensions = Collections.frequency( Arrays.asList( axisTypes ), RegistrationAxisTypes.Transformable);
 
         int[] transformableDimensions = new int[ numTransformableDimensions ];
-        long[] maximalDisplacements = new long[ numTransformableDimensions ];
         long[] referenceIntervalMin = new long[ numTransformableDimensions ];
         long[] referenceIntervalMax = new long[ numTransformableDimensions ];
         long[] transformableDimensionsInputIntervalMin = new long[ numTransformableDimensions ];
@@ -145,8 +159,8 @@ public class ImageRegistration
                 transformableDimensions[ i ] = d;
                 referenceIntervalMin[ i ] = intervalInput.min( d );
                 referenceIntervalMax[ i ] = intervalInput.max( d );
-                transformableDimensionsInputIntervalMin[ i ] = this.inputRAI.min( d );
-                transformableDimensionsInputIntervalMax[ i ] = this.inputRAI.max( d );
+                transformableDimensionsInputIntervalMin[ i ] = this.input.min( d );
+                transformableDimensionsInputIntervalMax[ i ] = this.input.max( d );
                 ++i;
             }
         }
@@ -207,7 +221,7 @@ public class ImageRegistration
     public void run()
     {
 
-        long startTimeMilliseconds = LogServiceImageRegistration.start( "# Finding transformations..." );
+        long startTimeMilliseconds = start( "# Finding transformations..." );
 
         RandomAccessibleInterval fixedRAI;
         List< RandomAccessibleInterval < R > > fixedRAIList = new ArrayList<>(  );
@@ -219,32 +233,22 @@ public class ImageRegistration
 
         for ( long s = sequenceAxisProperties.min; s < sequenceAxisProperties.max; s += 1 )
         {
-            // Get next fixedRAI, transformed and potentially filtered
-            //
-            fixedRAI = getFixedRAI( s, transformations.get( s ), imageFilter );
+            showStatus( s );
 
-            // Get next movingRA, transformed view,  but not filtered.
-            // For performance reasons the potential filtering has to happen during the findTransform
-            //
-            movingRA = getMovingRA( s + 1, transformations.get( s ) );
+            fixedRAI = getFixedRAI( s );
+            movingRA = getMovingRA( s + 1 );
 
-            // Find transformation
-            //
-            T relativeTransformation =
-                    ( T ) transformationFinder.findTransform( fixedRAI, movingRA );
+            T relativeTransformation = ( T ) transformationFinder.findTransform( fixedRAI, movingRA );
 
-            // Concatenate transformation to previous one
-            // and add to list
             T absoluteTransformation = ( T ) transformations.get( s ).copy();
             absoluteTransformation.preConcatenate( relativeTransformation );
             transformations.put( s + 1, ( T ) absoluteTransformation );
 
-            // Store fixed RAI for debugging
-            fixedRAIList.add( fixedRAI );
+            fixedRAIList.add( fixedRAI ); // just for debugging
 
         }
 
-        LogServiceImageRegistration.doneInDuration( startTimeMilliseconds );
+        doneInDuration( startTimeMilliseconds );
 
         // Generate fixedRAI output sequence for the user to check if everything worked well
         //
@@ -252,8 +256,15 @@ public class ImageRegistration
 
         // Generate actual result, i.e. transform the whole input RAI
         //
-        transformedOutput = transformWholeInputRAI( transformations );
+        output = transformWholeInputRAI( transformations );
 
+    }
+
+    private void showStatus( long s )
+    {
+        statusService.showStatus( (int) (s - sequenceAxisProperties.min),
+                (int) (sequenceAxisProperties.max -  - sequenceAxisProperties.min),
+                "Image sequence registration" );
     }
 
     private T identityTransformation()
@@ -273,35 +284,35 @@ public class ImageRegistration
 
     }
 
-    public RandomAccessibleInterval getFixedSequenceOutput(
-            ArrayList< Integer > axes )
+
+    private AxisType[] getTransformedAxes()
     {
+        AxisType[] transformedAxisTypes = new AxisType[ dataset.numDimensions() ];
+        int i = 0;
+
         for ( int a : transformableAxesSettings.axes )
         {
-            axes.add( a );
+            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
         }
 
-        axes.add( sequenceAxisProperties.axis );
-
-        return referenceImageSequenceOutput;
-    }
-
-    public RandomAccessibleInterval getTransformedOutput(
-            ArrayList< Integer > axes )
-    {
-        for ( int a : transformableAxesSettings.axes )
-        {
-            axes.add( a );
-        }
-
-        axes.add( sequenceAxisProperties.axis );
+        transformedAxisTypes[ i++ ] = dataset.axis( sequenceAxisProperties.axis ).type();
 
         for ( int a : fixedAxesSettings.axes )
         {
-            axes.add( a );
+            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
         }
 
-        return transformedOutput;
+        return transformedAxisTypes;
+    }
+
+    public Img getTransformedImg( )
+    {
+
+        Dataset dataset = datasetService.create( Views.zeroMin( output ) );
+
+        ImgPlus img = new ImgPlus< >( dataset, "transformed", getTransformedAxes() );
+
+        return img;
     }
 
     public FinalInterval getTransformableDimensionsOutputInterval()
@@ -316,7 +327,7 @@ public class ImageRegistration
         }
         else if ( outputViewIntervalSizeType == OutputViewIntervalSizeTypes.UnionSize )
         {
-            return getTransformationsUnion( new FinalInterval( inputRAI ) );
+            return getTransformationsUnion( new FinalInterval(input) );
         }
         else
         {
@@ -408,7 +419,7 @@ public class ImageRegistration
                 {
                     List < RandomAccessibleInterval< R > > sequenceCoordinateRAIList = new ArrayList<>(  );
 
-                    for ( long c = inputRAI.min( d ); c <= inputRAI.max( d ); ++c )
+                    for (long c = input.min( d ); c <= input.max( d ); ++c )
                     {
                         Map< Integer, Long > newFixedDimensions =
                                 new LinkedHashMap<>( dimensionCoordinateMap );
@@ -431,9 +442,9 @@ public class ImageRegistration
         {
             List< RandomAccessibleInterval< R > > transformedRAIList = new ArrayList<>();
 
-            for ( long s = inputRAI.min( sequenceAxisProperties.axis );
-                  s <= inputRAI.max( sequenceAxisProperties.axis );
-                  ++s )
+            for (long s = input.min( sequenceAxisProperties.axis );
+                 s <= input.max( sequenceAxisProperties.axis );
+                 ++s )
             {
                 if ( transformations.containsKey( s ) )
                 {
@@ -457,12 +468,11 @@ public class ImageRegistration
 
     }
 
-    private RandomAccessibleInterval getFixedRAI(
-            long s,
-            InvertibleRealTransform transform,
-            ImageFilter imageFilter )
+    private RandomAccessibleInterval getFixedRAI( long s )
     {
+
         RandomAccessibleInterval rai = null;
+        InvertibleRealTransform transform = transformations.get( s );
 
         if ( transform == null || referenceRegionType == ReferenceRegionTypes.Fixed )
         {
@@ -484,25 +494,22 @@ public class ImageRegistration
         return rai;
     }
 
-    private RandomAccessible getMovingRA(
-            long s,
-            InvertibleRealTransform transform )
+    private RandomAccessible getMovingRA( long s )
     {
 
         RandomAccessibleInterval rai =
-                getTransformableRAI(
-                        s,
-                        fixedAxesSettings.getReferenceAxisCoordinateMap() );
+                getTransformableRAI( s, fixedAxesSettings.getReferenceAxisCoordinateMap() );
+
+        long previousSequenceCoordinate = s - 1;
 
         RandomAccessible ra;
-
-        if ( transform == null )
+        if ( transformations.get( previousSequenceCoordinate ) == null )
         {
             ra = Views.extendMirrorSingle( rai );
         }
         else
         {
-            ra = ImageRegistrationUtils.getRAIasTransformedRA( rai, transform );
+            ra = ImageRegistrationUtils.getRAIasTransformedRA( rai, transformations.get( previousSequenceCoordinate  ) );
         }
 
         return ra;
@@ -530,8 +537,6 @@ public class ImageRegistration
             Map< Long, T > transformations )
     {
 
-        long startTimeMilliseconds = LogServiceImageRegistration.start( "# Transforming input series ..." );
-
         // For each combination of the fixed axes ( Map< Integer, Long > )
         // generate a transformed RAI sequence
         Map< Map< Integer, Long >, RandomAccessibleInterval < R > >
@@ -553,9 +558,6 @@ public class ImageRegistration
                     fixedDimensions,
                     transformations );
 
-
-        LogServiceImageRegistration.doneInDuration( startTimeMilliseconds );
-
         return Views.dropSingletonDimensions( transformedRAI );
 
     }
@@ -573,8 +575,8 @@ public class ImageRegistration
             Map< Integer, Long > fixedAxesDimensionCoordinateMap )
     {
 
-        long[] min = Intervals.minAsLongArray( inputRAI );
-        long[] max = Intervals.maxAsLongArray( inputRAI );
+        long[] min = Intervals.minAsLongArray(input);
+        long[] max = Intervals.maxAsLongArray(input);
 
         min[ sequenceAxisProperties.axis ] = s;
         max[ sequenceAxisProperties.axis ] = s;
@@ -589,7 +591,7 @@ public class ImageRegistration
 
         RandomAccessibleInterval rai =
                 Views.dropSingletonDimensions(
-                        Views.interval( inputRAI, interval ) );
+                        Views.interval(input, interval ) );
 
         return rai;
 
@@ -617,18 +619,15 @@ public class ImageRegistration
         int[] axes;
         FinalInterval referenceInterval;
         FinalInterval inputInterval;
-//        long[] maximalDisplacements;
 
         TransformableAxesSettings(
-                int[] dimensions,
+                int[] axes,
                 FinalInterval referenceInterval,
                 FinalInterval inputInterval )
-//                long[] maximalDisplacements )
         {
-            this.axes = dimensions;
+            this.axes = axes;
             this.referenceInterval = referenceInterval;
             this.inputInterval = inputInterval;
-//            this.maximalDisplacements = maximalDisplacements;
         }
 
         public int numDimensions()
@@ -697,7 +696,7 @@ public class ImageRegistration
             {
                 if ( fixedDimensions.get( d ) == null )
                 {
-                    for ( long c = inputRAI.min( d ); c <= inputRAI.max( d ); ++c )
+                    for ( long c = input.min( d ); c <= input.max( d ); ++c )
                     {
                         Map< Integer, Long > newFixedDimensions = new LinkedHashMap<>(fixedDimensions);
                         newFixedDimensions.put( d, c );
@@ -710,8 +709,8 @@ public class ImageRegistration
         {
             List< RandomAccessibleInterval< R > > transformedRaiList = new ArrayList<>();
 
-            for ( long s = inputRAI.min( sequenceAxisProperties.axis );
-                  s <= inputRAI.max( sequenceAxisProperties.axis );
+            for ( long s = input.min( sequenceAxisProperties.axis );
+                  s <= input.max( sequenceAxisProperties.axis );
                   ++s )
             {
                 if ( transformations.containsKey( s ) )

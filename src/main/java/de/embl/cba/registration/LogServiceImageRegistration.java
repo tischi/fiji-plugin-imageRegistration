@@ -11,7 +11,25 @@ public abstract class LogServiceImageRegistration {
     public static LogService logService;
     public static StatusService statusService;
 
-    public static void info( String message )
+    public static void debug(String message )
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                /*
+                if ( statusService != null )
+                {
+                    statusService.showStatus(message);
+                }
+                */
+
+                //logService.info( message );
+            }
+        });
+    }
+
+    public static void info(String message )
     {
         SwingUtilities.invokeLater(new Runnable()
         {
@@ -28,7 +46,6 @@ public abstract class LogServiceImageRegistration {
             }
         });
     }
-
 
     public static long start( String message )
     {

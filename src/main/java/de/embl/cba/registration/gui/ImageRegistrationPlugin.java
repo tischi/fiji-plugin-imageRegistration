@@ -9,6 +9,8 @@ package de.embl.cba.registration.gui;
  */
 
 
+import bdv.util.Bdv;
+import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.filter.ImageFilterType;
@@ -17,10 +19,8 @@ import de.embl.cba.registration.transformationfinders.TransformationFinderType;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
-import ij.gui.ImageRoi;
 import ij.gui.Overlay;
 import ij.gui.Roi;
-import ij.process.ImageProcessor;
 import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
@@ -31,7 +31,6 @@ import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
-import org.omg.CORBA.DATA_CONVERSION;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -55,6 +54,7 @@ import java.util.stream.Stream;
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
         initializer = "init")
+
 public class ImageRegistrationPlugin<T extends RealType<T>>
         extends DynamicCommand
         implements Interactive
@@ -144,6 +144,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     Img img;
 
+    Img transformedImg;
+
     public static ArrayList< AxisType > getAxisTypeList( Dataset dataset )
     {
         ArrayList< AxisType > axisTypes = new ArrayList<>(  );
@@ -170,13 +172,17 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             callback = "computeRegistration" )
     private Button computeRegistrationButton;
 
+    @Parameter(label = "Get result",
+            callback = "showTransformedImageWithLegacyUI" )
+    private Button showWithLegacyUIButton;
+
     private void minMaxChanged()
     {
         UIInput uiInput = getUIValues();
-        updateReferenceRegionOverlay( uiInput );
+        updateImagePlusReferenceRegionOverlay( uiInput );
     }
 
-    private void updateReferenceRegionOverlay(UIInput uiInput )
+    private void updateImagePlusReferenceRegionOverlay( UIInput uiInput )
     {
         long xMin = 0, xMax = 0, yMin = 0, yMax = 0;
 
@@ -199,18 +205,15 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             }
         }
 
-        ImageProcessor ip = imagePlus.getProcessor();
-        ip.setRoi((int) xMin, (int) yMin, (int) (xMax-xMin), (int) (yMax-yMin) );
-        ip = ip.crop();
-        ip.setColor( 0x00FF00 );
-        ip.set( ip.maxValue() );
-        //ip.setFont(new Font("SansSerif",Font.PLAIN,28));
-        //ip.drawString("Transparent\nImage\nOverlay", 0, 40);
-        ImageRoi imageRoi = new ImageRoi( (int) xMin , (int) yMin, ip );
-        imageRoi.setOpacity( 0.5D );
-        //imageRoi.setZeroTransparent(true);
-        Overlay overlay = new Overlay( imageRoi );
+        Roi roi = new Roi( (int) xMin, (int) yMin, (int) (xMax-xMin), (int) (yMax-yMin) );
+        // TODO: implement Z
+        //roi.setPosition();
+        roi.setStrokeColor( Color.GREEN );
+        //roi.setFillColor( new Color( 0x3300FF00 ) );
+
+        Overlay overlay = new Overlay( roi );
         imagePlus.setOverlay(overlay);
+
 
     }
 
@@ -245,8 +248,6 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     private void registrationThread()
     {
-
-        LogServiceImageRegistration.info( "# Finding transformations...");
 
         int numDimensions = dataset.numDimensions();
 
@@ -322,6 +323,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         ImageRegistration imageRegistration =
                 new ImageRegistration(
                         dataset,
+                        datasetService,
                         uiInput.registrationAxisTypes,
                         uiInput.interval,
                         imageFilterParameters,
@@ -331,37 +333,14 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                         showFixedImageSequence,
                         logService );
 
+
+
         imageRegistration.run();
 
-        // Show results
 
-        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
-        for (int d = 0; d < dataset.numDimensions(); d++)
-        {
-            axisTypes.add( dataset.axis( d ).type() );
-        }
+        transformedImg = imageRegistration.getTransformedImg();
+        BdvFunctions.show( transformedImg, "Transformed Image", Bdv.options().is2D() );
 
-        long startTimeMilliseconds = LogServiceImageRegistration.start( "# Showing transformed input series... " );
-
-        ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
-        RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
-        showRAI(uiService,
-                datasetService,
-                raiFSO,
-                "transformed reference sequence",
-                axesIdsFixedSequenceOutput,
-                axisTypes);
-
-        ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-        RandomAccessibleInterval raiTO = imageRegistration.getTransformedOutput( axesIdsTransformedOutput );
-        showRAI(uiService,
-                datasetService,
-                raiTO,
-                "transformed input",
-                axesIdsTransformedOutput,
-                axisTypes);
-
-        LogServiceImageRegistration.doneInDuration( startTimeMilliseconds );
 
     }
 
@@ -377,14 +356,32 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     }
 
-    public void run() { }
+    protected void showTransformedImageWithLegacyUI() {
+
+        Thread thread = new Thread(new Runnable() {
+            public void run()
+            {
+                long startTime = LogServiceImageRegistration.start("# Preparing result for export...");
+                uiService.show(  transformedImg );
+                LogServiceImageRegistration.doneInDuration( startTime );
+            }
+        } );
+        thread.start();
+
+    }
+
+    public void run() {
+
+
+    }
 
     protected void init()
     {
 
         LogServiceImageRegistration.statusService = statusService;
-
-        LogServiceImageRegistration.info( "# Initializing UI...");
+        LogServiceImageRegistration.logService = logService;
+        LogServiceImageRegistration.statusService = statusService;
+        LogServiceImageRegistration.debug( "# Initializing UI...");
 
         String a = imagePlus.getTitle();
 
@@ -493,7 +490,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 //            otherItem.setMinimumValue( dataset.min( d ) );
 //            otherItem.setMaximumValue( dataset.max( d ) );
 
-            LogServiceImageRegistration.info( "...done.");
+            LogServiceImageRegistration.debug( "...done.");
 
 
         }
@@ -645,7 +642,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                     axisTypes);
 
             ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-            RandomAccessibleInterval raiTO = imageRegistration.getTransformedOutput( axesIdsTransformedOutput );
+            RandomAccessibleInterval raiTO = imageRegistration.getTransformedImg( axesIdsTransformedOutput );
             showRAI(ij.ui(),
                     ij.dataset(),
                     raiTO,
@@ -658,29 +655,5 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     }
 
-
-    public static void showRAI (
-            UIService uiService,
-            DatasetService datasetService,
-            RandomAccessibleInterval rai,
-            String title,
-            ArrayList< Integer > axesIds,
-            ArrayList< AxisType > axisTypesInputDataset )
-    {
-        Dataset dataset = datasetService.create( Views.zeroMin( rai ) );
-
-        AxisType[] axisTypes = new AxisType[ axesIds.size() ];
-        for ( int i = 0; i < axisTypes.length; ++i )
-        {
-            axisTypes[ i ] = axisTypesInputDataset.get( axesIds.get( i ) ) ;
-        }
-
-        ImgPlus img = new ImgPlus<>(
-                dataset,
-                title,
-                axisTypes );
-
-        uiService.show( img );
-    }
 
 }
