@@ -1,17 +1,16 @@
-package de.embl.cba.registration.transformationfinders;
+package de.embl.cba.registration.transformfinder;
 
-import de.embl.cba.registration.filter.*;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import java.util.Map;
 
-import static de.embl.cba.registration.transformationfinders.TransformationFinderParameters.*;
+import static de.embl.cba.registration.transformfinder.TransformFinderParameters.*;
 
 
-public abstract class TransformationFinderFactory < R extends RealType< R > & NativeType< R > > {
+public abstract class TransformFinderFactory< R extends RealType< R > & NativeType< R > > {
 
-    public static TransformationFinder create( Map< String, Object > transformationParameters )
+    public static TransformFinder create( Map< String, Object > transformationParameters )
     {
         TransformationFinderType transformationFinderType
                 = (TransformationFinderType) transformationParameters.get(
@@ -20,12 +19,12 @@ public abstract class TransformationFinderFactory < R extends RealType< R > & Na
         if ( transformationFinderType.equals(
                 TransformationFinderType.Translation__PhaseCorrelation ) )
         {
-            return new TransformationFinderTranslationPhaseCorrelation( transformationParameters );
+            return new TransformFinderTranslationPhaseCorrelation( transformationParameters );
         }
         if ( transformationFinderType.equals(
                 TransformationFinderType.Rotation_Translation__PhaseCorrelation ) )
         {
-            return new TransformationFinderRotationTranslationPhaseCorrelation( transformationParameters );
+            return new TransformFinderRotationTranslationPhaseCorrelation( transformationParameters );
         }
         else
         {

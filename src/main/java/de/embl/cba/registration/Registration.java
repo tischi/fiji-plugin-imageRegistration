@@ -3,10 +3,10 @@ package de.embl.cba.registration;
 import de.embl.cba.registration.axessettings.AxesSettings;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterFactory;
-import de.embl.cba.registration.filter.ImageFilterParameters;
-import de.embl.cba.registration.transformationfinders.TransformationFinder;
-import de.embl.cba.registration.transformationfinders.TransformationFinderFactory;
-import de.embl.cba.registration.transformationfinders.TransformationFinderParameters;
+import de.embl.cba.registration.transformfinder.TransformFinder;
+import de.embl.cba.registration.transformfinder.TransformFinderFactory;
+import de.embl.cba.registration.transformfinder.TransformFinderParameters;
+import de.embl.cba.registration.ui.RegistrationParameters;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
 import net.imagej.axis.AxisType;
@@ -21,75 +21,47 @@ import net.imglib2.view.Views;
 import org.scijava.log.LogService;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static de.embl.cba.registration.LogServiceImageRegistration.*;
+import static de.embl.cba.registration.PackageLogService.*;
 
 public class Registration
         < R extends RealType< R > & NativeType < R >,
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable < T > > {
 
-    final RandomAccessibleInterval< R > input;
-    RandomAccessibleInterval< R > outputRAI;
-
+    private final Dataset dataset;
+    private final RandomAccessibleInterval< R > input;
+    private final InputImageViews inputImageViews;
     private final ImageFilter imageFilter;
-    private final TransformationFinder transformFinder;
-
+    private final TransformFinder transformFinder;
     private final AxesSettings axesSettings;
-
-//    private final Map< String, Object > imageFilterParameters;
-
-    ReferenceRegionType referenceRegionType;
-
-    ExecutorService executorService;
-    private final boolean showFixedImageSequence;
-    private final OutputIntervalType outputViewIntervalSizeType;
-
-    Map< Long, T > transformations;
-
-    final Dataset dataset;
-    final DatasetService datasetService;
-
-    final InputImageViews inputImageViews;
-    private final List< RandomAccessibleInterval< R > > fixedRAIList;
-
+    private final ReferenceRegionType referenceRegionType;
+    private final OutputIntervalType outputIntervalType;
+    private Map< Long, T > transformations;
+    private final List< RandomAccessibleInterval< R > > referenceRegions;
+    RandomAccessibleInterval< R > output;
 
     public Registration(
             final Dataset dataset,
             final DatasetService datasetService,
-            final RegistrationAxisTypes[] registrationAxisTypes,
-            final FinalInterval registrationAxesInterval,
-            Map<String, Object> imageFilterParameters,
-            Map<String, Object> transformationParameters,
-            int numThreads,
-            final OutputIntervalType outputViewIntervalSizeType,
-            boolean showFixedImageSequence,
-            LogService logService )
+            final LogService logService,
+            RegistrationParameters registrationParameters )
     {
 
-        LogServiceImageRegistration.logService = logService;
+        PackageLogService.logService = logService;
+        PackageExecutorService.executorService = Executors.newFixedThreadPool( numThreads );
 
         this.dataset = dataset;
         this.datasetService = datasetService;
         this.input = ( RandomAccessibleInterval<R> ) dataset;
-        this.axesSettings = new AxesSettings( dataset, registrationAxisTypes, registrationAxesInterval );
+        this.axesSettings = new AxesSettings( dataset, registrationParameters.registrationAxisTypes, registrationParameters.interval );
         this.inputImageViews = new InputImageViews( input, axesSettings, datasetService );
-        this.outputViewIntervalSizeType = outputViewIntervalSizeType;
-        this.showFixedImageSequence = showFixedImageSequence;
+        this.outputIntervalType = registrationParameters.outputIntervalType;
         this.referenceRegionType = ReferenceRegionType.Moving; // TODO: get from GUI
-        this.fixedRAIList = new ArrayList<>();
-        this.executorService = Executors.newFixedThreadPool( numThreads );
-
-        imageFilterParameters.put( GlobalParameters.LOG_SERVICE, logService );
-        imageFilterParameters.put( ImageFilterParameters.NUM_THREADS, numThreads );
-        imageFilterParameters.put( ImageFilterParameters.EXECUTOR_SERVICE, executorService );
-        this.imageFilter = ImageFilterFactory.create( imageFilterParameters );
-
-        transformationParameters.put( GlobalParameters.LOG_SERVICE, logService );
-        transformationParameters.put( GlobalParameters.EXECUTOR_SERVICE, executorService );
-        transformationParameters.put( TransformationFinderParameters.IMAGE_FILTER, imageFilter );
-        this.transformFinder = TransformationFinderFactory.create( transformationParameters );
+        this.referenceRegions = new ArrayList<>();
+        this.imageFilter = ImageFilterFactory.create( registrationParameters.imageFilterParameters );
+        registrationParameters.transformParameters.put( TransformFinderParameters.IMAGE_FILTER, imageFilter );
+        this.transformFinder = TransformFinderFactory.create( registrationParameters.transformParameters );
 
     }
 
@@ -114,7 +86,7 @@ public class Registration
             addFixedRAI( fixedRAI );
         }
 
-        outputRAI = inputImageViews.transformedInput( transformations );
+        output = inputImageViews.transformedInput( transformations );
 
         doneInDuration( startTimeMilliseconds );
 
@@ -128,7 +100,7 @@ public class Registration
     private void addFixedRAI( RandomAccessibleInterval fixedRAI )
     {
         // keep just for debugging
-        fixedRAIList.add( imageFilter.filter( fixedRAI ) );
+        referenceRegions.add( imageFilter.filter( fixedRAI ) );
     }
 
     private void addTransform( long s, T relativeTransformation )
@@ -196,20 +168,20 @@ public class Registration
 
 
 
-        return inputImageViews.asImg( outputRAI );
+        return inputImageViews.asImg( output );
     }
 
     public FinalInterval getTransformableDimensionsOutputInterval()
     {
-        if ( outputViewIntervalSizeType == OutputIntervalType.InputDataSize )
+        if ( outputIntervalType == OutputIntervalType.InputDataSize )
         {
             return transformableAxesSettings.inputInterval;
         }
-        else if ( outputViewIntervalSizeType == OutputIntervalType.ReferenceRegionSize )
+        else if ( outputIntervalType == OutputIntervalType.ReferenceRegionSize )
         {
             return transformableAxesSettings.referenceInterval;
         }
-        else if ( outputViewIntervalSizeType == OutputIntervalType.UnionSize )
+        else if ( outputIntervalType == OutputIntervalType.UnionSize )
         {
             return getTransformationsUnion( new FinalInterval(input) );
         }

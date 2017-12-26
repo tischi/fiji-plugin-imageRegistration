@@ -6,7 +6,8 @@ import org.scijava.log.LogService;
 
 import javax.swing.*;
 
-public abstract class LogServiceImageRegistration {
+public abstract class PackageLogService
+{
 
     public static LogService logService;
     public static StatusService statusService;

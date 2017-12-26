@@ -1,11 +1,11 @@
 package de.embl.cba.registration.ui;
 
 import de.embl.cba.registration.OutputIntervalType;
-import de.embl.cba.registration.RegistrationAxisTypes;
+import de.embl.cba.registration.RegistrationAxisType;
 import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.filter.ImageFilterType;
-import de.embl.cba.registration.transformationfinders.TransformationFinderParameters;
-import de.embl.cba.registration.transformationfinders.TransformationFinderType;
+import de.embl.cba.registration.transformfinder.TransformFinderParameters;
+import de.embl.cba.registration.transformfinder.TransformationFinderType;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.module.Module;
@@ -13,21 +13,22 @@ import org.scijava.module.Module;
 import java.util.HashMap;
 import java.util.Map;
 
-class RegistrationParameters
+public class RegistrationParameters
 {
-    private RegistrationPlugin plugin;
-    Module module;
+    private final RegistrationPlugin plugin;
+    private final Module module; // TODO: what is the difference to above?
 
-    RegistrationAxisTypes[] registrationAxisTypes;
-    Map< String, Object > imageFilterParameters;
-    Map< String, Object > transformationParameters;
-    OutputIntervalType outputIntervalType;
-    FinalInterval interval;
+    public RegistrationAxisType[] registrationAxisTypes;
+    public Map< String, Object > imageFilterParameters;
+    public Map< String, Object > transformParameters;
+    public OutputIntervalType outputIntervalType;
+    public FinalInterval interval;
+    public int numThreads;
 
     public RegistrationParameters( RegistrationPlugin plugin )
     {
         this.plugin = plugin;
-        this.module = (Module) plugin;
+        this.module = plugin;
         updateParameters();
     }
 
@@ -38,15 +39,21 @@ class RegistrationParameters
         setTransformationParameters();
         setRegistrationAxesInterval();
         setOutputInterval();
+        setNumThreads();
+    }
+
+    private void setNumThreads()
+    {
+        numThreads = 3; // TODO
     }
 
     private void setRegistrationAxesTypes()
     {
-        registrationAxisTypes = new RegistrationAxisTypes[ plugin.dataset.numDimensions() ];
+        registrationAxisTypes = new RegistrationAxisType[ plugin.dataset.numDimensions() ];
 
         for ( int d = 0; d < plugin.dataset.numDimensions(); ++d )
         {
-            registrationAxisTypes[ d ] = RegistrationAxisTypes.valueOf( plugin.typeInput( d ).getValue( this ) );
+            registrationAxisTypes[ d ] = RegistrationAxisType.valueOf( plugin.typeInput( d ).getValue( this ) );
         }
 
     }
@@ -75,7 +82,7 @@ class RegistrationParameters
                 ImageFilterParameters.FILTER_TYPE,
                 imageFilterType );
 
-        String[] thresholdMinMax = imageFilterParameterThresholdInput.split( "," );
+        String[] thresholdMinMax = plugin.imageFilterParameterThresholdInput.split( "," );
         imageFilterParameters.put(
                 ImageFilterParameters.THRESHOLD_MIN_VALUE,
                 Double.parseDouble( thresholdMinMax[ 0 ].trim() ) );
@@ -91,19 +98,19 @@ class RegistrationParameters
                 ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D } );
         imageFilterParameters.put(
                 ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D } );
-        return imageFilterParameters;
+
     }
 
     private void setTransformationParameters()
     {
         String[] tmp;
 
-        transformationParameters = new HashMap<>();
+        transformParameters = new HashMap<>();
 
         boolean showFixedImageSequence = true;
 
-        transformationParameters.put(
-                TransformationFinderParameters.TRANSFORMATION_FINDER_TYPE,
+        transformParameters.put(
+                TransformFinderParameters.TRANSFORMATION_FINDER_TYPE,
                 TransformationFinderType.valueOf( plugin.transformationTypeInput ) );
 
         tmp = plugin.transformationParametersMaximalTranslationsInput.split( "," );
@@ -112,8 +119,8 @@ class RegistrationParameters
         {
             transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[ i ].trim() );
         }
-        transformationParameters.put(
-                TransformationFinderParameters.MAXIMAL_TRANSLATIONS,
+        transformParameters.put(
+                TransformFinderParameters.MAXIMAL_TRANSLATIONS,
                 transformationParametersMaximalTranslations );
 
 
@@ -123,8 +130,8 @@ class RegistrationParameters
         {
             transformationParametersMaximalRotations[ i ] = Double.parseDouble( tmp[ i ] );
         }
-        transformationParameters.put(
-                TransformationFinderParameters.MAXIMAL_ROTATIONS,
+        transformParameters.put(
+                TransformFinderParameters.MAXIMAL_ROTATIONS,
                 transformationParametersMaximalRotations );
 
     }

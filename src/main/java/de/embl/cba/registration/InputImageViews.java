@@ -79,18 +79,14 @@ public class InputImageViews
         return transformedRA;
     }
 
-    public RandomAccessible transform( RandomAccessible ra, InvertibleRealTransform transform )
+    public static RandomAccessible transform( RandomAccessible input, InvertibleRealTransform transform )
     {
 
-        // TODO: make single lines
-        RealRandomAccessible rra
-                = RealViews.transform(
-                        Views.interpolate( ra, new NLinearInterpolatorFactory() ),
-                            transform );
+        RealRandomAccessible tmp = Views.interpolate( input, new NLinearInterpolatorFactory() );
+        tmp = RealViews.transform( tmp, transform );
+        RandomAccessible transformed = Views.raster( tmp );
 
-        RandomAccessible transformedRA = Views.raster( rra );
-
-        return transformedRA;
+        return transformed;
     }
 
 

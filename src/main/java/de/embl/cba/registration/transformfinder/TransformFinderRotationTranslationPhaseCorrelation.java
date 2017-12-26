@@ -1,7 +1,7 @@
-package de.embl.cba.registration.transformationfinders;
+package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.InputImageViews;
-import de.embl.cba.registration.LogServiceImageRegistration;
+import de.embl.cba.registration.PackageLogService;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -13,9 +13,10 @@ import net.imglib2.type.numeric.RealType;
 
 import java.util.*;
 
-public class TransformationFinderRotationTranslationPhaseCorrelation
+public class TransformFinderRotationTranslationPhaseCorrelation
         < R extends RealType< R > & NativeType < R > >
-        implements TransformationFinder {
+        implements TransformFinder
+{
 
     FinalRealInterval rotationInterval;
 
@@ -25,19 +26,19 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
 
     private RandomAccessibleInterval fixedRAI;
     private RandomAccessible movingRA;
-    private TransformationFinderTranslationPhaseCorrelation transformationFinderTranslationPhaseCorrelation;
+    private TransformFinderTranslationPhaseCorrelation transformationFinderTranslationPhaseCorrelation;
 
     private static final String CROSS_CORRELATION = "CrossCorrelation";
     private static final String TRANSLATIONS = "Translations";
     private static final String ROTATIONS = "Rotations";
 
-    TransformationFinderRotationTranslationPhaseCorrelation(
+    TransformFinderRotationTranslationPhaseCorrelation(
             Map< String, Object > transformationParameters )
     {
 
         double[] maximalRotationsDegrees =
                 ( double[] ) transformationParameters
-                        .get( TransformationFinderParameters.MAXIMAL_ROTATIONS );
+                        .get( TransformFinderParameters.MAXIMAL_ROTATIONS );
         double[] maxRotations = Arrays.stream( maximalRotationsDegrees )
                 .map( x -> 2D * Math.PI * x / 360D ).toArray();
         double[] minRotations = Arrays.stream( maxRotations ).map( x -> -x ).toArray();
@@ -50,11 +51,11 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
                 = new HashMap<>( transformationParameters );
 
         transformationTranslationParameters.put(
-                TransformationFinderParameters.TRANSFORMATION_FINDER_TYPE,
+                TransformFinderParameters.TRANSFORMATION_FINDER_TYPE,
                 TransformationFinderType.Translation__PhaseCorrelation );
 
         this.transformationFinderTranslationPhaseCorrelation
-                = new TransformationFinderTranslationPhaseCorrelation(
+                = new TransformFinderTranslationPhaseCorrelation(
                         transformationParameters );
 
     }
@@ -64,7 +65,7 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        LogServiceImageRegistration.debug( "## TransformationFinderRotationTranslationPhaseCorrelation" );
+        PackageLogService.debug( "## TransformFinderRotationTranslationPhaseCorrelation" );
 
         this.fixedRAI = fixedRAI;
         this.movingRA = movingRA;
@@ -91,8 +92,8 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             }
         }
 
-        LogServiceImageRegistration.debug( "\n### Result" );
-        LogServiceImageRegistration.debug( bestResult.toString() );
+        PackageLogService.debug( "\n### Result" );
+        PackageLogService.debug( bestResult.toString() );
 
         // Combine translations and rotations and return result
 

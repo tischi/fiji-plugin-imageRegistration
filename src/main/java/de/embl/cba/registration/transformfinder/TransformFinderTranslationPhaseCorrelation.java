@@ -1,7 +1,7 @@
-package de.embl.cba.registration.transformationfinders;
+package de.embl.cba.registration.transformfinder;
 
-import de.embl.cba.registration.GlobalParameters;
-import de.embl.cba.registration.LogServiceImageRegistration;
+import de.embl.cba.registration.PackageExecutorService;
+import de.embl.cba.registration.PackageLogService;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterCopyToRAM;
 import net.imglib2.RandomAccessible;
@@ -25,27 +25,28 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 
-public class TransformationFinderTranslationPhaseCorrelation
+public class TransformFinderTranslationPhaseCorrelation
         < R extends RealType< R > & NativeType< R > >
-        implements TransformationFinder {
+        implements TransformFinder
+{
 
-    double[] maximalTranslations;
-    ImageFilter imageFilter;
-    ExecutorService service;
+    private final double[] maximalTranslations;
+    private final ImageFilter imageFilter;
+    private final ExecutorService service;
 
     private double[] translation;
     private double crossCorrelation;
 
-    TransformationFinderTranslationPhaseCorrelation( final Map< String, Object > transformationParameters )
+    TransformFinderTranslationPhaseCorrelation( final Map< String, Object > transformationParameters )
     {
         this.maximalTranslations = (double[]) transformationParameters
-                        .get( TransformationFinderParameters.MAXIMAL_TRANSLATIONS );
-
-        this.service = (ExecutorService) transformationParameters
-                        .get( GlobalParameters.EXECUTOR_SERVICE );
+                        .get( TransformFinderParameters.MAXIMAL_TRANSLATIONS );
 
         this.imageFilter = ( ImageFilter ) transformationParameters
-                        .get( TransformationFinderParameters.IMAGE_FILTER );
+                        .get( TransformFinderParameters.IMAGE_FILTER );
+
+        this.service = PackageExecutorService.executorService;
+
     }
 
     public RealTransform findTransform(
@@ -53,7 +54,7 @@ public class TransformationFinderTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        LogServiceImageRegistration.debug("### TransformationFinderTranslationPhaseCorrelation");
+        PackageLogService.debug("### TransformFinderTranslationPhaseCorrelation");
 
         final int n = fixedRAI.numDimensions();
 
@@ -130,15 +131,15 @@ public class TransformationFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                LogServiceImageRegistration.debug( "translations "+ s );
+                PackageLogService.debug( "translations "+ s );
             }
-            LogServiceImageRegistration.debug("x-corr " + shiftPeak.getCrossCorr());
+            PackageLogService.debug("x-corr " + shiftPeak.getCrossCorr());
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            LogServiceImageRegistration.debug(
+            PackageLogService.debug(
                     "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
@@ -150,7 +151,7 @@ public class TransformationFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                LogServiceImageRegistration.debug(
+                PackageLogService.debug(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }

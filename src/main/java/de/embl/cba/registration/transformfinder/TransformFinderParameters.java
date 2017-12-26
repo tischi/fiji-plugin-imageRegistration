@@ -1,6 +1,7 @@
-package de.embl.cba.registration.transformationfinders;
+package de.embl.cba.registration.transformfinder;
 
-public class TransformationFinderParameters {
+public class TransformFinderParameters
+{
 
     public final static String MAXIMAL_TRANSLATIONS = "Maximal translations";
     public final static String MAXIMAL_ROTATIONS = "Maximal rotations";

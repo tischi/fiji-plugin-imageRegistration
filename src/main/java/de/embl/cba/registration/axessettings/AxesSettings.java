@@ -1,7 +1,7 @@
 package de.embl.cba.registration.axessettings;
 
 import de.embl.cba.registration.OutputIntervalType;
-import de.embl.cba.registration.RegistrationAxisTypes;
+import de.embl.cba.registration.RegistrationAxisType;
 import net.imagej.Dataset;
 import net.imglib2.FinalInterval;
 
@@ -12,86 +12,18 @@ public class AxesSettings {
 
 
     final private Dataset dataset;
-    final private RegistrationAxisTypes[] registrationAxisTypes;
+    final private RegistrationAxisType[] registrationAxisTypes;
     final private FinalInterval registrationAxesInterval;
     final private int numDimensions;
 
-    // TODO: simplify below code!
-    private final SequenceAxisSettings sequenceAxisSettings;
-    private final TransformableAxesSettings transformableAxesSettings;
-    private final FixedAxesSettings fixedAxesSettings;
-
-
     public AxesSettings( Dataset dataset,
-                         RegistrationAxisTypes[] registrationAxisTypes,
+                         RegistrationAxisType[] registrationAxisTypes,
                          FinalInterval registrationAxesInterval )
     {
         this.dataset = dataset;
         this.registrationAxisTypes = registrationAxisTypes;
         this.registrationAxesInterval = registrationAxesInterval;
         this.numDimensions = dataset.numDimensions();
-
-        // Configure sequence axis
-        //
-        int sequenceDimension = Arrays.asList( registrationAxisTypes ).indexOf( RegistrationAxisTypes.Sequence );
-        long sequenceAxisReferenceCoordinate = registrationAxesInterval.min( sequenceDimension );
-        sequenceAxisSettings =
-                new SequenceAxisSettings(
-                        sequenceDimension,
-                        registrationAxesInterval.min( sequenceDimension ),
-                        registrationAxesInterval.max( sequenceDimension ),
-                        sequenceAxisReferenceCoordinate);
-
-        // Configure transformable axes
-        //
-        int numTransformableDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisTypes.Transformable);
-        int[] transformableDimensions = new int[ numTransformableDimensions ];
-        long[] referenceIntervalMin = new long[ numTransformableDimensions ];
-        long[] referenceIntervalMax = new long[ numTransformableDimensions ];
-        long[] transformableDimensionsInputIntervalMin = new long[ numTransformableDimensions ];
-        long[] transformableDimensionsInputIntervalMax = new long[ numTransformableDimensions ];
-
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
-        {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisTypes.Transformable ) )
-            {
-                transformableDimensions[ i ] = d;
-                referenceIntervalMin[ i ] = registrationAxesInterval.min( d );
-                referenceIntervalMax[ i ] = registrationAxesInterval.max( d );
-                transformableDimensionsInputIntervalMin[ i ] = this.input.min( d );
-                transformableDimensionsInputIntervalMax[ i ] = this.input.max( d );
-                ++i;
-            }
-        }
-
-
-        FinalInterval transformableDimensionsFullInterval =
-                new FinalInterval( transformableDimensionsInputIntervalMin, transformableDimensionsInputIntervalMax );
-
-        transformableAxesSettings =
-                new TransformableAxesSettings(
-                        transformableDimensions,
-                        transformableDimensionsReferenceInterval,
-                        transformableDimensionsFullInterval
-                );
-
-
-        // Configure fixed axes
-        //
-        int numFixedDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisTypes.Fixed );
-
-
-
-        FinalInterval fixedDimensionsReferenceInterval =
-                new FinalInterval(
-                        fixedDimensionsReferenceIntervalMin,
-                        fixedDimensionsReferenceIntervalMax );
-
-        fixedAxesSettings =
-                new FixedAxesSettings(
-                        fixedDimensions,
-                        fixedDimensionsReferenceInterval
-                );
 
     }
 
@@ -102,7 +34,7 @@ public class AxesSettings {
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisTypes.Transformable ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
             {
                 min[ i ] = registrationAxesInterval.min( d );
                 max[ i ] = registrationAxesInterval.max( d );
@@ -121,7 +53,7 @@ public class AxesSettings {
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisTypes.Transformable ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
             {
                 min[ i ] = dataset.min( d );
                 max[ i ] = dataset.max( d );
@@ -133,14 +65,14 @@ public class AxesSettings {
 
     public int numFixedDimensions()
     {
-        int numFixedDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisTypes.Fixed );
+        int numFixedDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisType.Fixed );
 
         return numFixedDimensions;
     }
 
     public int numTransformableDimensions()
     {
-        int numTransformableDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisTypes.Transformable );
+        int numTransformableDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisType.Transformable );
 
         return numTransformableDimensions;
     }
@@ -157,7 +89,7 @@ public class AxesSettings {
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisTypes.Fixed ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
             {
                 min[ i ] = dataset.min( d );
                 max[ i ] = dataset.max( d );
@@ -176,7 +108,7 @@ public class AxesSettings {
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisTypes.Fixed ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
             {
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
                 // However, one could imagine in the future to e.g. average channels or compute
@@ -194,7 +126,7 @@ public class AxesSettings {
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisTypes.Fixed ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
             {
                 fixedDimensions[ i++ ] = d;
             }
@@ -206,7 +138,7 @@ public class AxesSettings {
 
     public int sequenceDimension()
     {
-        int sequenceDimension = Arrays.asList( registrationAxisTypes ).indexOf( RegistrationAxisTypes.Sequence );
+        int sequenceDimension = Arrays.asList( registrationAxisTypes ).indexOf( RegistrationAxisType.Sequence );
 
         return sequenceDimension;
     }

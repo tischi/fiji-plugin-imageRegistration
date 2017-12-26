@@ -166,10 +166,10 @@ public class RegistrationPlugin<T extends RealType<T>>
     private void initUI()
     {
 
-        LogServiceImageRegistration.statusService = statusService;
-        LogServiceImageRegistration.logService = logService;
-        LogServiceImageRegistration.statusService = statusService;
-        LogServiceImageRegistration.debug( "# Initializing UI...");
+        PackageLogService.statusService = statusService;
+        PackageLogService.logService = logService;
+        PackageLogService.statusService = statusService;
+        PackageLogService.debug( "# Initializing UI...");
 
         String a = imagePlus.getTitle();
 
@@ -183,8 +183,8 @@ public class RegistrationPlugin<T extends RealType<T>>
         int n = dataset.numDimensions();
 
         List< String > registrationAxisTypes =
-                Stream.of( RegistrationAxisTypes.values() )
-                        .map( RegistrationAxisTypes::name )
+                Stream.of( RegistrationAxisType.values() )
+                        .map( RegistrationAxisType::name )
                         .collect( Collectors.toList() );
 
         ArrayList< AxisType > axisTypes = getAxisTypeList( dataset );
@@ -227,15 +227,15 @@ public class RegistrationPlugin<T extends RealType<T>>
             typeItem.setChoices( registrationAxisTypes );
 
             if ( axisTypes.get( d ).equals( sequenceDefault ) )
-                typeItem.setValue( this, "" + RegistrationAxisTypes.Sequence );
+                typeItem.setValue( this, "" + RegistrationAxisType.Sequence );
             else if ( axisTypes.get( d ).equals( Axes.X ))
-                typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
             else if ( axisTypes.get( d ).equals( Axes.Y ))
-                typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
             else if ( axisTypes.get( d ).equals( Axes.Z ))
-                typeItem.setValue( this, "" + RegistrationAxisTypes.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
             else if ( axisTypes.get( d ).equals( Axes.CHANNEL ))
-                typeItem.setValue( this, "" + RegistrationAxisTypes.Fixed );
+                typeItem.setValue( this, "" + RegistrationAxisType.Fixed );
 
             // Interval minimum
             //
@@ -278,7 +278,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 //            otherItem.setMinimumValue( dataset.min( d ) );
 //            otherItem.setMaximumValue( dataset.max( d ) );
 
-            LogServiceImageRegistration.debug( "...done.");
+            PackageLogService.debug( "...done.");
 
 
         }
@@ -293,6 +293,8 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void computeRegistrationCallback()
     {
+        RegistrationParameters registrationParameters = new RegistrationParameters( this  );
+
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
@@ -300,14 +302,8 @@ public class RegistrationPlugin<T extends RealType<T>>
                 Registration registration = new Registration(
                         dataset,
                         datasetService,
-                        uiInput.registrationAxisTypes,
-                        uiInput.interval,
-                        imageFilterParameters,
-                        transformationParameters,
-                        3,
-                        outputViewIntervalSizeType,
-                        showFixedImageSequence,
-                        logService, axesSettings, inputImageViews);
+                        logService,
+                        registrationParameters );
 
 
 
@@ -329,7 +325,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         for (int d = 0; d < dataset.numDimensions(); ++d )
         {
-            if ( registrationParameters.registrationAxisTypes[ d ] == RegistrationAxisTypes.Transformable )
+            if ( registrationParameters.registrationAxisTypes[ d ] == RegistrationAxisType.Transformable )
             {
                 if ( dataset.axis( d ).type() == Axes.X )
                 {
@@ -363,9 +359,9 @@ public class RegistrationPlugin<T extends RealType<T>>
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                long startTime = LogServiceImageRegistration.start("# Preparing result for export...");
+                long startTime = PackageLogService.start("# Preparing result for export...");
                 uiService.show(  transformedImg );
-                LogServiceImageRegistration.doneInDuration( startTime );
+                PackageLogService.doneInDuration( startTime );
             }
         } );
         thread.start();
@@ -449,12 +445,12 @@ public class RegistrationPlugin<T extends RealType<T>>
 
             int i;
 
-            RegistrationAxisTypes[] registrationAxisTypes = new RegistrationAxisTypes[ n ];
+            RegistrationAxisType[] registrationAxisTypes = new RegistrationAxisType[ n ];
             i = 0;
-            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Transformable;
-            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Transformable;
-            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Fixed;
-            registrationAxisTypes[ i++ ] = RegistrationAxisTypes.Sequence;
+            registrationAxisTypes[ i++ ] = RegistrationAxisType.Transformable;
+            registrationAxisTypes[ i++ ] = RegistrationAxisType.Transformable;
+            registrationAxisTypes[ i++ ] = RegistrationAxisType.Fixed;
+            registrationAxisTypes[ i++ ] = RegistrationAxisType.Sequence;
 
             long[] min = Intervals.minAsLongArray( dataset );
             long[] max = Intervals.maxAsLongArray( dataset );
@@ -462,7 +458,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
             min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
             min[ i ] = -1; max[ i++ ] = -1; // fixed dimension: not used
-            min[ i ] = 0; max[ i++ ] = 3; // sequence dimension: transformationfinders range
+            min[ i ] = 0; max[ i++ ] = 3; // sequence dimension: transformfinder range
 
             FinalInterval interval = new FinalInterval( min, max );
 

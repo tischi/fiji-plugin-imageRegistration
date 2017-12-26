@@ -4,5 +4,5 @@ public enum OutputIntervalType
 {
     ReferenceRegionSize,
     InputDataSize,
-    UnionSize;
+    UnionSize
 }
