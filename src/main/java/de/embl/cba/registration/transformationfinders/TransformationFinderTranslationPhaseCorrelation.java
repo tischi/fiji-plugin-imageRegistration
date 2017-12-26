@@ -76,16 +76,8 @@ public class TransformationFinderTranslationPhaseCorrelation
 
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
 
-        // potentially filter the moving image (the fixed one is already filtered)
-        // TODO: why filter the fixed one outside?
-
-        RandomAccessibleInterval filteredFixedRAI = fixedRAI;
-        RandomAccessibleInterval filteredMovingRAI = movingRAI;
-
-        if ( imageFilter != null )
-        {
-            filteredMovingRAI = imageFilter.filter( movingRAI );
-        }
+        RandomAccessibleInterval filteredFixedRAI = imageFilter.filter( fixedRAI );
+        RandomAccessibleInterval filteredMovingRAI = imageFilter.filter( movingRAI );
 
         // TODO: remove below code once possible!
         filteredFixedRAI = Views.zeroMin( filteredFixedRAI );

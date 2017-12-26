@@ -1,6 +1,6 @@
 package de.embl.cba.registration.transformationfinders;
 
-import de.embl.cba.registration.ImageRegistrationUtils;
+import de.embl.cba.registration.InputImageViews;
 import de.embl.cba.registration.LogServiceImageRegistration;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
@@ -156,7 +156,7 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
         {
             AffineTransform2D rotation2D = new AffineTransform2D();
             rotation2D.rotate(  rotations[ 0 ]  );
-            rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation2D );
+            rotatedMovingRA = InputImageViews.transform( movingRA, rotation2D );
         }
         else if ( rotations.length == 3)
         {
@@ -165,7 +165,7 @@ public class TransformationFinderRotationTranslationPhaseCorrelation
             {
                 rotation3D.rotate( d, rotations[ d ] );
             }
-            rotatedMovingRA = ImageRegistrationUtils.getRAasTransformedRA( movingRA, rotation3D );
+            rotatedMovingRA = InputImageViews.transform( movingRA, rotation3D );
         }
         else
         {

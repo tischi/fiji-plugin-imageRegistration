@@ -1,9 +1,8 @@
 package de.embl.cba.registration;
 
-public enum OutputViewIntervalSizeTypes {
-
+public enum OutputIntervalType
+{
     ReferenceRegionSize,
     InputDataSize,
     UnionSize;
-
 }

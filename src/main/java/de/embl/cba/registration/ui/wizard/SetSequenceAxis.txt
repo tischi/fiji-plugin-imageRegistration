@@ -98,7 +98,7 @@ public class SetSequenceAxis extends DynamicCommand {
         // Load dataset
         //
         final File file =
-                new File( "/Users/tischi/Documents/fiji-plugin-imageRegistration--data/2d_t_2ch_drift_synthetic_blur.tif");
+                new File( "/Users/tischi/Documents/fiji-plugin-registration--data/2d_t_2ch_drift_synthetic_blur.tif");
 
         Dataset dataset = ij.scifio().datasetIO().open( file.getPath() );
         ij.ui().show( dataset );

@@ -1,8 +1,7 @@
 package de.embl.cba.registration;
 
-public enum ReferenceRegionTypes {
-
+public enum ReferenceRegionType
+{
     Moving,
     Fixed;
-
 }

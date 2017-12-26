@@ -1,4 +1,4 @@
-package de.embl.cba.registration;
+package de.embl.cba.registration.utils;
 
 import net.imglib2.FinalInterval;
 import net.imglib2.FinalRealInterval;

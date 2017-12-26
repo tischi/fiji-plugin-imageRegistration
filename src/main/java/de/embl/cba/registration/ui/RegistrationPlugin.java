@@ -1,4 +1,4 @@
-package de.embl.cba.registration.gui;
+package de.embl.cba.registration.ui;
 
 /*
  * To the extent possible under law, the ImageJ developers have waived
@@ -14,8 +14,6 @@ import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.filter.ImageFilterType;
-import de.embl.cba.registration.transformationfinders.TransformationFinderParameters;
-import de.embl.cba.registration.transformationfinders.TransformationFinderType;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
@@ -25,12 +23,10 @@ import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.FinalInterval;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
-import net.imglib2.view.Views;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -53,43 +49,42 @@ import java.util.stream.Stream;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
-        initializer = "init")
-
-public class ImageRegistrationPlugin<T extends RealType<T>>
+        initializer = "initUI")
+public class RegistrationPlugin<T extends RealType<T>>
         extends DynamicCommand
         implements Interactive
 {
 
     @Parameter
-    private Dataset dataset;
+    protected Dataset dataset;
 
     @Parameter
-    private ImagePlus imagePlus;
+    protected ImagePlus imagePlus;
 
     @Parameter
-    private UIService uiService;
+    protected UIService uiService;
 
     @Parameter
-    private DatasetService datasetService;
+    protected DatasetService datasetService;
 
     @Parameter
-    private LogService logService;
+    protected LogService logService;
 
     @Parameter
-    private OpService opService;
+    protected OpService opService;
 
     @Parameter
-    private StatusService statusService;
+    protected StatusService statusService;
 
     @Parameter(label = "Transformation type and finder method",
             choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"},
             persist = false )
-    private String transformationTypeInput = "Translation__PhaseCorrelation";
+    protected String transformationTypeInput = "Translation__PhaseCorrelation";
 
     @Parameter(label = "Output size",
             choices = {"ReferenceRegionSize", "InputDataSize"},
             persist = false )
-    private String outputViewIntervalSizeTypeInput = "InputDataSize";
+    protected String outputViewIntervalSizeTypeInput = "InputDataSize";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message01
@@ -101,11 +96,11 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     @Parameter(label = "Maximal translations [pixels]",
             persist = false)
-    private String transformationParametersMaximalTranslationsInput = "30,30";
+    protected String transformationParametersMaximalTranslationsInput = "30,30";
 
     @Parameter(label = "Maximal rotations [degrees]",
             persist = false)
-    private String transformationParameterMaximalRotationsInput = "2";
+    protected String transformationParameterMaximalRotationsInput = "2";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message02
@@ -118,11 +113,11 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
     @Parameter( label = "Image pre-processing",
             choices = {"None", "Threshold", "DifferenceOfGaussianAndThreshold"},
             persist = false )
-    private String imageFilterTypeInput = "None";
+    protected String imageFilterTypeInput = "None";
 
     @Parameter(label = "Threshold values [min,max]"
             , persist = false  )
-    private String imageFilterParameterThresholdInput = "0,255";
+    protected String imageFilterParameterThresholdInput = "0,255";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message03
@@ -142,240 +137,33 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             "The transformation is applied to all coordinates for your fixed axes." +
             "</li>";
 
-    Img img;
+    protected Img img;
 
-    Img transformedImg;
-
-    public static ArrayList< AxisType > getAxisTypeList( Dataset dataset )
-    {
-        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
-        for (int d = 0; d < dataset.numDimensions(); d++)
-        {
-            axisTypes.add( dataset.axis( d ).type() );
-        }
-
-        return axisTypes;
-
-    }
+    protected Img transformedImg;
 
     @SuppressWarnings("unchecked")
-    private MutableModuleItem<Long> varInput(final int d, final String var) {
+    protected MutableModuleItem<Long> varInput(final int d, final String var) {
         return (MutableModuleItem<Long>) getInfo().getInput( varName(d, var) );
     }
 
     @SuppressWarnings("unchecked")
-    private MutableModuleItem<String> typeInput( final int d ) {
+    protected MutableModuleItem<String> typeInput( final int d ) {
         return (MutableModuleItem<String>) getInfo().getInput( typeName( d ) );
     }
 
     @Parameter(label = "Compute registration",
-            callback = "computeRegistration" )
+            callback = "computeRegistrationCallback" )
     private Button computeRegistrationButton;
 
     @Parameter(label = "Get result",
             callback = "showTransformedImageWithLegacyUI" )
     private Button showWithLegacyUIButton;
 
-    private void minMaxChanged()
-    {
-        UIInput uiInput = getUIValues();
-        updateImagePlusReferenceRegionOverlay( uiInput );
-    }
+    ////////////////////////////////
 
-    private void updateImagePlusReferenceRegionOverlay( UIInput uiInput )
-    {
-        long xMin = 0, xMax = 0, yMin = 0, yMax = 0;
+    public void run() { }
 
-        for (int d = 0; d < dataset.numDimensions(); ++d )
-        {
-            if ( uiInput.registrationAxisTypes[ d ] == RegistrationAxisTypes.Transformable )
-            {
-                if ( dataset.axis( d ).type() == Axes.X )
-                {
-                    xMin = varInput( d, "min" ).getValue( this );
-                    xMax = varInput( d, "max" ).getValue( this );
-                }
-
-                if ( dataset.axis( d ).type() == Axes.Y )
-                {
-                    yMin = varInput( d, "min" ).getValue( this );
-                    yMax = varInput( d, "max" ).getValue( this );
-                }
-
-            }
-        }
-
-        Roi roi = new Roi( (int) xMin, (int) yMin, (int) (xMax-xMin), (int) (yMax-yMin) );
-        // TODO: implement Z
-        //roi.setPosition();
-        roi.setStrokeColor( Color.GREEN );
-        //roi.setFillColor( new Color( 0x3300FF00 ) );
-
-        Overlay overlay = new Overlay( roi );
-        imagePlus.setOverlay(overlay);
-
-
-    }
-
-    private class UIInput
-    {
-        RegistrationAxisTypes[] registrationAxisTypes;
-        FinalInterval interval;
-    }
-
-
-    private UIInput getUIValues()
-    {
-        UIInput uiInput = new UIInput();
-
-        long[] min = Intervals.minAsLongArray( dataset );
-        long[] max = Intervals.maxAsLongArray( dataset );
-        // long[] other = new long[ numDimensions ];
-        uiInput.registrationAxisTypes = new RegistrationAxisTypes[ dataset.numDimensions() ];
-
-        for ( int d = 0; d < dataset.numDimensions(); ++d )
-        {
-            uiInput.registrationAxisTypes[ d ] = RegistrationAxisTypes.valueOf( typeInput( d ).getValue( this ) );
-            min[ d ] = varInput( d, "min" ).getValue( this );
-            max[ d ] = varInput( d, "max" ).getValue( this );
-            // other[ d ] = varInput( d, "other" ).getValue( this );
-        }
-
-        uiInput.interval = new FinalInterval( min, max );
-
-        return uiInput;
-    }
-
-    private void registrationThread()
-    {
-
-        int numDimensions = dataset.numDimensions();
-
-        // Output view size type
-        //
-        OutputViewIntervalSizeTypes outputViewIntervalSizeType
-                = OutputViewIntervalSizeTypes.valueOf( outputViewIntervalSizeTypeInput );
-
-        // Get axis types, intervals and other coordinates from GUI
-        //
-        UIInput uiInput = getUIValues();
-
-        // Configure image filtering
-        //
-        Map< String, Object > imageFilterParameters = new HashMap<>();
-
-        ImageFilterType imageFilterType = ImageFilterType.valueOf( imageFilterTypeInput );
-
-        imageFilterParameters.put(
-                ImageFilterParameters.FILTER_TYPE,
-                imageFilterType );
-
-        String[] thresholdMinMax = imageFilterParameterThresholdInput.split( "," );
-        imageFilterParameters.put(
-                ImageFilterParameters.THRESHOLD_MIN_VALUE,
-                Double.parseDouble( thresholdMinMax[0].trim() ) );
-        imageFilterParameters.put(
-                ImageFilterParameters.THRESHOLD_MAX_VALUE,
-                Double.parseDouble( thresholdMinMax[1].trim() ) );
-
-
-        // below are currently hard coded and cannot be changed from the GUI
-        imageFilterParameters.put(
-                ImageFilterParameters.DOG_SIGMA_SMALLER, new double[]{ 2.0D, 2.0D} );
-        imageFilterParameters.put(
-                ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D} );
-        imageFilterParameters.put(
-                ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );
-
-
-        // Configure transformation
-        //
-        String[] tmp;
-        Map< String, Object > transformationParameters = new HashMap<>();
-        boolean showFixedImageSequence = true;
-
-        transformationParameters.put(
-                TransformationFinderParameters.TRANSFORMATION_FINDER_TYPE,
-                TransformationFinderType.valueOf( transformationTypeInput ) );
-
-        tmp = transformationParametersMaximalTranslationsInput.split( "," );
-        double[] transformationParametersMaximalTranslations = new double[ tmp.length ];
-        for ( int i = 0; i < tmp.length; ++i )
-        {
-            transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[i].trim() );
-        }
-        transformationParameters.put(
-                TransformationFinderParameters.MAXIMAL_TRANSLATIONS,
-                transformationParametersMaximalTranslations );
-
-
-        tmp = transformationParameterMaximalRotationsInput.split( "," );
-        double[] transformationParametersMaximalRotations = new double[ tmp.length ];
-        for ( int i = 0; i < tmp.length; ++i )
-        {
-            transformationParametersMaximalRotations[ i ] = Double.parseDouble( tmp[i] );
-        }
-        transformationParameters.put(
-                TransformationFinderParameters.MAXIMAL_ROTATIONS,
-                transformationParametersMaximalRotations );
-
-
-        ImageRegistration imageRegistration =
-                new ImageRegistration(
-                        dataset,
-                        datasetService,
-                        uiInput.registrationAxisTypes,
-                        uiInput.interval,
-                        imageFilterParameters,
-                        transformationParameters,
-                        3,
-                        outputViewIntervalSizeType,
-                        showFixedImageSequence,
-                        logService );
-
-
-
-        imageRegistration.run();
-
-
-        transformedImg = imageRegistration.getTransformedImg();
-        BdvFunctions.show( transformedImg, "Transformed Image", Bdv.options().is2D() );
-
-
-    }
-
-    protected void computeRegistration() {
-
-        Thread thread = new Thread(new Runnable() {
-            public void run()
-            {
-                registrationThread();
-            }
-        } );
-        thread.start();
-
-    }
-
-    protected void showTransformedImageWithLegacyUI() {
-
-        Thread thread = new Thread(new Runnable() {
-            public void run()
-            {
-                long startTime = LogServiceImageRegistration.start("# Preparing result for export...");
-                uiService.show(  transformedImg );
-                LogServiceImageRegistration.doneInDuration( startTime );
-            }
-        } );
-        thread.start();
-
-    }
-
-    public void run() {
-
-
-    }
-
-    protected void init()
+    private void initUI()
     {
 
         LogServiceImageRegistration.statusService = statusService;
@@ -396,8 +184,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
         List< String > registrationAxisTypes =
                 Stream.of( RegistrationAxisTypes.values() )
-                    .map( RegistrationAxisTypes::name )
-                    .collect( Collectors.toList() );
+                        .map( RegistrationAxisTypes::name )
+                        .collect( Collectors.toList() );
 
         ArrayList< AxisType > axisTypes = getAxisTypeList( dataset );
 
@@ -460,7 +248,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             minItem.setMinimumValue( dataset.min( d ) );
             minItem.setMaximumValue( dataset.max( d ) );
             minItem.setDefaultValue( dataset.min( d ) );
-            minItem.setCallback( "minMaxChanged" );
+            minItem.setCallback( "intervalChangeCallback" );
 
             // Interval maximum
             //
@@ -473,7 +261,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
             maxItem.setMinimumValue( dataset.min( d ) );
             maxItem.setMaximumValue( dataset.max( d ) );
             maxItem.setDefaultValue( dataset.max( d ) );
-            maxItem.setCallback( "minMaxChanged" );
+            maxItem.setCallback( "intervalChangeCallback" );
 
 
             // Other
@@ -497,23 +285,116 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
 
     }
 
-    // -- Helper methods --
-    private String typeName( final int d ) {
+    private void intervalChangeCallback()
+    {
+        RegistrationParameters registrationParameters = new RegistrationParameters( this  );
+        updateImagePlusOverlay( registrationParameters );
+    }
+
+    private void computeRegistrationCallback()
+    {
+        Thread thread = new Thread(new Runnable() {
+            public void run()
+            {
+
+                Registration registration = new Registration(
+                        dataset,
+                        datasetService,
+                        uiInput.registrationAxisTypes,
+                        uiInput.interval,
+                        imageFilterParameters,
+                        transformationParameters,
+                        3,
+                        outputViewIntervalSizeType,
+                        showFixedImageSequence,
+                        logService, axesSettings, inputImageViews);
+
+
+
+                registration.run();
+
+                transformedImg = registration.getTransformedImg();
+
+                BdvFunctions.show( transformedImg, "Transformed Image", Bdv.options().is2D() );
+
+            }
+        } );
+        thread.start();
+
+    }
+
+    private void updateImagePlusOverlay( RegistrationParameters registrationParameters )
+    {
+        long xMin = 0, xMax = 0, yMin = 0, yMax = 0;
+
+        for (int d = 0; d < dataset.numDimensions(); ++d )
+        {
+            if ( registrationParameters.registrationAxisTypes[ d ] == RegistrationAxisTypes.Transformable )
+            {
+                if ( dataset.axis( d ).type() == Axes.X )
+                {
+                    xMin = varInput( d, "min" ).getValue( this );
+                    xMax = varInput( d, "max" ).getValue( this );
+                }
+
+                if ( dataset.axis( d ).type() == Axes.Y )
+                {
+                    yMin = varInput( d, "min" ).getValue( this );
+                    yMax = varInput( d, "max" ).getValue( this );
+                }
+
+            }
+        }
+
+        Roi roi = new Roi( (int) xMin, (int) yMin, (int) (xMax-xMin), (int) (yMax-yMin) );
+        // TODO: implement Z
+        //roi.setPosition();
+        roi.setStrokeColor( Color.GREEN );
+        //roi.setFillColor( new Color( 0x3300FF00 ) );
+
+        Overlay overlay = new Overlay( roi );
+        imagePlus.setOverlay(overlay);
+
+
+    }
+
+    protected void showTransformedImageWithLegacyUI() {
+
+        Thread thread = new Thread(new Runnable() {
+            public void run()
+            {
+                long startTime = LogServiceImageRegistration.start("# Preparing result for export...");
+                uiService.show(  transformedImg );
+                LogServiceImageRegistration.doneInDuration( startTime );
+            }
+        } );
+        thread.start();
+
+    }
+
+
+    protected String typeName( final int d ) {
         return "type" + d;
     }
 
-    private String varName( final int d, final String var ) {
+    protected String varName( final int d, final String var ) {
         return "var" + d + ":" + var;
     }
 
-    /**
-     * This main function serves for development purposes.
-     * It allows you to run the plugin immediately out of
-     * your integrated development environment (IDE).
-     *
-     * @param args whatever, it's ignored
-     * @throws Exception
-     */
+    public static ArrayList< AxisType > getAxisTypeList( Dataset dataset )
+    {
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+        for (int d = 0; d < dataset.numDimensions(); d++)
+        {
+            axisTypes.add( dataset.axis( d ).type() );
+        }
+
+        return axisTypes;
+
+    }
+
+    /////////////////////////////
+
     public static void main(final String... args) throws Exception {
         // create the ImageJ application context with all available services
         final ImageJ ij = new ImageJ();
@@ -561,7 +442,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         if ( GUI )
         {
             // invoke the plugin
-            ij.command().run( ImageRegistrationPlugin.class, true );
+            ij.command().run( RegistrationPlugin.class, true );
         }
         else if ( TEST )
         {
@@ -609,8 +490,8 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                     ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D} );
 
             /*
-            ImageRegistration imageRegistration =
-                    new ImageRegistration(
+            Registration imageRegistration =
+                    new Registration(
                             dataset,
                             registrationAxisTypes,
                             interval,
@@ -618,7 +499,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
                             3,
                             imageFilterType,
                             imageFilterParameters,
-                            OutputViewIntervalSizeTypes.ReferenceRegionSize,
+                            OutputIntervalType.ReferenceRegionSize,
                             true );
 
             imageRegistration.run();
@@ -654,6 +535,7 @@ public class ImageRegistrationPlugin<T extends RealType<T>>
         }
 
     }
+
 
 
 }

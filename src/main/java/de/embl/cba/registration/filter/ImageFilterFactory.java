@@ -15,6 +15,10 @@ public abstract class ImageFilterFactory < R extends RealType< R > & NativeType<
         {
             return new ImageFilterGauss( parameters );
         }
+        else if ( imageFilterType.equals ( ImageFilterType.None ) )
+        {
+            return new ImageFilterNone( parameters );
+        }
         else if ( imageFilterType.equals ( ImageFilterType.Threshold ) )
         {
             return new ImageFilterThreshold( parameters );
