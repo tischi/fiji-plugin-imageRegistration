@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 public class OutputInterval
 {
 
+    /*
     public FinalInterval getTransformableDimensionsOutputInterval()
     {
         if ( outputIntervalType == OutputIntervalType.InputDataSize )
@@ -26,7 +27,7 @@ public class OutputInterval
         {
             return null;
         }
-    }
+    }*/
 
     private FinalInterval getTransformationsUnion( FinalInterval inputInterval )
     {

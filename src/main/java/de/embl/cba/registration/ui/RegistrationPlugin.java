@@ -12,6 +12,7 @@ package de.embl.cba.registration.ui;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
+import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.filter.ImageFilterType;
 import ij.IJ;
@@ -188,22 +189,22 @@ public class RegistrationPlugin<T extends RealType<T>>
                         .map( RegistrationAxisType::name )
                         .collect( Collectors.toList() );
 
-        ArrayList< AxisType > axisTypes = getAxisTypeList( dataset );
+        ArrayList< AxisType > axisTypes = Axes.axisTypesList( dataset );
 
         // Guess default axisType choices
         //
         AxisType sequenceDefault = axisTypes.get( 0 );
-        if ( axisTypes.contains( Axes.TIME ) )
+        if ( axisTypes.contains( net.imagej.axis.Axes.TIME ) )
         {
-            sequenceDefault = Axes.TIME;
+            sequenceDefault = net.imagej.axis.Axes.TIME;
         }
-        else if ( axisTypes.contains( Axes.Z ) )
+        else if ( axisTypes.contains( net.imagej.axis.Axes.Z ) )
         {
-            sequenceDefault = Axes.Z;
+            sequenceDefault = net.imagej.axis.Axes.Z;
         }
-        else if ( axisTypes.contains( Axes.CHANNEL ) )
+        else if ( axisTypes.contains( net.imagej.axis.Axes.CHANNEL ) )
         {
-            sequenceDefault = Axes.CHANNEL;
+            sequenceDefault = net.imagej.axis.Axes.CHANNEL;
         }
 
         for (int d = 0; d < dataset.numDimensions(); d++)
@@ -229,13 +230,13 @@ public class RegistrationPlugin<T extends RealType<T>>
 
             if ( axisTypes.get( d ).equals( sequenceDefault ) )
                 typeItem.setValue( this, "" + RegistrationAxisType.Sequence );
-            else if ( axisTypes.get( d ).equals( Axes.X ))
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.X ))
                 typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
-            else if ( axisTypes.get( d ).equals( Axes.Y ))
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Y ))
                 typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
-            else if ( axisTypes.get( d ).equals( Axes.Z ))
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Z ))
                 typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
-            else if ( axisTypes.get( d ).equals( Axes.CHANNEL ))
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.CHANNEL ))
                 typeItem.setValue( this, "" + RegistrationAxisType.Fixed );
 
             // Interval minimum
@@ -329,13 +330,13 @@ public class RegistrationPlugin<T extends RealType<T>>
         {
             if ( registrationParameters.registrationAxisTypes[ d ] == RegistrationAxisType.Transformable )
             {
-                if ( dataset.axis( d ).type() == Axes.X )
+                if ( dataset.axis( d ).type() == net.imagej.axis.Axes.X )
                 {
                     xMin = varInput( d, "min" ).getValue( this );
                     xMax = varInput( d, "max" ).getValue( this );
                 }
 
-                if ( dataset.axis( d ).type() == Axes.Y )
+                if ( dataset.axis( d ).type() == net.imagej.axis.Axes.Y )
                 {
                     yMin = varInput( d, "min" ).getValue( this );
                     yMax = varInput( d, "max" ).getValue( this );
@@ -377,18 +378,6 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     protected String varName( final int d, final String var ) {
         return "var" + d + ":" + var;
-    }
-
-    public static ArrayList< AxisType > getAxisTypeList( Dataset dataset )
-    {
-        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
-        for (int d = 0; d < dataset.numDimensions(); d++)
-        {
-            axisTypes.add( dataset.axis( d ).type() );
-        }
-
-        return axisTypes;
-
     }
 
 

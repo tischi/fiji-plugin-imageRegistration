@@ -1,30 +1,60 @@
-package de.embl.cba.registration.axessettings;
+package de.embl.cba.registration;
 
-import de.embl.cba.registration.OutputIntervalType;
-import de.embl.cba.registration.RegistrationAxisType;
 import net.imagej.Dataset;
+import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class AxesSettings {
-
+public class Axes
+{
 
     final private Dataset dataset;
     final private RegistrationAxisType[] registrationAxisTypes;
     final private FinalInterval registrationAxesInterval;
     final private int numDimensions;
 
-    public AxesSettings( Dataset dataset,
-                         RegistrationAxisType[] registrationAxisTypes,
-                         FinalInterval registrationAxesInterval )
+    public Axes( Dataset dataset,
+                 RegistrationAxisType[] registrationAxisTypes,
+                 FinalInterval registrationAxesInterval )
     {
         this.dataset = dataset;
         this.registrationAxisTypes = registrationAxisTypes;
         this.registrationAxesInterval = registrationAxesInterval;
         this.numDimensions = dataset.numDimensions();
 
+    }
+
+    public static ArrayList< AxisType > axisTypesList( Dataset dataset )
+    {
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+        for (int d = 0; d < dataset.numDimensions(); d++)
+        {
+            axisTypes.add( dataset.axis( d ).type() );
+        }
+
+        return axisTypes;
+    }
+
+    public ArrayList< AxisType > transformedAxisTypesList()
+    {
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+
+        for ( AxisType axisType : transformableDimensionsAxisTypes() )
+        {
+            axisTypes.add( axisType );
+        }
+
+        axisTypes.add( sequenceDimensionAxisType() );
+
+        for ( AxisType axisType : fixedDimensionsAxisTypes() )
+        {
+            axisTypes.add( axisType );
+        }
+
+        return axisTypes;
     }
 
     public FinalInterval transformableAxesReferenceInterval()
@@ -44,7 +74,6 @@ public class AxesSettings {
 
         return new FinalInterval( min, max );
     }
-
 
     public FinalInterval transformableAxesInputInterval()
     {
@@ -135,6 +164,65 @@ public class AxesSettings {
         return fixedDimensions;
     }
 
+    public int[] transformableDimensions()
+    {
+        int[] dimensions = new int[ numTransformableDimensions() ];
+
+        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        {
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
+            {
+                dimensions[ i++ ] = d;
+            }
+        }
+
+        return dimensions;
+    }
+
+    public AxisType[] transformableDimensionsAxisTypes()
+    {
+        AxisType[] axisTypes = new AxisType[ numTransformableDimensions() ];
+
+        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        {
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
+            {
+                axisTypes[ i++ ] = inputAxisTypes()[ d ];
+            }
+        }
+
+        return axisTypes;
+    }
+
+    public AxisType[] fixedDimensionsAxisTypes()
+    {
+        AxisType[] axisTypes = new AxisType[ numTransformableDimensions() ];
+
+        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        {
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+            {
+                axisTypes[ i++ ] = inputAxisTypes()[ d ];
+            }
+        }
+
+        return axisTypes;
+    }
+
+    public AxisType sequenceDimensionAxisType()
+    {
+        AxisType axisType = null;
+
+        for ( int d = 0; d < numDimensions; ++d )
+        {
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Sequence ) )
+            {
+                axisType = inputAxisTypes()[ d ];
+            }
+        }
+
+        return axisType;
+    }
 
     public int sequenceDimension()
     {
@@ -174,6 +262,21 @@ public class AxesSettings {
             return null; // TODO
         }
 
+    }
+
+    public AxisType[] inputAxisTypes()
+    {
+        return ( AxisType[] ) axisTypesList( dataset ).toArray();
+    }
+
+    public ArrayList< AxisType > inputAxisTypesList()
+    {
+        return axisTypesList( dataset );
+    }
+
+    public int numInputDatasetDimensions()
+    {
+        return dataset.numDimensions();
     }
 
 

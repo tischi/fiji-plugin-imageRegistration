@@ -1,8 +1,6 @@
 package de.embl.cba.registration;
 
-import de.embl.cba.registration.axessettings.AxesSettings;
 import net.imagej.Dataset;
-import net.imagej.DatasetService;
 import net.imagej.ImgPlus;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
@@ -27,39 +25,33 @@ public class InputImageViews
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > > {
 
     final RandomAccessibleInterval inputRAI;
-    final AxesSettings axesSettings;
+    final Axes axes;
     Map< Long, T > transformations;
     OutputIntervalType outputIntervalType;
+    RandomAccessibleInterval< R > transformedInput;
 
     public InputImageViews( RandomAccessibleInterval inputImage,
-                            AxesSettings axesSettings )
+                            Axes axes )
     {
         this.inputRAI = inputImage;
-        this.axesSettings = axesSettings;
+        this.axes = axes;
     }
 
 
-    public Img< R > asImgPlus( RandomAccessibleInterval< R > rai )
+    public Img< R > asImgPlus( RandomAccessibleInterval< R > rai, String title )
     {
         assert inputRAI.numDimensions() == rai.numDimensions();
 
         Dataset dataset = Services.datasetService.create( Views.zeroMin( rai ) );
 
-        ImgPlus img = new ImgPlus( dataset, "transformedSequences", inputImgAxisTypes() );
-
-        // TODO: better to return as Dataset? E.g. for KNIME?
+        ImgPlus img = new ImgPlus( dataset, title, axes.inputAxisTypes() );
 
         return img;
     }
 
-    public AxisType[] inputImgAxisTypes()
-    {
-        return null;
-    }
-
     public RandomAccessibleInterval< R > referenceInterval( RandomAccessible< R > ra )
     {
-        return Views.interval( ra, axesSettings.transformableAxesReferenceInterval() );
+        return Views.interval( ra, axes.transformableAxesReferenceInterval() );
     }
 
 
@@ -89,7 +81,7 @@ public class InputImageViews
 
     public RandomAccessibleInterval transformableHyperSlice( long s )
     {
-        return transformableHyperSlice( s, axesSettings.fixedReferenceCoordinates() );
+        return transformableHyperSlice( s, axes.fixedReferenceCoordinates() );
     }
 
     public RandomAccessibleInterval transformableHyperSlice(
@@ -101,8 +93,8 @@ public class InputImageViews
         long[] min = Intervals.minAsLongArray( inputRAI );
         long[] max = Intervals.maxAsLongArray( inputRAI );
 
-        min[ axesSettings.sequenceDimension() ] = s;
-        max[ axesSettings.sequenceDimension() ] = s;
+        min[ axes.sequenceDimension() ] = s;
+        max[ axes.sequenceDimension() ] = s;
 
         setFixedAxesCoordinates( fixedAxesCoordinates, min, max );
 
@@ -118,9 +110,9 @@ public class InputImageViews
 
     private void setFixedAxesCoordinates( long[] fixedAxesCoordinates, long[] min, long[] max )
     {
-        for ( int i = 0; i < axesSettings.numFixedDimensions( ); ++i )
+        for ( int i = 0; i < axes.numFixedDimensions( ); ++i )
         {
-            int d = axesSettings.fixedDimension( i );
+            int d = axes.fixedDimension( i );
             min[ d ] = fixedAxesCoordinates[ i ];
             max[ d ] = fixedAxesCoordinates[ i ];
         }
@@ -149,21 +141,17 @@ public class InputImageViews
         this.transformations = transformations;
         this.outputIntervalType = outputIntervalType;
 
-        long[] fixedCoordinates = initializedFixedCoordinates();
-        int loopingIndex = 0;
+        transformedInput = transformedSequences( initializedFixedCoordinates(), 0 );
 
-        RandomAccessibleInterval< R > transformedInput
-                = transformedSequences( fixedCoordinates, loopingIndex );
-
-        // TODO: fix dimension order such that it is the same as in input image
+        arrangeTransformedAxesIntoSameOrderAsInput();
 
         return transformedInput;
     }
 
     private long[] initializedFixedCoordinates()
     {
-        long[] fixedCoordinates = new long[ axesSettings.numFixedDimensions() ];
-        FinalInterval fixedDimensionsInterval = axesSettings.fixedDimensionsInterval();
+        long[] fixedCoordinates = new long[ axes.numFixedDimensions() ];
+        FinalInterval fixedDimensionsInterval = axes.fixedDimensionsInterval();
         for ( int i = 0; i < fixedCoordinates.length; ++i )
         {
             fixedCoordinates[ i ] = fixedDimensionsInterval.min( i );
@@ -171,19 +159,18 @@ public class InputImageViews
         return fixedCoordinates;
     }
 
-    private RandomAccessibleInterval<R> transformedSequences(
+    private RandomAccessibleInterval< R > transformedSequences(
             long[] fixedCoordinates,
             int loopingDimension )
     {
 
         ArrayList< RandomAccessibleInterval<R> > transformedSequenceList = new ArrayList<>(  );
 
-        long min = axesSettings.fixedDimensionsInterval().min( loopingDimension );
-        long max = axesSettings.fixedDimensionsInterval().max( loopingDimension );
+        long min = axes.fixedDimensionsInterval().min( loopingDimension );
+        long max = axes.fixedDimensionsInterval().max( loopingDimension );
 
         for ( long coordinate = min; coordinate < max; ++coordinate )
         {
-
             RandomAccessibleInterval transformedSequence;
 
             fixedCoordinates[ loopingDimension ] = coordinate;
@@ -203,13 +190,12 @@ public class InputImageViews
         return stackAndDropSingletons( transformedSequenceList );
     }
 
-
-    private RandomAccessibleInterval<R> transformedSequence( long[] fixedCoordinates )
+    private RandomAccessibleInterval< R > transformedSequence( long[] fixedCoordinates )
     {
         ArrayList< RandomAccessibleInterval<R> > transformedList = new ArrayList<>(  );
 
-        long min = axesSettings.sequenceMin();
-        long max = axesSettings.sequenceMax();
+        long min = axes.sequenceMin();
+        long max = axes.sequenceMax();
 
         for (long s = min; s <= max; ++s )
         {
@@ -220,7 +206,7 @@ public class InputImageViews
                                 s,
                                 transformations.get( s ),
                                 fixedCoordinates,
-                                axesSettings.transformableDimensionsOutputInterval( outputIntervalType ) );
+                                axes.transformableDimensionsOutputInterval( outputIntervalType ) );
 
                 transformedList.add ( transformed );
             }
@@ -230,26 +216,21 @@ public class InputImageViews
 
     }
 
-    private AxisType[] getTransformedAxes()
+    private void arrangeTransformedAxesIntoSameOrderAsInput( )
     {
-        AxisType[] transformedAxisTypes = new AxisType[ dataset.numDimensions() ];
-        int i = 0;
+        // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 
-        for ( int a : transformableAxesSettings.axes )
+        ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypesList();
+        ArrayList< AxisType > inputAxisTypes = axes.inputAxisTypesList();
+
+        for ( int inputDimension = 0; inputDimension < inputAxisTypes.size(); ++inputDimension )
         {
-            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
+            int transformedDimension = transformedAxisTypes.indexOf( inputAxisTypes.get( inputDimension ) );
+            Collections.swap( transformedAxisTypes, inputDimension, transformedDimension );
+            transformedInput = Views.permute( transformedInput, inputDimension, transformedDimension );
         }
 
-        transformedAxisTypes[ i++ ] = dataset.axis( sequenceAxisProperties.axis ).type();
-
-        for ( int a : fixedAxesSettings.axes )
-        {
-            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
-        }
-
-        return transformedAxisTypes;
     }
-
 
     private RandomAccessibleInterval stackAndDropSingletons( ArrayList< RandomAccessibleInterval< R > > transformedList )
     {

@@ -1,6 +1,5 @@
 package de.embl.cba.registration;
 
-import de.embl.cba.registration.axessettings.AxesSettings;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterFactory;
 import de.embl.cba.registration.transformfinder.TransformFinder;
@@ -8,7 +7,6 @@ import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.transformfinder.TransformFinderParameters;
 import de.embl.cba.registration.ui.RegistrationParameters;
 import net.imagej.Dataset;
-import net.imagej.axis.AxisType;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
@@ -31,12 +29,12 @@ public class Registration
     private final InputImageViews inputImageViews;
     private final ImageFilter imageFilter;
     private final TransformFinder transformFinder;
-    private final AxesSettings axesSettings;
+    private final Axes axes;
     private final ReferenceRegionType referenceRegionType;
     private final OutputIntervalType outputIntervalType;
     private Map< Long, T > transformations;
     private final List< RandomAccessibleInterval< R > > referenceRegions;
-    RandomAccessibleInterval< R > output;
+    RandomAccessibleInterval< R > transformedInput;
 
     public Registration(
             final Dataset dataset,
@@ -47,12 +45,18 @@ public class Registration
 
         this.dataset = dataset;
         this.input = ( RandomAccessibleInterval<R> ) dataset;
-        this.axesSettings = new AxesSettings( dataset, registrationParameters.registrationAxisTypes, registrationParameters.interval );
-        this.inputImageViews = new InputImageViews( input, axesSettings );
+
+        this.axes = new Axes( dataset, registrationParameters.registrationAxisTypes, registrationParameters.interval );
+
+        this.inputImageViews = new InputImageViews( input, axes );
+
         this.outputIntervalType = registrationParameters.outputIntervalType;
+
         this.referenceRegionType = ReferenceRegionType.Moving; // TODO: get from GUI
         this.referenceRegions = new ArrayList<>();
+
         this.imageFilter = ImageFilterFactory.create( registrationParameters.imageFilterParameters );
+
         registrationParameters.transformParameters.put( TransformFinderParameters.IMAGE_FILTER, imageFilter );
         this.transformFinder = TransformFinderFactory.create( registrationParameters.transformParameters );
 
@@ -66,7 +70,8 @@ public class Registration
 
         RandomAccessibleInterval fixedRAI;
         RandomAccessible movingRA;
-        for ( long s = axesSettings.sequenceMin(); s < axesSettings.sequenceMax(); s += axesSettings.sequenceIncrement() )
+
+        for ( long s = axes.sequenceMin(); s < axes.sequenceMax(); s += axes.sequenceIncrement() )
         {
             showSequenceProgress( s );
 
@@ -75,11 +80,11 @@ public class Registration
 
             T transform = ( T ) transformFinder.findTransform( fixedRAI, movingRA );
 
-            addTransform( s, transform );
-            addFixedRAI( fixedRAI );
+            addTransform( s + 1, transform );
+            addReferenceRegion( fixedRAI );
         }
 
-        output = inputImageViews.transformedInput( transformations, outputIntervalType );
+        transformedInput = inputImageViews.transformedInput( transformations, outputIntervalType );
 
         doneIn( startTimeMilliseconds );
 
@@ -89,8 +94,8 @@ public class Registration
     {
         String message = "Sequence registration";
         // TODO: add memory and time
-        int min = (int) (s - axesSettings.sequenceMin());
-        int max = (int) (s - axesSettings.sequenceMax());
+        int min = (int) (s - axes.sequenceMin());
+        int max = (int) (s - axes.sequenceMax());
         statusService.showStatus( min , max, message );
     }
 
@@ -99,29 +104,29 @@ public class Registration
         return new ArrayList<>(  );
     }
 
-    private void addFixedRAI( RandomAccessibleInterval fixedRAI )
+    private void addReferenceRegion( RandomAccessibleInterval fixedRAI )
     {
-        // keep just for debugging
+        // to show the user for 'debugging'
         referenceRegions.add( imageFilter.filter( fixedRAI ) );
     }
 
     private void addTransform( long s, T relativeTransformation )
     {
-        T absoluteTransformation = ( T ) transformations.get( s ).copy();
+        T absoluteTransformation = ( T ) transformations.get( s - 1 ).copy();
         absoluteTransformation.preConcatenate( relativeTransformation );
-        transformations.put( s + 1, ( T ) absoluteTransformation );
+        transformations.put( s, ( T ) absoluteTransformation );
     }
 
     private void initializeTransforms()
     {
         transformations = new HashMap<>(  );
-        transformations.put( axesSettings.sequenceMin(), identityTransformation() );
+        transformations.put( axes.sequenceMin(), identityTransformation() );
     }
 
     private T identityTransformation()
     {
 
-        int numTransformableDimensions = axesSettings.numTransformableDimensions();
+        int numTransformableDimensions = axes.numTransformableDimensions();
 
         if ( numTransformableDimensions == 2 )
         {
@@ -140,9 +145,9 @@ public class Registration
 
     public Img transformedImg( )
     {
-        return inputImageViews.asImg( output );
+         return inputImageViews.asImgPlus( transformedInput, "registered" );
     }
-    
+
     public RandomAccessibleInterval fixedRAI( long s )
     {
         RandomAccessibleInterval rai;
@@ -152,7 +157,7 @@ public class Registration
         {
             rai = inputImageViews.transformableHyperSlice( s );
             RandomAccessible ra = inputImageViews.transform( rai, transform );
-            rai = Views.interval( ra, axesSettings.transformableAxesReferenceInterval() );
+            rai = Views.interval( ra, axes.transformableAxesReferenceInterval() );
         }
         else
         {
