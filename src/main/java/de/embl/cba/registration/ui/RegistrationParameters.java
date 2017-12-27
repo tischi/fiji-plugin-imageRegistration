@@ -12,18 +12,19 @@ import org.scijava.module.Module;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 public class RegistrationParameters
 {
     private final RegistrationPlugin plugin;
-    private final Module module; // TODO: what is the difference to above?
+    private final Module module; // TODO: what is the difference between plugin and module?
 
     public RegistrationAxisType[] registrationAxisTypes;
     public Map< String, Object > imageFilterParameters;
     public Map< String, Object > transformParameters;
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
-    public int numThreads;
+    public ExecutorService executorService;
 
     public RegistrationParameters( RegistrationPlugin plugin )
     {
@@ -44,7 +45,7 @@ public class RegistrationParameters
 
     private void setNumThreads()
     {
-        numThreads = 3; // TODO
+        executorService = plugin.threadService.getExecutorService(); // TODO
     }
 
     private void setRegistrationAxesTypes()
@@ -53,7 +54,8 @@ public class RegistrationParameters
 
         for ( int d = 0; d < plugin.dataset.numDimensions(); ++d )
         {
-            registrationAxisTypes[ d ] = RegistrationAxisType.valueOf( plugin.typeInput( d ).getValue( this ) );
+            String axisTypeName = ( String ) plugin.typeInput( d ).getValue( module );
+            registrationAxisTypes[ d ] = RegistrationAxisType.valueOf( axisTypeName );
         }
 
     }

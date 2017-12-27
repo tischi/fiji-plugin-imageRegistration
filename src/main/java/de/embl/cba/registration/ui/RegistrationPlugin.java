@@ -36,6 +36,7 @@ import org.scijava.log.LogService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 import org.scijava.widget.NumberWidget;
@@ -49,37 +50,40 @@ import java.util.stream.Stream;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
-        initializer = "initUI")
+        initializer = "init")
 public class RegistrationPlugin<T extends RealType<T>>
         extends DynamicCommand
         implements Interactive
 {
 
     @Parameter
-    protected Dataset dataset;
+    public Dataset dataset;
 
     @Parameter
-    protected ImagePlus imagePlus;
+    public ImagePlus imagePlus;
 
     @Parameter
-    protected UIService uiService;
+    public UIService uiService;
 
     @Parameter
-    protected DatasetService datasetService;
+    public DatasetService datasetService;
 
     @Parameter
-    protected LogService logService;
+    public LogService logService;
 
     @Parameter
-    protected OpService opService;
+    public ThreadService threadService;
 
     @Parameter
-    protected StatusService statusService;
+    public OpService opService;
+
+    @Parameter
+    public StatusService statusService;
 
     @Parameter(label = "Transformation type and finder method",
             choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"},
             persist = false )
-    protected String transformationTypeInput = "Translation__PhaseCorrelation";
+    public String transformationTypeInput = "Translation__PhaseCorrelation";
 
     @Parameter(label = "Output size",
             choices = {"ReferenceRegionSize", "InputDataSize"},
@@ -152,24 +156,21 @@ public class RegistrationPlugin<T extends RealType<T>>
     }
 
     @Parameter(label = "Compute registration",
-            callback = "computeRegistrationCallback" )
+            callback = "computeRegistration" )
     private Button computeRegistrationButton;
 
     @Parameter(label = "Get result",
             callback = "showTransformedImageWithLegacyUI" )
     private Button showWithLegacyUIButton;
 
-    ////////////////////////////////
+    // Initialization
 
-    public void run() { }
-
-    private void initUI()
+    private void init()
     {
+        Services.setServices( this );
+        Logger.configure( logService, statusService );
 
-        PackageLogService.statusService = statusService;
-        PackageLogService.logService = logService;
-        PackageLogService.statusService = statusService;
-        PackageLogService.debug( "# Initializing UI...");
+        Logger.debug( "# Initializing UI...");
 
         String a = imagePlus.getTitle();
 
@@ -248,7 +249,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             minItem.setMinimumValue( dataset.min( d ) );
             minItem.setMaximumValue( dataset.max( d ) );
             minItem.setDefaultValue( dataset.min( d ) );
-            minItem.setCallback( "intervalChangeCallback" );
+            minItem.setCallback( "intervalChanged" );
 
             // Interval maximum
             //
@@ -261,7 +262,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             maxItem.setMinimumValue( dataset.min( d ) );
             maxItem.setMaximumValue( dataset.max( d ) );
             maxItem.setDefaultValue( dataset.max( d ) );
-            maxItem.setCallback( "intervalChangeCallback" );
+            maxItem.setCallback( "intervalChanged" );
 
 
             // Other
@@ -278,38 +279,37 @@ public class RegistrationPlugin<T extends RealType<T>>
 //            otherItem.setMinimumValue( dataset.min( d ) );
 //            otherItem.setMaximumValue( dataset.max( d ) );
 
-            PackageLogService.debug( "...done.");
+            Logger.debug( "...done.");
 
 
         }
 
     }
 
-    private void intervalChangeCallback()
+    public void run() { }
+
+    // Callbacks
+
+    private void intervalChanged()
     {
         RegistrationParameters registrationParameters = new RegistrationParameters( this  );
         updateImagePlusOverlay( registrationParameters );
     }
 
-    private void computeRegistrationCallback()
+    private void computeRegistration()
     {
         RegistrationParameters registrationParameters = new RegistrationParameters( this  );
+
 
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
 
-                Registration registration = new Registration(
-                        dataset,
-                        datasetService,
-                        logService,
-                        registrationParameters );
-
-
+                Registration registration = new Registration( dataset, registrationParameters );
 
                 registration.run();
 
-                transformedImg = registration.getTransformedImg();
+                transformedImg = registration.transformedImg();
 
                 BdvFunctions.show( transformedImg, "Transformed Image", Bdv.options().is2D() );
 
@@ -318,6 +318,8 @@ public class RegistrationPlugin<T extends RealType<T>>
         thread.start();
 
     }
+
+    // Other
 
     private void updateImagePlusOverlay( RegistrationParameters registrationParameters )
     {
@@ -359,9 +361,9 @@ public class RegistrationPlugin<T extends RealType<T>>
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                long startTime = PackageLogService.start("# Preparing result for export...");
+                long startTime = Logger.start("# Preparing result for export...");
                 uiService.show(  transformedImg );
-                PackageLogService.doneInDuration( startTime );
+                Logger.doneIn( startTime );
             }
         } );
         thread.start();
@@ -389,7 +391,8 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    /////////////////////////////
+
+    // Main
 
     public static void main(final String... args) throws Exception {
         // create the ImageJ application context with all available services
@@ -519,7 +522,7 @@ public class RegistrationPlugin<T extends RealType<T>>
                     axisTypes);
 
             ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-            RandomAccessibleInterval raiTO = imageRegistration.getTransformedImg( axesIdsTransformedOutput );
+            RandomAccessibleInterval raiTO = imageRegistration.transformedImg( axesIdsTransformedOutput );
             showRAI(ij.ui(),
                     ij.dataset(),
                     raiTO,

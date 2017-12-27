@@ -8,7 +8,6 @@ import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.transformfinder.TransformFinderParameters;
 import de.embl.cba.registration.ui.RegistrationParameters;
 import net.imagej.Dataset;
-import net.imagej.DatasetService;
 import net.imagej.axis.AxisType;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
@@ -18,12 +17,10 @@ import net.imglib2.realtransform.*;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-import org.scijava.log.LogService;
 
 import java.util.*;
-import java.util.concurrent.Executors;
 
-import static de.embl.cba.registration.PackageLogService.*;
+import static de.embl.cba.registration.Logger.*;
 
 public class Registration
         < R extends RealType< R > & NativeType < R >,
@@ -43,19 +40,15 @@ public class Registration
 
     public Registration(
             final Dataset dataset,
-            final DatasetService datasetService,
-            final LogService logService,
             RegistrationParameters registrationParameters )
     {
 
-        PackageLogService.logService = logService;
-        PackageExecutorService.executorService = Executors.newFixedThreadPool( numThreads );
+        Logger.configure( Services.logService, Services.statusService );
 
         this.dataset = dataset;
-        this.datasetService = datasetService;
         this.input = ( RandomAccessibleInterval<R> ) dataset;
         this.axesSettings = new AxesSettings( dataset, registrationParameters.registrationAxisTypes, registrationParameters.interval );
-        this.inputImageViews = new InputImageViews( input, axesSettings, datasetService );
+        this.inputImageViews = new InputImageViews( input, axesSettings );
         this.outputIntervalType = registrationParameters.outputIntervalType;
         this.referenceRegionType = ReferenceRegionType.Moving; // TODO: get from GUI
         this.referenceRegions = new ArrayList<>();
@@ -75,7 +68,7 @@ public class Registration
         RandomAccessible movingRA;
         for ( long s = axesSettings.sequenceMin(); s < axesSettings.sequenceMax(); s += axesSettings.sequenceIncrement() )
         {
-            showStatus( s );
+            showSequenceProgress( s );
 
             fixedRAI = fixedRAI( s );
             movingRA = movingRA( s + 1 );
@@ -86,10 +79,19 @@ public class Registration
             addFixedRAI( fixedRAI );
         }
 
-        output = inputImageViews.transformedInput( transformations );
+        output = inputImageViews.transformedInput( transformations, outputIntervalType );
 
-        doneInDuration( startTimeMilliseconds );
+        doneIn( startTimeMilliseconds );
 
+    }
+
+    private void showSequenceProgress( long s )
+    {
+        String message = "Sequence registration";
+        // TODO: add memory and time
+        int min = (int) (s - axesSettings.sequenceMin());
+        int max = (int) (s - axesSettings.sequenceMax());
+        statusService.showStatus( min , max, message );
     }
 
     private List< RandomAccessibleInterval< R > > initializeFixedRAIList()
@@ -116,13 +118,6 @@ public class Registration
         transformations.put( axesSettings.sequenceMin(), identityTransformation() );
     }
 
-    private void showStatus( long s )
-    {
-        statusService.showStatus( (int) (s - sequenceAxisProperties.min),
-                (int) (sequenceAxisProperties.max -  - sequenceAxisProperties.min),
-                "Image sequence registration" );
-    }
-
     private T identityTransformation()
     {
 
@@ -143,125 +138,11 @@ public class Registration
 
     }
 
-    private AxisType[] getTransformedAxes()
+    public Img transformedImg( )
     {
-        AxisType[] transformedAxisTypes = new AxisType[ dataset.numDimensions() ];
-        int i = 0;
-
-        for ( int a : transformableAxesSettings.axes )
-        {
-            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
-        }
-
-        transformedAxisTypes[ i++ ] = dataset.axis( sequenceAxisProperties.axis ).type();
-
-        for ( int a : fixedAxesSettings.axes )
-        {
-            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
-        }
-
-        return transformedAxisTypes;
-    }
-
-    public Img getTransformedImg( )
-    {
-
-
-
         return inputImageViews.asImg( output );
     }
-
-    public FinalInterval getTransformableDimensionsOutputInterval()
-    {
-        if ( outputIntervalType == OutputIntervalType.InputDataSize )
-        {
-            return transformableAxesSettings.inputInterval;
-        }
-        else if ( outputIntervalType == OutputIntervalType.ReferenceRegionSize )
-        {
-            return transformableAxesSettings.referenceInterval;
-        }
-        else if ( outputIntervalType == OutputIntervalType.UnionSize )
-        {
-            return getTransformationsUnion( new FinalInterval(input) );
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    private FinalInterval getTransformationsUnion( FinalInterval inputInterval )
-    {
-        // TODO
-        ArrayList< long[] > corner = getCorners( inputInterval );
-        return null;
-    }
-
-    private ArrayList< long[] > getCorners( FinalInterval interval )
-    {
-        // initUI input for recursive corner determination
-        //
-        ArrayList< long [] > corners = new ArrayList<>(  );
-        LinkedHashMap< Integer, String > dimensionMinMaxMap = new LinkedHashMap<>();
-        for ( int d = 0; d < interval.numDimensions(); ++d )
-            dimensionMinMaxMap.put( d, null );
-
-        setCorners( dimensionMinMaxMap,
-                corners, interval );
-
-        return corners;
-
-    }
-
-    private void setCorners( LinkedHashMap< Integer, String > axisMinMaxMap,
-                             ArrayList< long [] > corners,
-                             FinalInterval interval )
-    {
-        int n = interval.numDimensions();
-
-        if ( axisMinMaxMap.containsValue( null ) )
-        {   // there are still dimensions with undetermined corners
-            for ( int d : axisMinMaxMap.keySet() )
-            {
-                if( axisMinMaxMap.get( d ) == null )
-                {
-                    axisMinMaxMap.put( d, "min" );
-                    setCorners( axisMinMaxMap,
-                            corners,
-                            interval );
-
-                    axisMinMaxMap.put( d, "max" );
-                    setCorners( axisMinMaxMap,
-                            corners,
-                            interval );
-
-                }
-            }
-        }
-        else
-        {
-            long [] corner = new long[ interval.numDimensions() ];
-
-            for ( int axis : axisMinMaxMap.keySet() )
-            {
-                if ( axisMinMaxMap.get( axis ).equals( "min" ) )
-                {
-                    corner[ axis ] = interval.min( axis );
-                }
-                else if ( axisMinMaxMap.get( axis ).equals( "max" ) )
-                {
-                    corner[ axis ] = interval.max( axis );
-                }
-            }
-
-            corners.add( corner );
-
-        }
-    }
-
-
-
+    
     public RandomAccessibleInterval fixedRAI( long s )
     {
         RandomAccessibleInterval rai;

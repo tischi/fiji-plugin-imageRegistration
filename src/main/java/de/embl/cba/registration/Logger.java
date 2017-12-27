@@ -6,11 +6,17 @@ import org.scijava.log.LogService;
 
 import javax.swing.*;
 
-public abstract class PackageLogService
+public abstract class Logger
 {
 
     public static LogService logService;
     public static StatusService statusService;
+
+    public static void configure( LogService logService, StatusService statusService )
+    {
+        logService = logService;
+        statusService = statusService;
+    }
 
     public static void debug(String message )
     {
@@ -21,7 +27,7 @@ public abstract class PackageLogService
                 /*
                 if ( statusService != null )
                 {
-                    statusService.showStatus(message);
+                    statusService.showSequenceProgress(message);
                 }
                 */
 
@@ -39,7 +45,7 @@ public abstract class PackageLogService
                 /*
                 if ( statusService != null )
                 {
-                    statusService.showStatus(message);
+                    statusService.showSequenceProgress(message);
                 }
                 */
 
@@ -54,13 +60,14 @@ public abstract class PackageLogService
         return System.currentTimeMillis();
     }
 
-    public static void doneInDuration(long startTimeMilliseconds )
+    public static void doneIn( long startTimeMilliseconds )
     {
         // TODO: depending on the time, show seconds or minutes
         long timeInSeconds = ( System.currentTimeMillis() - startTimeMilliseconds ) / 1000;
         String message = "...done in " + timeInSeconds + " seconds.";
         info( message );
     }
+
 
 
 }

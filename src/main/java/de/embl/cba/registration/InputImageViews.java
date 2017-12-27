@@ -28,17 +28,14 @@ public class InputImageViews
 
     final RandomAccessibleInterval inputRAI;
     final AxesSettings axesSettings;
-    private DatasetService datasetService;
     Map< Long, T > transformations;
     OutputIntervalType outputIntervalType;
 
     public InputImageViews( RandomAccessibleInterval inputImage,
-                            AxesSettings axesSettings,
-                            DatasetService datasetService )
+                            AxesSettings axesSettings )
     {
         this.inputRAI = inputImage;
         this.axesSettings = axesSettings;
-        this.datasetService = datasetService;
     }
 
 
@@ -46,7 +43,7 @@ public class InputImageViews
     {
         assert inputRAI.numDimensions() == rai.numDimensions();
 
-        Dataset dataset = datasetService.create( Views.zeroMin( rai ) );
+        Dataset dataset = Services.datasetService.create( Views.zeroMin( rai ) );
 
         ImgPlus img = new ImgPlus( dataset, "transformedSequences", inputImgAxisTypes() );
 
@@ -232,6 +229,27 @@ public class InputImageViews
         return stackAndDropSingletons( transformedList );
 
     }
+
+    private AxisType[] getTransformedAxes()
+    {
+        AxisType[] transformedAxisTypes = new AxisType[ dataset.numDimensions() ];
+        int i = 0;
+
+        for ( int a : transformableAxesSettings.axes )
+        {
+            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
+        }
+
+        transformedAxisTypes[ i++ ] = dataset.axis( sequenceAxisProperties.axis ).type();
+
+        for ( int a : fixedAxesSettings.axes )
+        {
+            transformedAxisTypes[ i++ ] = dataset.axis( a ).type();
+        }
+
+        return transformedAxisTypes;
+    }
+
 
     private RandomAccessibleInterval stackAndDropSingletons( ArrayList< RandomAccessibleInterval< R > > transformedList )
     {

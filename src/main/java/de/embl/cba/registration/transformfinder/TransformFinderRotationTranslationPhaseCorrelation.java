@@ -1,7 +1,7 @@
 package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.InputImageViews;
-import de.embl.cba.registration.PackageLogService;
+import de.embl.cba.registration.Logger;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -65,7 +65,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        PackageLogService.debug( "## TransformFinderRotationTranslationPhaseCorrelation" );
+        Logger.debug( "## TransformFinderRotationTranslationPhaseCorrelation" );
 
         this.fixedRAI = fixedRAI;
         this.movingRA = movingRA;
@@ -92,8 +92,8 @@ public class TransformFinderRotationTranslationPhaseCorrelation
             }
         }
 
-        PackageLogService.debug( "\n### Result" );
-        PackageLogService.debug( bestResult.toString() );
+        Logger.debug( "\n### Result" );
+        Logger.debug( bestResult.toString() );
 
         // Combine translations and rotations and return result
 

@@ -1,7 +1,7 @@
 package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.PackageExecutorService;
-import de.embl.cba.registration.PackageLogService;
+import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterCopyToRAM;
 import net.imglib2.RandomAccessible;
@@ -54,7 +54,7 @@ public class TransformFinderTranslationPhaseCorrelation
              RandomAccessible movingRA )
     {
 
-        PackageLogService.debug("### TransformFinderTranslationPhaseCorrelation");
+        Logger.debug("### TransformFinderTranslationPhaseCorrelation");
 
         final int n = fixedRAI.numDimensions();
 
@@ -131,15 +131,15 @@ public class TransformFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                PackageLogService.debug( "translations "+ s );
+                Logger.debug( "translations "+ s );
             }
-            PackageLogService.debug("x-corr " + shiftPeak.getCrossCorr());
+            Logger.debug("x-corr " + shiftPeak.getCrossCorr());
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            PackageLogService.debug(
+            Logger.debug(
                     "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
@@ -151,7 +151,7 @@ public class TransformFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                PackageLogService.debug(
+                Logger.debug(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }
