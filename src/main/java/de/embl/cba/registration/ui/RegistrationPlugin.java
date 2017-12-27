@@ -9,6 +9,7 @@ package de.embl.cba.registration.ui;
  */
 
 
+import bdv.util.AxisOrder;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
@@ -48,6 +49,9 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static bdv.viewer.DisplayMode.GROUP;
+import static bdv.viewer.DisplayMode.SINGLE;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
@@ -144,7 +148,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     protected Img img;
 
-    protected Img transformedImg;
+    protected ImgPlus transformedImgPlus;
 
     @SuppressWarnings("unchecked")
     protected MutableModuleItem<Long> varInput(final int d, final String var) {
@@ -169,7 +173,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     private void init()
     {
         Services.setServices( this );
-        Logger.configure( logService, statusService );
+        Logger.setLoggers( this );
 
         Logger.debug( "# Initializing UI...");
 
@@ -310,9 +314,20 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 registration.run();
 
-                transformedImg = registration.transformedImg();
+                transformedImgPlus = registration.transformedImgPlus();
+                AxisOrder axisOrder = registration.transformedImgPlusAxisOrder();
 
-                BdvFunctions.show( transformedImg, "Transformed Image", Bdv.options().is2D() );
+                // TODO: make below work with colors
+
+                final Bdv bdv = BdvFunctions.show(
+                        transformedImgPlus,
+                        "Transformed Image",
+                        Bdv.options().is2D().axisOrder( AxisOrder.XYCT ) );
+                bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );
+
+
+
+                // showTransformedImageWithLegacyUI();
 
             }
         } );
@@ -363,7 +378,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             public void run()
             {
                 long startTime = Logger.start("# Preparing result for export...");
-                uiService.show(  transformedImg );
+                uiService.show( transformedImgPlus );
                 Logger.doneIn( startTime );
             }
         } );
@@ -390,7 +405,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         boolean GUI = true;
         boolean TEST = false;
-        boolean LOAD_IJ1_VS = true;
+        boolean LOAD_IJ1_VS = false;
         boolean LOAD_IJ2_DATASET = true;
 
         Dataset dataset = null;
@@ -511,7 +526,7 @@ public class RegistrationPlugin<T extends RealType<T>>
                     axisTypes);
 
             ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-            RandomAccessibleInterval raiTO = imageRegistration.transformedImg( axesIdsTransformedOutput );
+            RandomAccessibleInterval raiTO = imageRegistration.transformedImgPlus( axesIdsTransformedOutput );
             showRAI(ij.ui(),
                     ij.dataset(),
                     raiTO,

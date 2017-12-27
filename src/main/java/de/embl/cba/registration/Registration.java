@@ -1,5 +1,6 @@
 package de.embl.cba.registration;
 
+import bdv.util.AxisOrder;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterFactory;
 import de.embl.cba.registration.transformfinder.TransformFinder;
@@ -7,6 +8,7 @@ import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.transformfinder.TransformFinderParameters;
 import de.embl.cba.registration.ui.RegistrationParameters;
 import net.imagej.Dataset;
+import net.imagej.ImgPlus;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
@@ -40,8 +42,6 @@ public class Registration
             final Dataset dataset,
             RegistrationParameters registrationParameters )
     {
-
-        Logger.configure( Services.logService, Services.statusService );
 
         this.dataset = dataset;
         this.input = ( RandomAccessibleInterval<R> ) dataset;
@@ -95,8 +95,8 @@ public class Registration
         String message = "Sequence registration";
         // TODO: add memory and time
         int min = (int) (s - axes.sequenceMin());
-        int max = (int) (s - axes.sequenceMax());
-        statusService.showStatus( min , max, message );
+        int max = (int) (axes.sequenceMax() - axes.sequenceMin());
+        statusService.showStatus( min, max, message );
     }
 
     private List< RandomAccessibleInterval< R > > initializeFixedRAIList()
@@ -143,9 +143,14 @@ public class Registration
 
     }
 
-    public Img transformedImg( )
+    public ImgPlus transformedImgPlus( )
     {
          return inputImageViews.asImgPlus( transformedInput, "registered" );
+    }
+
+    public AxisOrder transformedImgPlusAxisOrder( )
+    {
+        return null; // TODO!
     }
 
     public RandomAccessibleInterval fixedRAI( long s )

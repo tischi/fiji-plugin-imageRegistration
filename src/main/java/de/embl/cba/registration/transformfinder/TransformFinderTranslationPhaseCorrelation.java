@@ -2,6 +2,7 @@ package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.PackageExecutorService;
 import de.embl.cba.registration.Logger;
+import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.ImageFilter;
 import de.embl.cba.registration.filter.ImageFilterCopyToRAM;
 import net.imglib2.RandomAccessible;
@@ -105,7 +106,7 @@ public class TransformFinderTranslationPhaseCorrelation
                         new FloatType(),
                         new ArrayImgFactory< ComplexFloatType >(),
                         new ComplexFloatType(),
-                        service );
+                        Services.executorService );
 
         final PhaseCorrelationPeak2 shiftPeak =
                 PhaseCorrelation2.getShift(
@@ -116,7 +117,7 @@ public class TransformFinderTranslationPhaseCorrelation
                         minOverlap,
                         doSubpixel,
                         interpolateCrossCorrelation,
-                        service );
+                        Services.executorService  );
 
         //System.out.println( "Actual overlap of best shift is: " + shiftPeak.getnPixel() )
 
@@ -131,15 +132,15 @@ public class TransformFinderTranslationPhaseCorrelation
 
             for ( double s : translation )
             {
-                Logger.debug( "translations "+ s );
+                Logger.info( "translations "+ s );
             }
-            Logger.debug("x-corr " + shiftPeak.getCrossCorr());
+            Logger.info("x-corr " + shiftPeak.getCrossCorr());
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            Logger.debug(
+            Logger.info(
                     "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
@@ -151,7 +152,7 @@ public class TransformFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                Logger.debug(
+                Logger.info(
                         "Shift was larger than allowed => restricting to allowed range.");
 
             }

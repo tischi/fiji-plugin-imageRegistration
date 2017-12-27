@@ -9,7 +9,6 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealRandomAccessible;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
-import net.imglib2.img.Img;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.realtransform.RealViews;
@@ -38,15 +37,21 @@ public class InputImageViews
     }
 
 
-    public Img< R > asImgPlus( RandomAccessibleInterval< R > rai, String title )
+    public ImgPlus< R > asImgPlus( RandomAccessibleInterval< R > rai, String title )
     {
         assert inputRAI.numDimensions() == rai.numDimensions();
 
         Dataset dataset = Services.datasetService.create( Views.zeroMin( rai ) );
+        Services.uiService.show( dataset );
 
-        ImgPlus img = new ImgPlus( dataset, title, axes.inputAxisTypes() );
+        // TODO: rearranging the axes does not work, why?
+        //AxisType[] axisTypes = axes.inputAxisTypes().toArray( new AxisType[0] );
 
-        return img;
+        AxisType[] axisTypes = axes.transformedAxisTypes().toArray( new AxisType[0]);
+        ImgPlus< R > imgPlus = new ImgPlus( dataset, title, axisTypes );
+        Services.uiService.show( imgPlus );
+
+        return imgPlus;
     }
 
     public RandomAccessibleInterval< R > referenceInterval( RandomAccessible< R > ra )
@@ -143,7 +148,9 @@ public class InputImageViews
 
         transformedInput = transformedSequences( initializedFixedCoordinates(), 0 );
 
-        arrangeTransformedAxesIntoSameOrderAsInput();
+        // TODO: below code seems to work but the resulting ImgPlus
+        // does not show the right thing using the uiService.show().
+        //rearrangeTransformedAxesIntoSameOrderAsInput();
 
         return transformedInput;
     }
@@ -169,7 +176,7 @@ public class InputImageViews
         long min = axes.fixedDimensionsInterval().min( loopingDimension );
         long max = axes.fixedDimensionsInterval().max( loopingDimension );
 
-        for ( long coordinate = min; coordinate < max; ++coordinate )
+        for ( long coordinate = min; coordinate <= max; ++coordinate )
         {
             RandomAccessibleInterval transformedSequence;
 
@@ -187,7 +194,11 @@ public class InputImageViews
             transformedSequenceList.add( transformedSequence );
         }
 
-        return stackAndDropSingletons( transformedSequenceList );
+        RandomAccessibleInterval rai = stackAndDropSingletons( transformedSequenceList );
+
+        // Services.uiService.show( rai ); // TODO: does not do the dimensionality right. why?
+
+        return rai;
     }
 
     private RandomAccessibleInterval< R > transformedSequence( long[] fixedCoordinates )
@@ -197,7 +208,7 @@ public class InputImageViews
         long min = axes.sequenceMin();
         long max = axes.sequenceMax();
 
-        for (long s = min; s <= max; ++s )
+        for ( long s = min; s <= max; ++s )
         {
             if ( transformations.containsKey( s ) )
             {
@@ -212,16 +223,20 @@ public class InputImageViews
             }
         }
 
-        return stackAndDropSingletons( transformedList );
+        RandomAccessibleInterval rai = stackAndDropSingletons( transformedList );
+
+        // Services.uiService.show( rai );
+
+        return rai;
 
     }
 
-    private void arrangeTransformedAxesIntoSameOrderAsInput( )
+    private void rearrangeTransformedAxesIntoSameOrderAsInput( )
     {
         // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 
-        ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypesList();
-        ArrayList< AxisType > inputAxisTypes = axes.inputAxisTypesList();
+        ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypes();
+        ArrayList< AxisType > inputAxisTypes = axes.inputAxisTypes();
 
         for ( int inputDimension = 0; inputDimension < inputAxisTypes.size(); ++inputDimension )
         {

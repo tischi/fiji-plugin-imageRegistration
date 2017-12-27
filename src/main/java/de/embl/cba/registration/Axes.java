@@ -38,7 +38,7 @@ public class Axes
         return axisTypes;
     }
 
-    public ArrayList< AxisType > transformedAxisTypesList()
+    public ArrayList< AxisType > transformedAxisTypes()
     {
         ArrayList< AxisType > axisTypes = new ArrayList<>(  );
 
@@ -179,49 +179,36 @@ public class Axes
         return dimensions;
     }
 
-    public AxisType[] transformableDimensionsAxisTypes()
+    private ArrayList< AxisType > getAxisTypes( RegistrationAxisType registrationAxisType )
     {
-        AxisType[] axisTypes = new AxisType[ numTransformableDimensions() ];
+        ArrayList< AxisType > axisTypes = new ArrayList<>();
 
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        for ( int d = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
+            if ( registrationAxisTypes[ d ].equals( registrationAxisType ) )
             {
-                axisTypes[ i++ ] = inputAxisTypes()[ d ];
+                axisTypes.add( inputAxisTypes().get( d ) );
             }
         }
 
         return axisTypes;
     }
 
-    public AxisType[] fixedDimensionsAxisTypes()
+    public ArrayList< AxisType > fixedDimensionsAxisTypes()
     {
-        AxisType[] axisTypes = new AxisType[ numTransformableDimensions() ];
+        return getAxisTypes( RegistrationAxisType.Fixed );
+    }
 
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
-        {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
-            {
-                axisTypes[ i++ ] = inputAxisTypes()[ d ];
-            }
-        }
-
-        return axisTypes;
+    public ArrayList< AxisType > transformableDimensionsAxisTypes()
+    {
+        return getAxisTypes( RegistrationAxisType.Transformable );
     }
 
     public AxisType sequenceDimensionAxisType()
     {
-        AxisType axisType = null;
+        ArrayList< AxisType > axisTypes = getAxisTypes( RegistrationAxisType.Sequence );
 
-        for ( int d = 0; d < numDimensions; ++d )
-        {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Sequence ) )
-            {
-                axisType = inputAxisTypes()[ d ];
-            }
-        }
-
-        return axisType;
+        return axisTypes.get( 0 );
     }
 
     public int sequenceDimension()
@@ -264,20 +251,11 @@ public class Axes
 
     }
 
-    public AxisType[] inputAxisTypes()
-    {
-        return ( AxisType[] ) axisTypesList( dataset ).toArray();
-    }
-
-    public ArrayList< AxisType > inputAxisTypesList()
+    public ArrayList< AxisType > inputAxisTypes()
     {
         return axisTypesList( dataset );
     }
 
-    public int numInputDatasetDimensions()
-    {
-        return dataset.numDimensions();
-    }
 
 
 }

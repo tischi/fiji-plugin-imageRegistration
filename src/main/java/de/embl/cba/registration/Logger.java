@@ -1,21 +1,22 @@
 package de.embl.cba.registration;
 
+import de.embl.cba.registration.ui.RegistrationPlugin;
 import ij.IJ;
 import org.scijava.app.StatusService;
 import org.scijava.log.LogService;
 
 import javax.swing.*;
 
-public abstract class Logger
+public class Logger
 {
 
     public static LogService logService;
     public static StatusService statusService;
 
-    public static void configure( LogService logService, StatusService statusService )
+    public static void setLoggers( RegistrationPlugin plugin )
     {
-        logService = logService;
-        statusService = statusService;
+        logService = plugin.logService;
+        statusService = plugin.statusService;
     }
 
     public static void debug(String message )
