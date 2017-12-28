@@ -1,5 +1,6 @@
 package de.embl.cba.registration;
 
+import bdv.util.AxisOrder;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
@@ -38,7 +39,7 @@ public class Axes
         return axisTypes;
     }
 
-    public ArrayList< AxisType > transformedAxisTypes()
+    public ArrayList< AxisType > axisTypesAfterTransformation()
     {
         ArrayList< AxisType > axisTypes = new ArrayList<>(  );
 
@@ -164,6 +165,9 @@ public class Axes
         return fixedDimensions;
     }
 
+
+
+
     public int[] transformableDimensions()
     {
         int[] dimensions = new int[ numTransformableDimensions() ];
@@ -187,11 +191,16 @@ public class Axes
         {
             if ( registrationAxisTypes[ d ].equals( registrationAxisType ) )
             {
-                axisTypes.add( inputAxisTypes().get( d ) );
+                axisTypes.add( axisTypesInputImage().get( d ) );
             }
         }
 
         return axisTypes;
+    }
+
+    public long numSpatialDimensions( ArrayList< AxisType > axisTypes )
+    {
+        return axisTypes.stream().filter( x -> x.isSpatial() ).count();
     }
 
     public ArrayList< AxisType > fixedDimensionsAxisTypes()
@@ -251,11 +260,34 @@ public class Axes
 
     }
 
-    public ArrayList< AxisType > inputAxisTypes()
+    public ArrayList< AxisType > axisTypesInputImage()
     {
         return axisTypesList( dataset );
     }
 
+    public AxisOrder axisOrderAfterTransformation()
+    {
+        ArrayList< AxisType > axisTypes = axisTypesAfterTransformation();
+
+        AxisOrder axisOrder = getAxisOrder( axisTypes );
+
+        return axisOrder;
+
+    }
+
+    private AxisOrder getAxisOrder( ArrayList< AxisType > axisTypes )
+    {
+        String axisOrderString = "";
+        for ( AxisType axisType : axisTypes )
+        {
+            axisOrderString += axisType.getLabel();
+        }
+
+        axisOrderString = axisOrderString.replace( "Time", "T" );
+        axisOrderString = axisOrderString.replace( "Channel", "C" );
+
+        return AxisOrder.valueOf(  axisOrderString );
+    }
 
 
 }

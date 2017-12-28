@@ -25,14 +25,7 @@ public class Logger
         {
             public void run()
             {
-                /*
-                if ( statusService != null )
-                {
-                    statusService.showSequenceProgress(message);
-                }
-                */
-
-                //logService.info( message );
+                logService.info( message );
             }
         });
     }
@@ -43,13 +36,6 @@ public class Logger
         {
             public void run()
             {
-                /*
-                if ( statusService != null )
-                {
-                    statusService.showSequenceProgress(message);
-                }
-                */
-
                 IJ.log( message );
             }
         });

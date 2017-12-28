@@ -9,7 +9,6 @@ package de.embl.cba.registration.ui;
  */
 
 
-import bdv.util.AxisOrder;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
@@ -51,7 +50,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static bdv.viewer.DisplayMode.GROUP;
-import static bdv.viewer.DisplayMode.SINGLE;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
@@ -64,7 +62,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     @Parameter
     public Dataset dataset;
 
-    @Parameter
+    @Parameter (required = false)
     public ImagePlus imagePlus;
 
     @Parameter
@@ -164,9 +162,11 @@ public class RegistrationPlugin<T extends RealType<T>>
             callback = "computeRegistration" )
     private Button computeRegistrationButton;
 
-    @Parameter(label = "Get result",
-            callback = "showTransformedImageWithLegacyUI" )
-    private Button showWithLegacyUIButton;
+    @Parameter(label = "Get result as ImageJ stack (can take some time...)",
+            callback = "showOutputWithIJHyperstack" )
+    private Button showOutputWithIJHyperstackButton;
+
+    Output output;
 
     // Initialization
 
@@ -177,16 +177,16 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         Logger.debug( "# Initializing UI...");
 
-        String a = imagePlus.getTitle();
-
-        if ( imagePlus.getStack() instanceof VirtualStack )
+        if ( imagePlus != null )
         {
-            img = ImageJFunctions.wrap( imagePlus );
+            if ( imagePlus.getStack() instanceof VirtualStack )
+            {
+                img = ImageJFunctions.wrap( imagePlus );
+            }
         }
 
         boolean persist = false;
 
-        int n = dataset.numDimensions();
 
         List< String > registrationAxisTypes =
                 Stream.of( RegistrationAxisType.values() )
@@ -314,20 +314,10 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 registration.run();
 
-                transformedImgPlus = registration.transformedImgPlus();
-                AxisOrder axisOrder = registration.transformedImgPlusAxisOrder();
+                output = registration.output();
 
-                // TODO: make below work with colors
+                showOutputWithBdv();
 
-                final Bdv bdv = BdvFunctions.show(
-                        transformedImgPlus,
-                        "Transformed Image",
-                        Bdv.options().is2D().axisOrder( AxisOrder.XYCT ) );
-                bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );
-
-
-
-                // showTransformedImageWithLegacyUI();
 
             }
         } );
@@ -372,13 +362,13 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    protected void showTransformedImageWithLegacyUI() {
+    protected void showOutputWithIJHyperstack() {
 
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                long startTime = Logger.start("# Preparing result for export...");
-                uiService.show( transformedImgPlus );
+                long startTime = Logger.start("# Preparing result for ImageJ Hyperstack display...");
+                uiService.show( output.imgPlus );
                 Logger.doneIn( startTime );
             }
         } );
@@ -386,6 +376,29 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
+    private void showOutputWithBdv()
+    {
+        Bdv bdv = null;
+
+        if ( output.numSpatialDimensions == 2 )
+        {
+            bdv = BdvFunctions.show(
+                output.imgPlus,
+                output.imgPlus.getName(),
+                Bdv.options().is2D().axisOrder( output.axisOrder) );
+
+        }
+        else if ( output.numSpatialDimensions == 3 )
+        {
+            bdv = BdvFunctions.show(
+                    output.imgPlus,
+                    output.imgPlus.getName(),
+                    Bdv.options().axisOrder( output.axisOrder) );
+        }
+
+        bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );
+
+    }
 
     protected String typeName( final int d ) {
         return "type" + d;

@@ -37,19 +37,17 @@ public class InputImageViews
     }
 
 
-    public ImgPlus< R > asImgPlus( RandomAccessibleInterval< R > rai, String title )
+    public ImgPlus< R > imgPlus( RandomAccessibleInterval< R > rai, String title )
     {
         assert inputRAI.numDimensions() == rai.numDimensions();
 
         Dataset dataset = Services.datasetService.create( Views.zeroMin( rai ) );
-        Services.uiService.show( dataset );
 
         // TODO: rearranging the axes does not work, why?
-        //AxisType[] axisTypes = axes.inputAxisTypes().toArray( new AxisType[0] );
+        //AxisType[] axisTypes = axes.axisTypesInputImage().toArray( new AxisType[0] );
 
-        AxisType[] axisTypes = axes.transformedAxisTypes().toArray( new AxisType[0]);
+        AxisType[] axisTypes = axes.axisTypesAfterTransformation().toArray( new AxisType[0]);
         ImgPlus< R > imgPlus = new ImgPlus( dataset, title, axisTypes );
-        Services.uiService.show( imgPlus );
 
         return imgPlus;
     }
@@ -235,8 +233,8 @@ public class InputImageViews
     {
         // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 
-        ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypes();
-        ArrayList< AxisType > inputAxisTypes = axes.inputAxisTypes();
+        ArrayList< AxisType > transformedAxisTypes = axes.axisTypesAfterTransformation();
+        ArrayList< AxisType > inputAxisTypes = axes.axisTypesInputImage();
 
         for ( int inputDimension = 0; inputDimension < inputAxisTypes.size(); ++inputDimension )
         {

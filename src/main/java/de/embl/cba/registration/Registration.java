@@ -8,11 +8,9 @@ import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.transformfinder.TransformFinderParameters;
 import de.embl.cba.registration.ui.RegistrationParameters;
 import net.imagej.Dataset;
-import net.imagej.ImgPlus;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
-import net.imglib2.img.Img;
 import net.imglib2.realtransform.*;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -143,15 +141,17 @@ public class Registration
 
     }
 
-    public ImgPlus transformedImgPlus( )
+    public Output output()
     {
-         return inputImageViews.asImgPlus( transformedInput, "registered" );
+        Output< R > output = new Output<>();
+        output.imgPlus = inputImageViews.imgPlus( transformedInput, "registered" );
+        output.axisTypes = axes.transformableDimensionsAxisTypes();
+        output.axisOrder = axes.axisOrderAfterTransformation();
+        output.numSpatialDimensions = axes.numSpatialDimensions( output.axisTypes );
+
+        return output;
     }
 
-    public AxisOrder transformedImgPlusAxisOrder( )
-    {
-        return null; // TODO!
-    }
 
     public RandomAccessibleInterval fixedRAI( long s )
     {
