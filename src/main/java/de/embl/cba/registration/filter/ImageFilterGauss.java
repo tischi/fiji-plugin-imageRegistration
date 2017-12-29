@@ -27,12 +27,12 @@ public class ImageFilterGauss
     }
 
     @Override
-    public RandomAccessibleInterval< FloatType > filter(
-            RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< FloatType > apply( RandomAccessibleInterval< R > source )
     {
+
         double[] sigmas = (double []) parameters.get( ImageFilterParameters.GAUSS_SIGMA );
 
-        // create target image with same offset as source image
+        // toArrayImg target image with same offset as source image
         //
         final ImgFactory< FloatType > factory = new ArrayImgFactory< >();
         RandomAccessibleInterval< FloatType > target =

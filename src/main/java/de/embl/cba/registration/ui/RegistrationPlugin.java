@@ -120,11 +120,15 @@ public class RegistrationPlugin<T extends RealType<T>>
     @Parameter( label = "Image pre-processing",
             choices = {"None", "Threshold", "DifferenceOfGaussianAndThreshold"},
             persist = false )
-    protected String imageFilterTypeInput = "None";
+    protected String imageFilterType = "None";
 
     @Parameter(label = "Threshold values [min,max]"
             , persist = false  )
-    protected String imageFilterParameterThresholdInput = "0,255";
+    protected String imageFilterThreshold = "0,255";
+
+    @Parameter(label = "Sub-sampling [pixels]", persist = false)
+    protected String imageFilterSubSampling = "1,1";
+
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message03
@@ -145,8 +149,6 @@ public class RegistrationPlugin<T extends RealType<T>>
             "</li>";
 
     protected Img img;
-
-    protected ImgPlus transformedImgPlus;
 
     @SuppressWarnings("unchecked")
     protected MutableModuleItem<Long> varInput(final int d, final String var) {
@@ -186,7 +188,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         }
 
         boolean persist = false;
-
 
         List< String > registrationAxisTypes =
                 Stream.of( RegistrationAxisType.values() )
@@ -305,7 +306,6 @@ public class RegistrationPlugin<T extends RealType<T>>
     {
         RegistrationParameters registrationParameters = new RegistrationParameters( this  );
 
-
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
@@ -412,7 +412,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     // Main
 
     public static void main(final String... args) throws Exception {
-        // create the ImageJ application context with all available services
+        // toArrayImg the ImageJ application context with all available services
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
@@ -514,7 +514,7 @@ public class RegistrationPlugin<T extends RealType<T>>
                             other,
                             3,
                             imageFilterType,
-                            imageFilterParameters,
+                            filterParameters,
                             OutputIntervalType.ReferenceRegionSize,
                             true );
 

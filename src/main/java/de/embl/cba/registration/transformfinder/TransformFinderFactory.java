@@ -5,32 +5,21 @@ import net.imglib2.type.numeric.RealType;
 
 import java.util.Map;
 
-import static de.embl.cba.registration.transformfinder.TransformFinderParameters.*;
-
-
 public abstract class TransformFinderFactory< R extends RealType< R > & NativeType< R > > {
 
-    public static TransformFinder create( Map< String, Object > transformationParameters )
+    public static TransformFinder create( TransformFinderType type,TransformFinderSettings settings )
     {
-        TransformationFinderType transformationFinderType
-                = (TransformationFinderType) transformationParameters.get(
-                        TRANSFORMATION_FINDER_TYPE );
-
-        if ( transformationFinderType.equals(
-                TransformationFinderType.Translation__PhaseCorrelation ) )
+        if ( type.equals( TransformFinderType.Translation__PhaseCorrelation ) )
         {
-            return new TransformFinderTranslationPhaseCorrelation( transformationParameters );
-        }
-        if ( transformationFinderType.equals(
-                TransformationFinderType.Rotation_Translation__PhaseCorrelation ) )
-        {
-            return new TransformFinderRotationTranslationPhaseCorrelation( transformationParameters );
-        }
-        else
-        {
-            return null;
+            return new TransformFinderTranslationPhaseCorrelation( settings );
         }
 
+        if ( type.equals( TransformFinderType.Rotation_Translation__PhaseCorrelation ) )
+        {
+            return new TransformFinderRotationTranslationPhaseCorrelation( settings );
+        }
+
+        return null;
     }
 
 }

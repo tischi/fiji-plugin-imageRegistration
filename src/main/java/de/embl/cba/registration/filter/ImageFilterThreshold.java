@@ -1,5 +1,6 @@
 package de.embl.cba.registration.filter;
 
+import de.embl.cba.registration.utils.Duplicator;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.array.ArrayImg;
@@ -21,36 +22,26 @@ public class ImageFilterThreshold
     double minValue;
     double maxValue;
 
-    public ImageFilterThreshold( Map< String, Object > parameters ) {
-
+    public ImageFilterThreshold( Map< String, Object > parameters )
+    {
         minValue = (double) parameters.get(ImageFilterParameters.THRESHOLD_MIN_VALUE);
         maxValue = (double) parameters.get(ImageFilterParameters.THRESHOLD_MAX_VALUE);
     }
 
     @Override
-    public RandomAccessibleInterval< BitType > filter( RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< BitType > apply( RandomAccessibleInterval< R > input )
     {
 
-        ArrayImg< BitType, LongArray > output = ArrayImgs
-                .bits( Intervals.dimensionsAsLongArray( source ) );
+        RandomAccessibleInterval< BitType > converted =
+                Converters.convert( input, ( s, t ) -> {
+                    t.set( ( s.getRealDouble() >= minValue ) && ( s.getRealDouble() <= maxValue ) );
+                }, new BitType() );
 
-        RandomAccessibleInterval< BitType > converted = Converters.convert( source, ( s, t ) -> {
-            t.set( ( s.getRealDouble() >= minValue ) && ( s.getRealDouble() <= maxValue ) );
-        }, new BitType() );
-        for ( Pair< BitType, BitType > p : Views.interval( Views.pair( Views.zeroMin( converted ), output ), output ) )
-            p.getB().set( p.getA() );
+        RandomAccessibleInterval< BitType > output = Duplicator.toArrayImg( converted );
 
-        /*
-        ArrayCursor< BitType > target = output.cursor();
-        Cursor< BitType > src = Views.flatIterable( converted ).cursor();
-        while( target.hasNext() )
-            target.next().set( src.next() );
-        */
-
-        return Views.translate( output, Intervals.minAsLongArray( source ) );
-
-        // return Converters.convert( source, (s,t) -> { t.set( s.getRealDouble() > threshold );}, new BitType(  ) );
+        return output;
     }
+
 
 
 

@@ -25,14 +25,14 @@ public class ImageFilterDog< R extends RealType< R > & NativeType< R > >
     }
 
     @Override
-    public RandomAccessibleInterval< FloatType > filter(
+    public RandomAccessibleInterval< FloatType > apply(
             RandomAccessibleInterval< R > source )
     {
         double[] sigmaSmaller = (double []) parameters.get( ImageFilterParameters.DOG_SIGMA_SMALLER );
         double[] sigmaLarger = (double []) parameters.get( ImageFilterParameters.DOG_SIGMA_LARGER );
         ExecutorService service = (ExecutorService) parameters.get( ImageFilterParameters.EXECUTOR_SERVICE );
 
-        // create target image with same offset as source image
+        // toArrayImg target image with same offset as source image
         //
         RandomAccessibleInterval< FloatType > output =
                 Views.translate(

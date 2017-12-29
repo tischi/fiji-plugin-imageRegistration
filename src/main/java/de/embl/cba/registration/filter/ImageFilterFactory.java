@@ -7,34 +7,39 @@ import java.util.Map;
 
 public abstract class ImageFilterFactory < R extends RealType< R > & NativeType< R > > {
 
-    public static ImageFilter create( Map< String, Object > parameters )
+    public static ImageFilter create( ImageFilterType imageFilterType, Map< String, Object > parameters )
     {
-        ImageFilterType imageFilterType = (ImageFilterType) parameters.get( ImageFilterParameters.FILTER_TYPE );
-
         if ( imageFilterType.equals( ImageFilterType.Gauss ) )
         {
             return new ImageFilterGauss( parameters );
         }
-        else if ( imageFilterType.equals ( ImageFilterType.None ) )
+
+        if ( imageFilterType.equals ( ImageFilterType.None ) )
         {
             return new ImageFilterNone( parameters );
         }
-        else if ( imageFilterType.equals ( ImageFilterType.Threshold ) )
+
+        if ( imageFilterType.equals ( ImageFilterType.Threshold ) )
         {
             return new ImageFilterThreshold( parameters );
         }
-        else if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussian ) )
+
+        if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussian ) )
         {
             return new ImageFilterDog( parameters );
         }
-        else if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussianAndThreshold ) )
+
+        if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussianAndThreshold ) )
         {
             return new ImageFilterDogThreshold( parameters );
         }
-        else
+
+        if ( imageFilterType.equals ( ImageFilterType.SubSample ) )
         {
-            return null;
+            return new ImageFilterSubSample( parameters );
         }
+
+        return new ImageFilterNone( parameters );
 
     }
 

@@ -41,7 +41,7 @@ public abstract class ConvertVirtualStackToCellImg {
             }
         };
 
-        // create a CellImg with that CellLoader
+        // toArrayImg a CellImg with that CellLoader
         final Img< UnsignedShortType > img = new ReadOnlyCachedCellImgFactory().create(
                 dimensions,
                 new UnsignedShortType(),

@@ -17,18 +17,18 @@ public class ImageFilterDogThreshold
     public ImageFilterDogThreshold( Map< String, Object > parameters )
     {
         parameters.put( ImageFilterParameters.FILTER_TYPE, ImageFilterType.DifferenceOfGaussian );
-        this.imageFilterDog = ImageFilterFactory.create( parameters );
+        this.imageFilterDog = ImageFilterFactory.create( ImageFilterParameters.FILTER_TYPE, parameters );
 
         parameters.put( ImageFilterParameters.FILTER_TYPE, ImageFilterType.Threshold );
         this.imageFilterThreshold = ImageFilterFactory.create(  parameters );
     }
 
     @Override
-    public RandomAccessibleInterval< BitType > filter( RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< BitType > apply( RandomAccessibleInterval< R > source )
     {
 
-        RandomAccessibleInterval dog = imageFilterDog.filter( source );
-        RandomAccessibleInterval threshold = imageFilterThreshold.filter( dog );
+        RandomAccessibleInterval dog = imageFilterDog.apply( source );
+        RandomAccessibleInterval threshold = imageFilterThreshold.apply( dog );
 
         return threshold;
     }

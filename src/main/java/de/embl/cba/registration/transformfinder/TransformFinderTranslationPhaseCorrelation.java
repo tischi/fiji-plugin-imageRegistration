@@ -3,8 +3,9 @@ package de.embl.cba.registration.transformfinder;
 import de.embl.cba.registration.PackageExecutorService;
 import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.Services;
+import de.embl.cba.registration.filter.FilterSequence;
 import de.embl.cba.registration.filter.ImageFilter;
-import de.embl.cba.registration.filter.ImageFilterCopyToRAM;
+import de.embl.cba.registration.utils.Duplicator;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
@@ -32,28 +33,27 @@ public class TransformFinderTranslationPhaseCorrelation
 {
 
     private final double[] maximalTranslations;
-    private final ImageFilter imageFilter;
     private final ExecutorService service;
+
+    private FilterSequence filterSequence;
 
     private double[] translation;
     private double crossCorrelation;
 
-    TransformFinderTranslationPhaseCorrelation( final Map< String, Object > transformationParameters )
+    TransformFinderTranslationPhaseCorrelation( TransformFinderSettings settings )
     {
-        this.maximalTranslations = (double[]) transformationParameters
-                        .get( TransformFinderParameters.MAXIMAL_TRANSLATIONS );
-
-        this.imageFilter = ( ImageFilter ) transformationParameters
-                        .get( TransformFinderParameters.IMAGE_FILTER );
-
+        this.maximalTranslations = settings.maximalTranslations;
         this.service = PackageExecutorService.executorService;
 
     }
 
     public RealTransform findTransform(
              RandomAccessibleInterval fixedRAI,
-             RandomAccessible movingRA )
+             RandomAccessible movingRA,
+             FilterSequence filterSequence)
     {
+
+        // TODO: Clean up!
 
         Logger.debug("### TransformFinderTranslationPhaseCorrelation");
 
@@ -77,20 +77,8 @@ public class TransformFinderTranslationPhaseCorrelation
         Arrays.fill( extension, extensionValue );
 
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
-
-        RandomAccessibleInterval filteredFixedRAI = imageFilter.filter( fixedRAI );
-        RandomAccessibleInterval filteredMovingRAI = imageFilter.filter( movingRAI );
-
-        // TODO: remove below code once possible!
-        filteredFixedRAI = Views.zeroMin( filteredFixedRAI );
-        filteredMovingRAI = Views.zeroMin( filteredMovingRAI );
-
-        // copy to RAM for speed
-        //
-        ImageFilter copyToRAM = new ImageFilterCopyToRAM( null );
-
-        final RandomAccessibleInterval< R >  finalFixedRAI =  copyToRAM.filter( filteredFixedRAI );
-        final RandomAccessibleInterval< R >  finalMovingRAI =  copyToRAM.filter( filteredMovingRAI );
+        RandomAccessibleInterval filteredFixedRAI = filterSequence.apply( fixedRAI );
+        RandomAccessibleInterval filteredMovingRAI = filterSequence.apply( movingRAI );
 
         //ImageJFunctions.show( finalFixedRAI );
         //ImageJFunctions.show( finalMovingRAI );
@@ -99,8 +87,8 @@ public class TransformFinderTranslationPhaseCorrelation
         //
         final RandomAccessibleInterval< FloatType > pcm =
                 PhaseCorrelation2.calculatePCM(
-                        finalFixedRAI,
-                        finalMovingRAI,
+                        filteredFixedRAI,
+                        filteredMovingRAI,
                         extension,
                         new ArrayImgFactory< FloatType >(),
                         new FloatType(),
@@ -111,8 +99,8 @@ public class TransformFinderTranslationPhaseCorrelation
         final PhaseCorrelationPeak2 shiftPeak =
                 PhaseCorrelation2.getShift(
                         pcm,
-                        finalFixedRAI,
-                        finalMovingRAI,
+                        filteredFixedRAI,
+                        filteredMovingRAI,
                         numPeaksToCheck,
                         minOverlap,
                         doSubpixel,

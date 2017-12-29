@@ -1,7 +1,8 @@
 package de.embl.cba.registration.transformfinder;
 
-import de.embl.cba.registration.InputImageViews;
+import de.embl.cba.registration.InputViews;
 import de.embl.cba.registration.Logger;
+import de.embl.cba.registration.filter.FilterSequence;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -28,42 +29,32 @@ public class TransformFinderRotationTranslationPhaseCorrelation
     private RandomAccessible movingRA;
     private TransformFinderTranslationPhaseCorrelation transformationFinderTranslationPhaseCorrelation;
 
-    private static final String CROSS_CORRELATION = "CrossCorrelation";
-    private static final String TRANSLATIONS = "Translations";
-    private static final String ROTATIONS = "Rotations";
+    private FilterSequence filterSequence;
 
-    TransformFinderRotationTranslationPhaseCorrelation(
-            Map< String, Object > transformationParameters )
+    TransformFinderRotationTranslationPhaseCorrelation( TransformFinderSettings settings )
     {
+        configureRotations( settings );
 
-        double[] maximalRotationsDegrees =
-                ( double[] ) transformationParameters
-                        .get( TransformFinderParameters.MAXIMAL_ROTATIONS );
+        this.transformationFinderTranslationPhaseCorrelation = new TransformFinderTranslationPhaseCorrelation( settings );
+    }
+
+    private void configureRotations( TransformFinderSettings settings )
+    {
+        double[] maximalRotationsDegrees = settings.maximalRotations;
         double[] maxRotations = Arrays.stream( maximalRotationsDegrees )
                 .map( x -> 2D * Math.PI * x / 360D ).toArray();
         double[] minRotations = Arrays.stream( maxRotations ).map( x -> -x ).toArray();
 
         this.rotationInterval = new FinalRealInterval( minRotations, maxRotations );
-
-        // get a transformationFinder for the translations
-
-        Map< String, Object > transformationTranslationParameters
-                = new HashMap<>( transformationParameters );
-
-        transformationTranslationParameters.put(
-                TransformFinderParameters.TRANSFORMATION_FINDER_TYPE,
-                TransformationFinderType.Translation__PhaseCorrelation );
-
-        this.transformationFinderTranslationPhaseCorrelation
-                = new TransformFinderTranslationPhaseCorrelation(
-                        transformationParameters );
-
     }
 
     public RealTransform findTransform(
-             RandomAccessibleInterval fixedRAI,
-             RandomAccessible movingRA )
+            RandomAccessibleInterval fixedRAI,
+            RandomAccessible movingRA,
+            FilterSequence filterSequence )
     {
+
+        this.filterSequence = filterSequence;
 
         Logger.debug( "## TransformFinderRotationTranslationPhaseCorrelation" );
 
@@ -157,7 +148,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         {
             AffineTransform2D rotation2D = new AffineTransform2D();
             rotation2D.rotate(  rotations[ 0 ]  );
-            rotatedMovingRA = InputImageViews.transform( movingRA, rotation2D );
+            rotatedMovingRA = InputViews.transform( movingRA, rotation2D );
         }
         else if ( rotations.length == 3)
         {
@@ -166,7 +157,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
             {
                 rotation3D.rotate( d, rotations[ d ] );
             }
-            rotatedMovingRA = InputImageViews.transform( movingRA, rotation3D );
+            rotatedMovingRA = InputViews.transform( movingRA, rotation3D );
         }
         else
         {
@@ -175,7 +166,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         }
 
         // find best translations for this rotation
-        transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA );
+        transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA, filterSequence );
 
         // add result to list
         Result result = new Result();

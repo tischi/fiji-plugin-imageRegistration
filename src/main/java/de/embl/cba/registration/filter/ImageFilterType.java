@@ -6,6 +6,6 @@ public enum ImageFilterType
     Threshold,
     Gauss,
     DifferenceOfGaussian,
-    DifferenceOfGaussianAndThreshold;
-
+    DifferenceOfGaussianAndThreshold,
+    SubSample
 }

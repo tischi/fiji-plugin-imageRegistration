@@ -6,6 +6,6 @@ import net.imglib2.type.numeric.RealType;
 
 public interface ImageFilter < R extends RealType< R > & NativeType < R >, U extends RealType< U > >  {
 
-    RandomAccessibleInterval< U > filter( RandomAccessibleInterval< R > rai );
+    RandomAccessibleInterval< U > apply( RandomAccessibleInterval< R > rai );
 
 }

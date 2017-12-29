@@ -4,12 +4,14 @@ import de.embl.cba.registration.OutputIntervalType;
 import de.embl.cba.registration.RegistrationAxisType;
 import de.embl.cba.registration.filter.ImageFilterParameters;
 import de.embl.cba.registration.filter.ImageFilterType;
-import de.embl.cba.registration.transformfinder.TransformFinderParameters;
-import de.embl.cba.registration.transformfinder.TransformationFinderType;
+import de.embl.cba.registration.transformfinder.TransformFinderSettings;
+import de.embl.cba.registration.transformfinder.TransformFinderType;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.module.Module;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -20,8 +22,9 @@ public class RegistrationParameters
     private final Module module; // TODO: what is the difference between plugin and module?
 
     public RegistrationAxisType[] registrationAxisTypes;
-    public Map< String, Object > imageFilterParameters;
+    public Map< String, Object > filterParameters;
     public Map< String, Object > transformParameters;
+    public TransformFinderSettings transformSettings;
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
     public ExecutorService executorService;
@@ -37,7 +40,7 @@ public class RegistrationParameters
     {
         setRegistrationAxesTypes();
         setImageFilterParameters();
-        setTransformationParameters();
+        setTransformSettings();
         setRegistrationAxesInterval();
         setOutputInterval();
         setNumThreads();
@@ -76,66 +79,82 @@ public class RegistrationParameters
 
     private void setImageFilterParameters()
     {
-        imageFilterParameters = new HashMap<>();
-
-        ImageFilterType imageFilterType = ImageFilterType.valueOf( plugin.imageFilterTypeInput );
-
-        imageFilterParameters.put(
-                ImageFilterParameters.FILTER_TYPE,
-                imageFilterType );
-
-        String[] thresholdMinMax = plugin.imageFilterParameterThresholdInput.split( "," );
-        imageFilterParameters.put(
-                ImageFilterParameters.THRESHOLD_MIN_VALUE,
-                Double.parseDouble( thresholdMinMax[ 0 ].trim() ) );
-        imageFilterParameters.put(
-                ImageFilterParameters.THRESHOLD_MAX_VALUE,
-                Double.parseDouble( thresholdMinMax[ 1 ].trim() ) );
-
-
-        // below are currently hard coded and cannot be changed from the GUI
-        imageFilterParameters.put(
-                ImageFilterParameters.DOG_SIGMA_SMALLER, new double[]{ 2.0D, 2.0D } );
-        imageFilterParameters.put(
-                ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D } );
-        imageFilterParameters.put(
-                ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D } );
-
+        filterParameters = new HashMap<>();
+        setFilters();
+        setSubSampling();
+        setThreshold();
+        setGauss();
     }
 
-    private void setTransformationParameters()
+    private void setFilters()
+    {
+        ArrayList< ImageFilterType > imageFilterTypes = new ArrayList<>(  );
+        imageFilterTypes.add( ImageFilterType.valueOf( plugin.imageFilterType ) );
+        imageFilterTypes.add( ImageFilterType.SubSample );
+        filterParameters.put( ImageFilterParameters.SEQUENCE, imageFilterTypes );
+    }
+
+    private void setSubSampling()
     {
         String[] tmp;
+        tmp = plugin.imageFilterSubSampling.split( "," );
+        long[] subSampling = Arrays.stream( tmp ).mapToLong( i -> Long.parseLong( i ) ).toArray();
+        filterParameters.put(
+                ImageFilterParameters.SUB_SAMPLING, subSampling );
+    }
 
-        transformParameters = new HashMap<>();
+    private void setGauss()
+    {
+        filterParameters.put(
+                ImageFilterParameters.DOG_SIGMA_SMALLER, new double[]{ 2.0D, 2.0D } );
+        filterParameters.put(
+                ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D } );
+        filterParameters.put(
+                ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D } );
+    }
 
-        boolean showFixedImageSequence = true;
+    private void setThreshold()
+    {
+        String[] tmp;
+        tmp = plugin.imageFilterThreshold.split( "," );
+        double[] thresholdMinMax = Arrays.stream( tmp ).mapToDouble( i -> Double.parseDouble( i ) ).toArray();
 
-        transformParameters.put(
-                TransformFinderParameters.TRANSFORMATION_FINDER_TYPE,
-                TransformationFinderType.valueOf( plugin.transformationTypeInput ) );
+        filterParameters.put(
+                ImageFilterParameters.THRESHOLD_MIN_VALUE, thresholdMinMax[0] );
+        filterParameters.put(
+                ImageFilterParameters.THRESHOLD_MAX_VALUE, thresholdMinMax[1] );
+    }
 
-        tmp = plugin.transformationParametersMaximalTranslationsInput.split( "," );
-        double[] transformationParametersMaximalTranslations = new double[ tmp.length ];
-        for ( int i = 0; i < tmp.length; ++i )
-        {
-            transformationParametersMaximalTranslations[ i ] = Double.parseDouble( tmp[ i ].trim() );
-        }
-        transformParameters.put(
-                TransformFinderParameters.MAXIMAL_TRANSLATIONS,
-                transformationParametersMaximalTranslations );
+    private void setTransformSettings()
+    {
+        transformSettings = new TransformFinderSettings();
+        transformSettings.transformFinderType = TransformFinderType.valueOf( plugin.transformationTypeInput );
+        setTranslationRange();
+        setRotationRange();
+    }
 
-
+    private void setRotationRange()
+    {
+        String[] tmp;
         tmp = plugin.transformationParameterMaximalRotationsInput.split( "," );
         double[] transformationParametersMaximalRotations = new double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
             transformationParametersMaximalRotations[ i ] = Double.parseDouble( tmp[ i ] );
         }
-        transformParameters.put(
-                TransformFinderParameters.MAXIMAL_ROTATIONS,
-                transformationParametersMaximalRotations );
+        transformSettings.maximalRotations = transformationParametersMaximalRotations;
+    }
 
+    private void setTranslationRange()
+    {
+        String[] tmp;
+        tmp = plugin.transformationParametersMaximalTranslationsInput.split( "," );
+        double[] maximalTranslations = new double[ tmp.length ];
+        for ( int i = 0; i < tmp.length; ++i )
+        {
+            maximalTranslations[ i ] = Double.parseDouble( tmp[ i ].trim() );
+        }
+        transformSettings.maximalTranslations = maximalTranslations;
     }
 
     private void setOutputInterval()

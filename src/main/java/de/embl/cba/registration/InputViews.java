@@ -19,7 +19,7 @@ import net.imglib2.view.Views;
 
 import java.util.*;
 
-public class InputImageViews
+public class InputViews
         < R extends RealType< R > & NativeType< R >,
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > > {
 
@@ -29,8 +29,8 @@ public class InputImageViews
     OutputIntervalType outputIntervalType;
     RandomAccessibleInterval< R > transformedInput;
 
-    public InputImageViews( RandomAccessibleInterval inputImage,
-                            Axes axes )
+    public InputViews( RandomAccessibleInterval inputImage,
+                       Axes axes )
     {
         this.inputRAI = inputImage;
         this.axes = axes;

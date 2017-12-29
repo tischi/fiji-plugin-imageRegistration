@@ -1,0 +1,17 @@
+
+THRESHOLD
+
+
+    //ArrayImg< BitType, LongArray > output = ArrayImgs
+    //        .bits( Intervals.dimensionsAsLongArray( input ) );
+
+    // TODO: is below line of code necessary? it copies it to RAM, doesn't it?
+    //for ( Pair< BitType, BitType > p : Views.interval( Views.pair( Views.zeroMin( convertedView ), output ), output ) )
+    //    p.getB().set( p.getA() );
+
+        /*
+        ArrayCursor< BitType > target = output.cursor();
+        Cursor< BitType > src = Views.flatIterable( converted ).cursor();
+        while( target.hasNext() )
+            target.next().set( src.next() );
+        */
