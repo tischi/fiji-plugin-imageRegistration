@@ -1,13 +1,11 @@
 package de.embl.cba.registration.transformfinder;
 
-import de.embl.cba.registration.PackageExecutorService;
 import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSequence;
-import de.embl.cba.registration.filter.ImageFilter;
-import de.embl.cba.registration.utils.Duplicator;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2Util;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.realtransform.RealTransform;
@@ -24,7 +22,6 @@ import net.imglib2.view.Views;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 
 
 public class TransformFinderTranslationPhaseCorrelation
@@ -33,83 +30,50 @@ public class TransformFinderTranslationPhaseCorrelation
 {
 
     private final double[] maximalTranslations;
-    private final ExecutorService service;
-
     private FilterSequence filterSequence;
 
     private double[] translation;
+
     private double crossCorrelation;
+    private boolean interpolateCrossCorrelation;
+    private boolean subpixelAccuracy;
+    private int nHighestPeaks;
+    private int numDimensions;
+    private int[] extension;
+    private long minOverlap;
+    private long[] subSampling;
+
 
     TransformFinderTranslationPhaseCorrelation( TransformFinderSettings settings )
     {
         this.maximalTranslations = settings.maximalTranslations;
-        this.service = PackageExecutorService.executorService;
-
     }
 
     public RealTransform findTransform(
              RandomAccessibleInterval fixedRAI,
              RandomAccessible movingRA,
-             FilterSequence filterSequence)
+             FilterSequence filterSequence )
     {
 
-        // TODO: Clean up!
-
-        Logger.debug("### TransformFinderTranslationPhaseCorrelation");
-
-        final int n = fixedRAI.numDimensions();
-
-        final int numPeaksToCheck = 5;
-
-        // TODO: find a good strategy for the minOverlap!
-
-        long minOverlap = 1;
-        for ( int d = 0; d < n; ++d )
-        {
-            minOverlap *= ( fixedRAI.dimension( d ) - maximalTranslations[ d ] );
-        }
-
-        final int extensionValue = 0; //(int) searchRadius[ 0 ];
-        final boolean doSubpixel = true;
-        final boolean interpolateCrossCorrelation = true;
-
-        final int[] extension = new int[ n ];
-        Arrays.fill( extension, extensionValue );
+        configureAlgorithm( fixedRAI, filterSequence );
 
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
         RandomAccessibleInterval filteredFixedRAI = filterSequence.apply( fixedRAI );
         RandomAccessibleInterval filteredMovingRAI = filterSequence.apply( movingRAI );
 
-        //ImageJFunctions.show( finalFixedRAI );
-        //ImageJFunctions.show( finalMovingRAI );
+        final RandomAccessibleInterval< FloatType > pcm = calculatePCM( filteredFixedRAI, filteredMovingRAI );
+        final List< PhaseCorrelationPeak2 > shiftPeaks = getShiftPeaks( pcm, filteredFixedRAI, filteredMovingRAI );
+        PhaseCorrelationPeak2 shiftPeak = getFirstShiftWithinAllowedRange( shiftPeaks );
 
-        // compute best shift
-        //
-        final RandomAccessibleInterval< FloatType > pcm =
-                PhaseCorrelation2.calculatePCM(
-                        filteredFixedRAI,
-                        filteredMovingRAI,
-                        extension,
-                        new ArrayImgFactory< FloatType >(),
-                        new FloatType(),
-                        new ArrayImgFactory< ComplexFloatType >(),
-                        new ComplexFloatType(),
-                        Services.executorService );
+        RealTransform transform = createTranslationTransform( shiftPeak );
 
-        final PhaseCorrelationPeak2 shiftPeak =
-                PhaseCorrelation2.getShift(
-                        pcm,
-                        filteredFixedRAI,
-                        filteredMovingRAI,
-                        numPeaksToCheck,
-                        minOverlap,
-                        doSubpixel,
-                        interpolateCrossCorrelation,
-                        Services.executorService  );
+        return transform;
 
-        //System.out.println( "Actual overlap of best shift is: " + shiftPeak.getnPixel() )
+    }
 
-        translation = new double[ n ];
+    private RealTransform createTranslationTransform( PhaseCorrelationPeak2 shiftPeak )
+    {
+        translation = new double[ numDimensions ];
 
         if ( shiftPeak != null || ! Double.isInfinite( shiftPeak.getCrossCorr() ) )
         {
@@ -118,18 +82,15 @@ public class TransformFinderTranslationPhaseCorrelation
             else
                 shiftPeak.getSubpixelShift().localize( translation );
 
-            for ( double s : translation )
-            {
-                Logger.debug( "translations "+ s );
-            }
-            Logger.debug("x-corr " + shiftPeak.getCrossCorr());
+            correctForSubSampling();
+
+            logShift( shiftPeak );
 
             crossCorrelation = shiftPeak.getCrossCorr();
         }
         else
         {
-            Logger.debug(
-                    "No sensible translations found => returning zero translations.\n" +
+            Logger.debug( "No sensible translations found => returning zero translations.\n" +
                     "Consider increasing the maximal translations range." );
 
             crossCorrelation = Double.NaN;
@@ -140,12 +101,19 @@ public class TransformFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                Logger.debug(
-                        "Shift was larger than allowed => restricting to allowed range.");
+                Logger.info( "Shift was larger than allowed => restricting to allowed range." );
 
             }
         }
 
+        RealTransform transform = getTranslationAsRealTransform();
+
+        return transform;
+
+    }
+
+    private RealTransform getTranslationAsRealTransform()
+    {
         if ( translation.length == 2 )
         {
             return new Translation2D( translation );
@@ -159,7 +127,111 @@ public class TransformFinderTranslationPhaseCorrelation
             // TODO: still bug with concatenate?
             return new Translation( translation );
         }
+    }
 
+    private void logShift( PhaseCorrelationPeak2 shiftPeak )
+    {
+        for ( double s : translation )
+        {
+            Logger.debug( "translations "+ s );
+        }
+        Logger.debug("phase-correlation " + shiftPeak.getPhaseCorr());
+    }
+
+    private void correctForSubSampling()
+    {
+        for ( int d = 0; d < translation.length; ++d )
+        {
+            translation[ d ] *= subSampling[ d ];
+        }
+    }
+
+    private List<PhaseCorrelationPeak2> getShiftPeaks( RandomAccessibleInterval< FloatType > pcm, RandomAccessibleInterval img1, RandomAccessibleInterval img2 )
+    {
+
+        List<PhaseCorrelationPeak2> peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, Services.executorService, nHighestPeaks, subpixelAccuracy);
+        PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img1);
+
+        return peaks;
+
+        /*
+        return PhaseCorrelation2.getShift(
+                pcm,
+                img1,
+                img1,
+                nHighestPeaks,
+                minOverlap,
+                subpixelAccuracy,
+                interpolateCrossCorrelation,
+                Services.executorService  );
+                */
+    }
+
+    private PhaseCorrelationPeak2 getFirstShiftWithinAllowedRange( List< PhaseCorrelationPeak2 > peaks )
+    {
+
+        for ( PhaseCorrelationPeak2 peak : peaks )
+        {
+            boolean isOK = true;
+
+            for ( int d = 0; d < numDimensions; ++d )
+            {
+                double shift = peak.getSubpixelShift().getDoublePosition( d );
+                double allowedShift = maximalTranslations[ d ] / subSampling[ d ];
+
+                if ( Math.abs( shift ) > allowedShift )
+                {
+                    isOK = false;
+                    continue;
+                }
+
+            }
+
+            if ( isOK )
+            {
+                return peak;
+            }
+
+        }
+
+        Logger.info( "No shift within the allowed range was found; returning shift with the highest cross-correlation." );
+        return peaks.get( 0 );
+
+    }
+
+    private RandomAccessibleInterval< FloatType > calculatePCM( RandomAccessibleInterval filteredFixedRAI, RandomAccessibleInterval filteredMovingRAI )
+    {
+
+
+        return PhaseCorrelation2.calculatePCM(
+                filteredFixedRAI,
+                filteredMovingRAI,
+                extension,
+                new ArrayImgFactory< FloatType >(),
+                new FloatType(),
+                new ArrayImgFactory< ComplexFloatType >(),
+                new ComplexFloatType(),
+                Services.executorService );
+    }
+
+    private void configureAlgorithm( RandomAccessibleInterval fixedRAI, FilterSequence filterSequence )
+    {
+        this.filterSequence = filterSequence;
+        subSampling = filterSequence.subSampling();
+        numDimensions = fixedRAI.numDimensions();
+        nHighestPeaks = 5;
+        subpixelAccuracy = true;
+        interpolateCrossCorrelation = true;
+
+        final int extensionValue = 10;
+        extension = new int[ numDimensions ];
+        Arrays.fill( extension, extensionValue );
+
+        minOverlap = 1;
+        for ( int d = 0; d < numDimensions; ++d )
+        {
+            minOverlap *= ( fixedRAI.dimension( d ) - maximalTranslations[ d ] );
+        }
     }
 
     public double[] getTranslation()

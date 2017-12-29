@@ -41,7 +41,7 @@ public class Registration
         this.dataset = dataset;
         this.input = ( RandomAccessibleInterval<R> ) dataset;
 
-        this.axes = new Axes( dataset, settings.registrationAxisTypes, settings.interval );
+        this.axes = settings.axes;
 
         this.inputViews = new InputViews( input, axes );
 
@@ -161,8 +161,6 @@ public class Registration
         {
             return null; // TODO
         }
-
-        rai = filterSequence.apply( rai );
 
         return rai;
     }

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ImageFilterSubSample< R extends RealType< R > & NativeType< R > > implements ImageFilter< R, R >
 {
-    long[] subSampling;
+    public long[] subSampling;
 
     public ImageFilterSubSample( FilterSettings filterSettings )
     {

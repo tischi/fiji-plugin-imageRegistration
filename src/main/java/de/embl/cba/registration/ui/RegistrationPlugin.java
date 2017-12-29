@@ -103,7 +103,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     @Parameter(label = "Maximal translations [pixels]",
             persist = false)
-    protected String transformationParametersMaximalTranslationsInput = "30,30";
+    protected String transformationParametersMaximalTranslationsInput = "30,150,20";
 
     @Parameter(label = "Maximal rotations [degrees]",
             persist = false)
@@ -127,7 +127,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     protected String imageFilterThreshold = "0,255";
 
     @Parameter(label = "Sub-sampling [pixels]", persist = false)
-    protected String imageFilterSubSampling = "1,1";
+    protected String imageFilterSubSampling = "1,1,1";
 
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
@@ -292,7 +292,11 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    public void run() { }
+    public void run()
+    {
+        // do nothing
+        // the plugin is executed via a callback to computeRegistration()
+    }
 
     // Callbacks
 
@@ -305,6 +309,8 @@ public class RegistrationPlugin<T extends RealType<T>>
     private void computeRegistration()
     {
         Settings settings = new Settings( this  );
+
+        if ( ! settings.check() ) return;
 
         Thread thread = new Thread(new Runnable() {
             public void run()
@@ -324,6 +330,8 @@ public class RegistrationPlugin<T extends RealType<T>>
         thread.start();
 
     }
+
+
 
     // Other
 
@@ -420,6 +428,11 @@ public class RegistrationPlugin<T extends RealType<T>>
         boolean TEST = false;
         boolean LOAD_IJ1_VS = false;
         boolean LOAD_IJ2_DATASET = true;
+        String PATH;
+
+        PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
+        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif";
+        PATH = "/Users/tischer/Documents/henning-falk--3d-embryo-registration--data/large-jump.tif";
 
         Dataset dataset = null;
         int n = 0;
@@ -427,13 +440,11 @@ public class RegistrationPlugin<T extends RealType<T>>
         // Load data
         if ( LOAD_IJ1_VS )
         {
-            //IJ.run("Image Sequence...", "open=/Users/tischer/Documents/fiji-plugin-imageRegistration--data/mri-stack sort use");
-            ImagePlus imp = IJ.openImage("/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif");
+            ImagePlus imp = IJ.openImage( PATH );
             imp.show();
         }
         else if ( LOAD_IJ2_DATASET ) {
-            final File file = new File(
-                    "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif");
+            final File file = new File( PATH );
 
             if (file != null) {
                 dataset = ij.scifio().datasetIO().open(file.getPath());

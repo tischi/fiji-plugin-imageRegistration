@@ -28,8 +28,7 @@ public class ImageFilterDog< R extends RealType< R > & NativeType< R > >
     }
 
     @Override
-    public RandomAccessibleInterval< FloatType > apply(
-            RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< FloatType > apply( RandomAccessibleInterval< R > source )
     {
         // toArrayImg target image with same offset as source image
         //

@@ -36,7 +36,7 @@ public class Logger
         {
             public void run()
             {
-                IJ.log( message );
+                logService.info( message ); IJ.log( message );
             }
         });
     }

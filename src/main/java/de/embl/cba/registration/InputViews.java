@@ -155,13 +155,21 @@ public class InputViews
 
     private long[] initializedFixedCoordinates()
     {
-        long[] fixedCoordinates = new long[ axes.numFixedDimensions() ];
-        FinalInterval fixedDimensionsInterval = axes.fixedDimensionsInterval();
-        for ( int i = 0; i < fixedCoordinates.length; ++i )
+        if ( axes.numFixedDimensions() > 0 )
         {
-            fixedCoordinates[ i ] = fixedDimensionsInterval.min( i );
+            long[] fixedCoordinates = new long[ axes.numFixedDimensions() ];
+            FinalInterval fixedDimensionsInterval = axes.fixedDimensionsInterval();
+            for ( int i = 0; i < fixedCoordinates.length; ++i )
+            {
+                fixedCoordinates[ i ] = fixedDimensionsInterval.min( i );
+            }
+            return fixedCoordinates;
         }
-        return fixedCoordinates;
+        else
+        {
+            return new long[ ]{ 0 };
+        }
+
     }
 
     private RandomAccessibleInterval< R > transformedSequences(

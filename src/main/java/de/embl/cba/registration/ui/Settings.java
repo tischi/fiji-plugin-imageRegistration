@@ -1,7 +1,9 @@
 package de.embl.cba.registration.ui;
 
+import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.OutputIntervalType;
 import de.embl.cba.registration.RegistrationAxisType;
+import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSettings;
 import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.filter.ImageFilterParameters;
@@ -10,6 +12,7 @@ import de.embl.cba.registration.transformfinder.TransformFinderType;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.module.Module;
+import org.scijava.ui.DialogPrompt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +32,8 @@ public class Settings
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
     public ExecutorService executorService;
+    public Axes axes;
+
 
     public Settings( RegistrationPlugin plugin )
     {
@@ -45,6 +50,24 @@ public class Settings
         setRegistrationAxesInterval();
         setOutputInterval();
         setNumThreads();
+        this.axes = new Axes( plugin.dataset, registrationAxisTypes, interval );
+    }
+
+    public boolean check()
+    {
+        if ( filterSettings.subSampling.length != axes.numTransformableDimensions() )
+        {
+            Services.uiService.showDialog( "Sub-sampling dimensions does not equal number " +
+                    "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
+            return false;
+        }
+        if ( transformSettings.maximalTranslations.length != axes.numTransformableDimensions() )
+        {
+            Services.uiService.showDialog( "Maximal translation dimensions does not equal number " +
+                    "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
+            return false;
+        }
+        return true;
     }
 
     private void setNumThreads()
@@ -93,6 +116,7 @@ public class Settings
         ArrayList< FilterType > filterTypes = new ArrayList<>(  );
         filterTypes.add( FilterType.valueOf( plugin.imageFilterType ) );
         filterTypes.add( FilterType.SubSample );
+        //filterTypes.add( FilterType.AsArrayImg );
         filterSettings.filterTypes = filterTypes;
     }
 

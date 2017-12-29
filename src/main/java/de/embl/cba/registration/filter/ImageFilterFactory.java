@@ -27,10 +27,14 @@ public abstract class ImageFilterFactory < R extends RealType< R > & NativeType<
             return new ImageFilterDog( settings );
         }
 
-
         if ( filterType.equals ( FilterType.SubSample ) )
         {
             return new ImageFilterSubSample( settings );
+        }
+
+        if ( filterType.equals ( FilterType.AsArrayImg ) )
+        {
+            return new ImageFilterAsArrayImg( settings );
         }
 
         return new ImageFilterNone( settings );

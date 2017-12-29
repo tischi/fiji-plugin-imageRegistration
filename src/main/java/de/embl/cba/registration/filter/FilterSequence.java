@@ -35,4 +35,16 @@ public class FilterSequence
 
         return output;
     }
+
+    public long[] subSampling()
+    {
+        for ( ImageFilter imageFilter : imageFilters )
+        {
+            if ( imageFilter instanceof ImageFilterSubSample )
+            {
+                return ( ( ImageFilterSubSample ) imageFilter ).subSampling;
+            }
+        }
+        return null;
+    }
 }

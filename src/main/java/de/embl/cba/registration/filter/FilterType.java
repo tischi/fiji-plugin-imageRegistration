@@ -7,5 +7,6 @@ public enum FilterType
     Gauss,
     DifferenceOfGaussian,
     DifferenceOfGaussianAndThreshold,
-    SubSample
+    SubSample,
+    AsArrayImg
 }

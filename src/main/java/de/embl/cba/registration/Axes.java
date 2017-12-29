@@ -114,22 +114,30 @@ public class Axes
 
     public FinalInterval fixedDimensionsInterval()
     {
-        long[] min = new long[ numFixedDimensions() ];
-        long[] max = new long[ numFixedDimensions() ];
 
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        if ( numFixedDimensions() > 0 )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+            long[] min = new long[ numFixedDimensions() ];
+            long[] max = new long[ numFixedDimensions() ];
+
+            for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
-                min[ i ] = dataset.min( d );
-                max[ i ] = dataset.max( d );
-                ++i;
+                if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+                {
+                    min[ i ] = dataset.min( d );
+                    max[ i ] = dataset.max( d );
+                    ++i;
+                }
             }
+
+            return new FinalInterval( min, max );
+        }
+        else
+        {
+            return new FinalInterval( new long[]{0}, new long[]{0} );
         }
 
-        FinalInterval interval = new FinalInterval( min, max );
 
-        return interval;
     }
 
     public long[] fixedReferenceCoordinates( )
