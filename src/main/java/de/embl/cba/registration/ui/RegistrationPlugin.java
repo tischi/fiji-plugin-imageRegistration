@@ -9,6 +9,7 @@ package de.embl.cba.registration.ui;
  */
 
 
+import bdv.util.AxisOrder;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
@@ -109,7 +110,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     private String message02
             = "<html> "  +
             "<br>IMAGE PRE-PROCESSING<br>" +
-            "For finding the transformations it can help to preprocess the images.<br>" +
+            "For finding the transformations it can help to pre-process the images.<br>" +
             "For example, phase- and cross-correlation are very noise sensitive.<br>" +
             "Typically it helps to threshold above the noise level.<br>";
 
@@ -318,8 +319,9 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 output = registration.output();
 
-                showOutputWithBdv();
+                showWithBdv( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
 
+                showWithBdv( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder);
 
             }
         } );
@@ -380,24 +382,24 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    private void showOutputWithBdv()
+    private void showWithBdv( ImgPlus img, long numSpatialDimensions, AxisOrder axisOrder )
     {
         Bdv bdv = null;
 
-        if ( output.transformedNumSpatialDimensions == 2 )
+        if ( numSpatialDimensions == 2 )
         {
             bdv = BdvFunctions.show(
-                output.transformedImgPlus,
-                output.transformedImgPlus.getName(),
-                Bdv.options().is2D().axisOrder( output.transformedAxisOrder ) );
+                    img,
+                    img.getName(),
+                    Bdv.options().is2D().axisOrder( axisOrder ) );
 
         }
-        else if ( output.transformedNumSpatialDimensions == 3 )
+        else if ( numSpatialDimensions == 3 )
         {
             bdv = BdvFunctions.show(
-                    output.transformedImgPlus,
-                    output.transformedImgPlus.getName(),
-                    Bdv.options().axisOrder( output.transformedAxisOrder ) );
+                    img,
+                    img.getName(),
+                    Bdv.options().axisOrder( axisOrder ) );
         }
 
         bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );

@@ -75,7 +75,7 @@ public class InputViews
 
         return transformed;
     }
-    
+
     public RandomAccessibleInterval transformableHyperSlice( long s )
     {
         return transformableHyperSlice( s, axes.fixedReferenceCoordinates() );
