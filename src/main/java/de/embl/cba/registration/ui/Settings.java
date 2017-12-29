@@ -2,8 +2,9 @@ package de.embl.cba.registration.ui;
 
 import de.embl.cba.registration.OutputIntervalType;
 import de.embl.cba.registration.RegistrationAxisType;
+import de.embl.cba.registration.filter.FilterSettings;
+import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.filter.ImageFilterParameters;
-import de.embl.cba.registration.filter.ImageFilterType;
 import de.embl.cba.registration.transformfinder.TransformFinderSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import net.imglib2.FinalInterval;
@@ -16,20 +17,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-public class RegistrationParameters
+public class Settings
 {
     private final RegistrationPlugin plugin;
     private final Module module; // TODO: what is the difference between plugin and module?
 
     public RegistrationAxisType[] registrationAxisTypes;
     public Map< String, Object > filterParameters;
-    public Map< String, Object > transformParameters;
     public TransformFinderSettings transformSettings;
+    public FilterSettings filterSettings;
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
     public ExecutorService executorService;
 
-    public RegistrationParameters( RegistrationPlugin plugin )
+    public Settings( RegistrationPlugin plugin )
     {
         this.plugin = plugin;
         this.module = plugin;
@@ -80,6 +81,7 @@ public class RegistrationParameters
     private void setImageFilterParameters()
     {
         filterParameters = new HashMap<>();
+        filterSettings = new FilterSettings();
         setFilters();
         setSubSampling();
         setThreshold();
@@ -88,10 +90,10 @@ public class RegistrationParameters
 
     private void setFilters()
     {
-        ArrayList< ImageFilterType > imageFilterTypes = new ArrayList<>(  );
-        imageFilterTypes.add( ImageFilterType.valueOf( plugin.imageFilterType ) );
-        imageFilterTypes.add( ImageFilterType.SubSample );
-        filterParameters.put( ImageFilterParameters.SEQUENCE, imageFilterTypes );
+        ArrayList< FilterType > filterTypes = new ArrayList<>(  );
+        filterTypes.add( FilterType.valueOf( plugin.imageFilterType ) );
+        filterTypes.add( FilterType.SubSample );
+        filterSettings.filterTypes = filterTypes;
     }
 
     private void setSubSampling()
@@ -99,18 +101,14 @@ public class RegistrationParameters
         String[] tmp;
         tmp = plugin.imageFilterSubSampling.split( "," );
         long[] subSampling = Arrays.stream( tmp ).mapToLong( i -> Long.parseLong( i ) ).toArray();
-        filterParameters.put(
-                ImageFilterParameters.SUB_SAMPLING, subSampling );
+        filterSettings.subSampling = subSampling;
     }
 
     private void setGauss()
     {
-        filterParameters.put(
-                ImageFilterParameters.DOG_SIGMA_SMALLER, new double[]{ 2.0D, 2.0D } );
-        filterParameters.put(
-                ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D } );
-        filterParameters.put(
-                ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D } );
+        filterSettings.gaussSigma = new double[]{ 10.0D, 1.0D };
+        filterSettings.gaussSigmaSmaller = new double[]{ 2.0D, 2.0D };
+        filterSettings.gaussSigmaLarger = new double[]{ 5.0D, 5.0D };
     }
 
     private void setThreshold()
@@ -119,10 +117,9 @@ public class RegistrationParameters
         tmp = plugin.imageFilterThreshold.split( "," );
         double[] thresholdMinMax = Arrays.stream( tmp ).mapToDouble( i -> Double.parseDouble( i ) ).toArray();
 
-        filterParameters.put(
-                ImageFilterParameters.THRESHOLD_MIN_VALUE, thresholdMinMax[0] );
-        filterParameters.put(
-                ImageFilterParameters.THRESHOLD_MAX_VALUE, thresholdMinMax[1] );
+        filterSettings.thresholdMin = thresholdMinMax[ 0 ];
+        filterSettings.thresholdMax = thresholdMinMax[ 1 ];
+
     }
 
     private void setTransformSettings()

@@ -16,11 +16,8 @@ import java.util.concurrent.ExecutorService;
 public class ImageFilterNone< R extends RealType< R > & NativeType< R > >
         implements ImageFilter< R, R > {
 
-    private Map< String, Object > parameters;
-
-    public ImageFilterNone( Map< String, Object > parameters )
+    public ImageFilterNone( FilterSettings settings )
     {
-        this.parameters = parameters;
     }
 
     @Override

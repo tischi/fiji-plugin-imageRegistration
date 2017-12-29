@@ -3,8 +3,7 @@ package de.embl.cba.registration;
 import de.embl.cba.registration.filter.*;
 import de.embl.cba.registration.transformfinder.TransformFinder;
 import de.embl.cba.registration.transformfinder.TransformFinderFactory;
-import de.embl.cba.registration.transformfinder.TransformFinderParameters;
-import de.embl.cba.registration.ui.RegistrationParameters;
+import de.embl.cba.registration.ui.Settings;
 import net.imagej.Dataset;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
@@ -36,26 +35,26 @@ public class Registration
 
     public Registration(
             final Dataset dataset,
-            RegistrationParameters registrationParameters )
+            Settings settings )
     {
 
         this.dataset = dataset;
         this.input = ( RandomAccessibleInterval<R> ) dataset;
 
-        this.axes = new Axes( dataset, registrationParameters.registrationAxisTypes, registrationParameters.interval );
+        this.axes = new Axes( dataset, settings.registrationAxisTypes, settings.interval );
 
         this.inputViews = new InputViews( input, axes );
 
-        this.outputIntervalType = registrationParameters.outputIntervalType;
+        this.outputIntervalType = settings.outputIntervalType;
 
         this.referenceRegionType = ReferenceRegionType.Moving; // TODO: not used (get from UI)
         this.referenceRegions = new ArrayList<>();
 
-        this.filterSequence = new FilterSequence( registrationParameters.filterParameters );
+        this.filterSequence = new FilterSequence( settings.filterSettings );
 
         this.transformFinder = TransformFinderFactory.create(
-                registrationParameters.transformSettings.transformFinderType,
-                registrationParameters.transformSettings );
+                settings.transformSettings.transformFinderType,
+                settings.transformSettings );
 
     }
 
@@ -65,20 +64,16 @@ public class Registration
 
         initializeTransforms();
 
-        RandomAccessibleInterval fixedRAI;
-        RandomAccessible movingRA;
-
         for ( long s = axes.sequenceMin(); s < axes.sequenceMax(); s += axes.sequenceIncrement() )
         {
             showSequenceProgress( s );
 
-            fixedRAI = fixedRAI( s );
-            movingRA = movingRA( s + 1 );
+            RandomAccessibleInterval fixed = fixed( s, transformations.get( s ) );
+            RandomAccessible moving = moving( s + 1, transformations.get( s ) );
 
-            T transform = ( T ) transformFinder.findTransform( fixedRAI, movingRA );
+            T transform = ( T ) transformFinder.findTransform( fixed, moving, filterSequence );
 
             addTransform( s + 1, transform );
-            addReferenceRegion( fixedRAI );
         }
 
         transformedInput = inputViews.transformedInput( transformations, outputIntervalType );
@@ -152,10 +147,9 @@ public class Registration
     }
 
 
-    public RandomAccessibleInterval fixedRAI( long s )
+    public RandomAccessibleInterval fixed( long s, InvertibleRealTransform transform )
     {
         RandomAccessibleInterval rai;
-        InvertibleRealTransform transform = transformations.get( s );
 
         if ( referenceRegionType == ReferenceRegionType.Moving )
         {
@@ -173,13 +167,11 @@ public class Registration
         return rai;
     }
 
-    public RandomAccessible movingRA( long s )
+    public RandomAccessible moving( long s, T transform )
     {
-        // this sequence point
         RandomAccessibleInterval rai = inputViews.transformableHyperSlice( s );
 
-        // transformed with previous transform at s - 1
-        RandomAccessible ra = inputViews.transform( rai, transformations.get( s - 1 ) );
+        RandomAccessible ra = inputViews.transform( rai, transform );
 
         return ra;
     }

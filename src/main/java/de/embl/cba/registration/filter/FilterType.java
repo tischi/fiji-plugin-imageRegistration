@@ -1,6 +1,6 @@
 package de.embl.cba.registration.filter;
 
-public enum ImageFilterType
+public enum FilterType
 {
     None,
     Threshold,

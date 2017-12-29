@@ -22,10 +22,10 @@ public class ImageFilterThreshold
     double minValue;
     double maxValue;
 
-    public ImageFilterThreshold( Map< String, Object > parameters )
+    public ImageFilterThreshold( FilterSettings settings )
     {
-        minValue = (double) parameters.get(ImageFilterParameters.THRESHOLD_MIN_VALUE);
-        maxValue = (double) parameters.get(ImageFilterParameters.THRESHOLD_MAX_VALUE);
+        minValue = settings.thresholdMin;
+        maxValue = settings.thresholdMax;
     }
 
     @Override

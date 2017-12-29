@@ -13,8 +13,8 @@ import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
+import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.filter.ImageFilterParameters;
-import de.embl.cba.registration.filter.ImageFilterType;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
@@ -298,19 +298,19 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void intervalChanged()
     {
-        RegistrationParameters registrationParameters = new RegistrationParameters( this  );
-        updateImagePlusOverlay( registrationParameters );
+        Settings settings = new Settings( this  );
+        updateImagePlusOverlay( settings );
     }
 
     private void computeRegistration()
     {
-        RegistrationParameters registrationParameters = new RegistrationParameters( this  );
+        Settings settings = new Settings( this  );
 
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
 
-                Registration registration = new Registration( dataset, registrationParameters );
+                Registration registration = new Registration( dataset, settings );
 
                 registration.run();
 
@@ -327,13 +327,13 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     // Other
 
-    private void updateImagePlusOverlay( RegistrationParameters registrationParameters )
+    private void updateImagePlusOverlay( Settings settings )
     {
         long xMin = 0, xMax = 0, yMin = 0, yMax = 0;
 
         for (int d = 0; d < dataset.numDimensions(); ++d )
         {
-            if ( registrationParameters.registrationAxisTypes[ d ] == RegistrationAxisType.Transformable )
+            if ( settings.registrationAxisTypes[ d ] == RegistrationAxisType.Transformable )
             {
                 if ( dataset.axis( d ).type() == net.imagej.axis.Axes.X )
                 {
@@ -494,7 +494,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             //
             Map< String, Object > imageFilterParameters = new HashMap<>();
 
-            ImageFilterType imageFilterType = ImageFilterType.DifferenceOfGaussianAndThreshold;
+            FilterType filterType = FilterType.DifferenceOfGaussianAndThreshold;
 
             imageFilterParameters.put(
                     ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );
@@ -513,7 +513,7 @@ public class RegistrationPlugin<T extends RealType<T>>
                             interval,
                             other,
                             3,
-                            imageFilterType,
+                            filterType,
                             filterParameters,
                             OutputIntervalType.ReferenceRegionSize,
                             true );

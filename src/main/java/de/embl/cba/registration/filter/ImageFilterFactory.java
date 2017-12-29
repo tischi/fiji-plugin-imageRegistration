@@ -3,43 +3,37 @@ package de.embl.cba.registration.filter;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-import java.util.Map;
-
 public abstract class ImageFilterFactory < R extends RealType< R > & NativeType< R > > {
 
-    public static ImageFilter create( ImageFilterType imageFilterType, Map< String, Object > parameters )
+    public static ImageFilter create( FilterType filterType, FilterSettings settings )
     {
-        if ( imageFilterType.equals( ImageFilterType.Gauss ) )
+        if ( filterType.equals( FilterType.Gauss ) )
         {
-            return new ImageFilterGauss( parameters );
+            return new ImageFilterGauss( settings );
         }
 
-        if ( imageFilterType.equals ( ImageFilterType.None ) )
+        if ( filterType.equals ( FilterType.None ) )
         {
-            return new ImageFilterNone( parameters );
+            return new ImageFilterNone( settings );
         }
 
-        if ( imageFilterType.equals ( ImageFilterType.Threshold ) )
+        if ( filterType.equals ( FilterType.Threshold ) )
         {
-            return new ImageFilterThreshold( parameters );
+            return new ImageFilterThreshold( settings );
         }
 
-        if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussian ) )
+        if ( filterType.equals ( FilterType.DifferenceOfGaussian ) )
         {
-            return new ImageFilterDog( parameters );
+            return new ImageFilterDog( settings );
         }
 
-        if ( imageFilterType.equals ( ImageFilterType.DifferenceOfGaussianAndThreshold ) )
+
+        if ( filterType.equals ( FilterType.SubSample ) )
         {
-            return new ImageFilterDogThreshold( parameters );
+            return new ImageFilterSubSample( settings );
         }
 
-        if ( imageFilterType.equals ( ImageFilterType.SubSample ) )
-        {
-            return new ImageFilterSubSample( parameters );
-        }
-
-        return new ImageFilterNone( parameters );
+        return new ImageFilterNone( settings );
 
     }
 

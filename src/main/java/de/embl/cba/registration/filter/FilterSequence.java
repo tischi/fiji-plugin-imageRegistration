@@ -12,15 +12,13 @@ public class FilterSequence
 {
     private final ArrayList< ImageFilter > imageFilters;
 
-    public FilterSequence( Map< String, Object > parameters )
+    public FilterSequence( FilterSettings settings )
     {
         imageFilters = new ArrayList<>( );
 
-        ArrayList< ImageFilterType > filterTypes = (ArrayList< ImageFilterType >) parameters.get( SEQUENCE );
-
-        for ( ImageFilterType filterType : filterTypes )
+        for ( FilterType filterType : settings.filterTypes )
         {
-            ImageFilter imageFilter = ImageFilterFactory.create( filterType, parameters );
+            ImageFilter imageFilter = ImageFilterFactory.create( filterType, settings );
             imageFilters.add( imageFilter );
         }
 

@@ -20,17 +20,16 @@ public class ImageFilterGauss
         implements ImageFilter< R, FloatType > {
 
     private Map< String, Object > parameters;
+    double[] sigma;
 
-    public ImageFilterGauss( Map< String, Object > parameters )
+    public ImageFilterGauss( FilterSettings settings )
     {
-        this.parameters = parameters;
+        this.sigma = settings.gaussSigma;
     }
 
     @Override
     public RandomAccessibleInterval< FloatType > apply( RandomAccessibleInterval< R > source )
     {
-
-        double[] sigmas = (double []) parameters.get( ImageFilterParameters.GAUSS_SIGMA );
 
         // toArrayImg target image with same offset as source image
         //
@@ -44,7 +43,7 @@ public class ImageFilterGauss
 
         try
         {
-            Gauss3.gauss( sigmas, extendedSource, target );
+            Gauss3.gauss( sigma, extendedSource, target );
         }
         catch ( IncompatibleTypeException e )
         {

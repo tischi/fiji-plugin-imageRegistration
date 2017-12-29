@@ -1,5 +1,6 @@
 package de.embl.cba.registration.filter;
 
+import de.embl.cba.registration.Services;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.dog.DifferenceOfGaussian;
@@ -17,21 +18,19 @@ import java.util.concurrent.ExecutorService;
 public class ImageFilterDog< R extends RealType< R > & NativeType< R > >
     implements ImageFilter< R, FloatType > {
 
-    private Map< String, Object > parameters;
+    private final double[] sigmaSmaller;
+    private final double[] sigmaLarger;
 
-    public ImageFilterDog( Map< String, Object > parameters )
+    public ImageFilterDog( FilterSettings settings )
     {
-        this.parameters = parameters;
+        this.sigmaSmaller = settings.gaussSigmaSmaller;
+        this.sigmaLarger = settings.gaussSigmaLarger;
     }
 
     @Override
     public RandomAccessibleInterval< FloatType > apply(
             RandomAccessibleInterval< R > source )
     {
-        double[] sigmaSmaller = (double []) parameters.get( ImageFilterParameters.DOG_SIGMA_SMALLER );
-        double[] sigmaLarger = (double []) parameters.get( ImageFilterParameters.DOG_SIGMA_LARGER );
-        ExecutorService service = (ExecutorService) parameters.get( ImageFilterParameters.EXECUTOR_SERVICE );
-
         // toArrayImg target image with same offset as source image
         //
         RandomAccessibleInterval< FloatType > output =
@@ -46,7 +45,7 @@ public class ImageFilterDog< R extends RealType< R > & NativeType< R > >
                 sigmaLarger,
                 extendedSource,
                 output,
-                service );
+                Services.executorService );
 
         return output;
     }
