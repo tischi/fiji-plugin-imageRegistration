@@ -113,11 +113,24 @@ public class Settings
 
     private void setFilters()
     {
-        ArrayList< FilterType > filterTypes = new ArrayList<>(  );
-        filterTypes.add( FilterType.valueOf( plugin.imageFilterType ) );
-        filterTypes.add( FilterType.SubSample );
-        //filterTypes.add( FilterType.AsArrayImg );
-        filterSettings.filterTypes = filterTypes;
+        filterSettings.filterTypes  = new ArrayList<>(  );
+        filterSettings.filterTypes.add( FilterType.SubSample );
+
+        FilterType filterType = FilterType.valueOf( plugin.imageFilterType );
+
+        if ( filterType.equals( FilterType.ThresholdAndDifferenceOfGaussian ) )
+        {
+            filterSettings.filterTypes.add( FilterType.Threshold );
+            filterSettings.filterTypes.add( FilterType.DifferenceOfGaussian );
+        }
+        else
+        {
+            filterSettings.filterTypes.add( FilterType.valueOf( plugin.imageFilterType ) );
+        }
+
+
+        //filterSettings.filterTypes.add( FilterType.AsArrayImg );
+
     }
 
     private void setSubSampling()

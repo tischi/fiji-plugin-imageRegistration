@@ -37,18 +37,14 @@ public class InputViews
     }
 
 
-    public ImgPlus< R > imgPlus( RandomAccessibleInterval< R > rai, String title )
+    // TODO: rearranging the axes does not work for the uiService, why?
+    //AxisType[] transformedAxisTypes = axes.axisTypesInputImage().toArray( new AxisType[0] );
+
+    public ImgPlus< R > asImgPlus( RandomAccessibleInterval< R > rai, ArrayList< AxisType> axisTypes, String title )
     {
-        assert inputRAI.numDimensions() == rai.numDimensions();
-
         Dataset dataset = Services.datasetService.create( Views.zeroMin( rai ) );
-
-        // TODO: rearranging the axes does not work, why?
-        //AxisType[] axisTypes = axes.axisTypesInputImage().toArray( new AxisType[0] );
-
-        AxisType[] axisTypes = axes.axisTypesAfterTransformation().toArray( new AxisType[0]);
-        ImgPlus< R > imgPlus = new ImgPlus( dataset, title, axisTypes );
-
+        AxisType[] axisTypesArray = axisTypes.toArray( new AxisType[0] );
+        ImgPlus< R > imgPlus = new ImgPlus( dataset, title, axisTypesArray );
         return imgPlus;
     }
 
@@ -56,7 +52,6 @@ public class InputViews
     {
         return Views.interval( ra, axes.transformableAxesReferenceInterval() );
     }
-
 
     public RandomAccessible< R > transform( RandomAccessibleInterval< R > rai, InvertibleRealTransform transform )
     {
@@ -80,8 +75,7 @@ public class InputViews
 
         return transformed;
     }
-
-
+    
     public RandomAccessibleInterval transformableHyperSlice( long s )
     {
         return transformableHyperSlice( s, axes.fixedReferenceCoordinates() );
@@ -120,7 +114,6 @@ public class InputViews
             max[ d ] = fixedAxesCoordinates[ i ];
         }
     }
-
 
     private RandomAccessibleInterval transformedHyperSlice(
             long s,
@@ -241,7 +234,7 @@ public class InputViews
     {
         // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 
-        ArrayList< AxisType > transformedAxisTypes = axes.axisTypesAfterTransformation();
+        ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypes();
         ArrayList< AxisType > inputAxisTypes = axes.axisTypesInputImage();
 
         for ( int inputDimension = 0; inputDimension < inputAxisTypes.size(); ++inputDimension )
@@ -253,7 +246,7 @@ public class InputViews
 
     }
 
-    private RandomAccessibleInterval stackAndDropSingletons( ArrayList< RandomAccessibleInterval< R > > transformedList )
+    public static  < R extends RealType< R > & NativeType< R > > RandomAccessibleInterval< R > stackAndDropSingletons( ArrayList< RandomAccessibleInterval< R > > transformedList )
     {
         RandomAccessibleInterval rai = Views.stack( transformedList );
         rai = Views.dropSingletonDimensions( rai );

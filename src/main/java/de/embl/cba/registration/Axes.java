@@ -39,7 +39,14 @@ public class Axes
         return axisTypes;
     }
 
-    public ArrayList< AxisType > axisTypesAfterTransformation()
+    public ArrayList< AxisType > referenceAxisTypes()
+    {
+        ArrayList< AxisType > axisTypes = transformableDimensionsAxisTypes();
+        axisTypes.add( sequenceDimensionAxisType() );
+        return axisTypes;
+    }
+
+    public ArrayList< AxisType > transformedAxisTypes()
     {
         ArrayList< AxisType > axisTypes = new ArrayList<>(  );
 
@@ -228,6 +235,7 @@ public class Axes
         return axisTypes.get( 0 );
     }
 
+
     public int sequenceDimension()
     {
         int sequenceDimension = Arrays.asList( registrationAxisTypes ).indexOf( RegistrationAxisType.Sequence );
@@ -275,15 +283,15 @@ public class Axes
 
     public AxisOrder axisOrderAfterTransformation()
     {
-        ArrayList< AxisType > axisTypes = axisTypesAfterTransformation();
+        ArrayList< AxisType > axisTypes = transformedAxisTypes();
 
-        AxisOrder axisOrder = getAxisOrder( axisTypes );
+        AxisOrder axisOrder = axisOrder( axisTypes );
 
         return axisOrder;
 
     }
 
-    private AxisOrder getAxisOrder( ArrayList< AxisType > axisTypes )
+    public AxisOrder axisOrder( ArrayList< AxisType > axisTypes )
     {
         String axisOrderString = "";
         for ( AxisType axisType : axisTypes )

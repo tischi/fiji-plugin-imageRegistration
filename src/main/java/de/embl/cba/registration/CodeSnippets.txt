@@ -15,3 +15,15 @@ THRESHOLD
         while( target.hasNext() )
             target.next().set( src.next() );
         */
+
+        //            IJ.run("Image Sequence...",
+        //                    "open=/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit sort use");
+        //            ImagePlus imp = IJ.getImage(); n = 3;
+
+                    // convert of cellImg that is lazily loaded
+                    //
+        //            Img< UnsignedShortType > img = ConvertVirtualStackToCellImg.getCellImgUnsignedShort( imp );
+        //            ImgPlus< UnsignedShortType > imgp = new ImgPlus<>( img, "title", new AxisType[]{ Axes.X, Axes.Y, Axes.Z } );
+        ////            ij.get(LegacyService.class).getImageMap().addMapping(  ); // but it's private...
+        //            //imp.hide(); ImageJFunctions.show( img );
+                   // ij.convert().convert( RAI, Img.class )

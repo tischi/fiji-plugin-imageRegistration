@@ -13,8 +13,6 @@ import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
-import de.embl.cba.registration.filter.FilterType;
-import de.embl.cba.registration.filter.ImageFilterParameters;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
@@ -23,11 +21,9 @@ import ij.gui.Roi;
 import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
-import net.imglib2.FinalInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -118,7 +114,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             "Typically it helps to threshold above the noise level.<br>";
 
     @Parameter( label = "Image pre-processing",
-            choices = {"None", "Threshold", "DifferenceOfGaussianAndThreshold"},
+            choices = {"None", "Threshold", "ThresholdAndDifferenceOfGaussian"},
             persist = false )
     protected String imageFilterType = "None";
 
@@ -140,11 +136,11 @@ public class RegistrationPlugin<T extends RealType<T>>
             "</li>" +
             "<li>" +
             "Transformable: <b>Multiple</b> axes where the transformations occur, e.g. x and y.<br>" +
-            "Min and max values determine a reference region that should be stabilized." +
+            "Min and max values determine a referenceImgPlus region that should be stabilized." +
             "</li>" +
             "<li>" +
             "Fixed: <b>Multiple</b> axes, for example your channel axis.<br>" +
-            "Currently only the min value is used to choose the, e.g., reference channel.<br>" +
+            "Currently only the min value is used to choose the, e.g., referenceImgPlus channel.<br>" +
             "The transformation is applied to all coordinates for your fixed axes." +
             "</li>";
 
@@ -272,7 +268,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
 
             // Other
-            // - Sequence axis: reference point
+            // - Sequence axis: referenceImgPlus point
             // - Transformation axis: maximal displacement
             //
 //            var = "other";
@@ -376,7 +372,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             public void run()
             {
                 long startTime = Logger.start("# Preparing result for ImageJ Hyperstack display...");
-                uiService.show( output.imgPlus );
+                uiService.show( output.transformedImgPlus );
                 Logger.doneIn( startTime );
             }
         } );
@@ -388,20 +384,20 @@ public class RegistrationPlugin<T extends RealType<T>>
     {
         Bdv bdv = null;
 
-        if ( output.numSpatialDimensions == 2 )
+        if ( output.transformedNumSpatialDimensions == 2 )
         {
             bdv = BdvFunctions.show(
-                output.imgPlus,
-                output.imgPlus.getName(),
-                Bdv.options().is2D().axisOrder( output.axisOrder) );
+                output.transformedImgPlus,
+                output.transformedImgPlus.getName(),
+                Bdv.options().is2D().axisOrder( output.transformedAxisOrder ) );
 
         }
-        else if ( output.numSpatialDimensions == 3 )
+        else if ( output.transformedNumSpatialDimensions == 3 )
         {
             bdv = BdvFunctions.show(
-                    output.imgPlus,
-                    output.imgPlus.getName(),
-                    Bdv.options().axisOrder( output.axisOrder) );
+                    output.transformedImgPlus,
+                    output.transformedImgPlus.getName(),
+                    Bdv.options().axisOrder( output.transformedAxisOrder ) );
         }
 
         bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );
@@ -431,8 +427,8 @@ public class RegistrationPlugin<T extends RealType<T>>
         String PATH;
 
         PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
-        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif";
-        PATH = "/Users/tischer/Documents/henning-falk--3d-embryo-registration--data/large-jump.tif";
+        //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif";
+        //PATH = "/Users/tischer/Documents/henning-falk--3d-embryo-registration--data/large-jump.tif";
 
         Dataset dataset = null;
         int n = 0;
@@ -454,18 +450,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         }
 
 
-//            IJ.run("Image Sequence...",
-//                    "open=/Users/tischi/Documents/fiji-plugin-imageRegistration--data/mri-stack-16bit sort use");
-//            ImagePlus imp = IJ.getImage(); n = 3;
-
-            // convert of cellImg that is lazily loaded
-            //
-//            Img< UnsignedShortType > img = ConvertVirtualStackToCellImg.getCellImgUnsignedShort( imp );
-//            ImgPlus< UnsignedShortType > imgp = new ImgPlus<>( img, "title", new AxisType[]{ Axes.X, Axes.Y, Axes.Z } );
-////            ij.get(LegacyService.class).getImageMap().addMapping(  ); // but it's private...
-//            //imp.hide(); ImageJFunctions.show( img );
-           // ij.convert().convert( RAI, Img.class )
-
         if ( GUI )
         {
             // invoke the plugin
@@ -473,90 +457,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         }
         else if ( TEST )
         {
-
-            int i;
-
-            RegistrationAxisType[] registrationAxisTypes = new RegistrationAxisType[ n ];
-            i = 0;
-            registrationAxisTypes[ i++ ] = RegistrationAxisType.Transformable;
-            registrationAxisTypes[ i++ ] = RegistrationAxisType.Transformable;
-            registrationAxisTypes[ i++ ] = RegistrationAxisType.Fixed;
-            registrationAxisTypes[ i++ ] = RegistrationAxisType.Sequence;
-
-            long[] min = Intervals.minAsLongArray( dataset );
-            long[] max = Intervals.maxAsLongArray( dataset );
-            i = 0;
-            min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
-            min[ i ] = 50; max[ i++ ] = 220; // transformable dimension: reference range
-            min[ i ] = -1; max[ i++ ] = -1; // fixed dimension: not used
-            min[ i ] = 0; max[ i++ ] = 3; // sequence dimension: transformfinder range
-
-            FinalInterval interval = new FinalInterval( min, max );
-
-            long[] other = Intervals.minAsLongArray( dataset );
-            i = 0;
-            other[ i++ ] = 30; // transformable dimension: maximal displacement
-            other[ i++ ] = 30; // transformable dimension: maximal displacement
-            other[ i++ ] = 0; // fixed dimension, chosen reference
-            other[ i++ ] = 0; // sequence dimension: reference
-
-
-            // Configure image filtering
-            //
-            Map< String, Object > imageFilterParameters = new HashMap<>();
-
-            FilterType filterType = FilterType.DifferenceOfGaussianAndThreshold;
-
-            imageFilterParameters.put(
-                    ImageFilterParameters.GAUSS_SIGMA, new double[]{ 10.0D, 1.0D} );
-            imageFilterParameters.put(
-                    ImageFilterParameters.THRESHOLD_MIN_VALUE, 20.0D );
-            imageFilterParameters.put(
-                    ImageFilterParameters.DOG_SIGMA_SMALLER, new double[]{ 2.0D, 2.0D} );
-            imageFilterParameters.put(
-                    ImageFilterParameters.DOG_SIGMA_LARGER, new double[]{ 5.0D, 5.0D} );
-
-            /*
-            Registration imageRegistration =
-                    new Registration(
-                            dataset,
-                            registrationAxisTypes,
-                            interval,
-                            other,
-                            3,
-                            filterType,
-                            filterParameters,
-                            OutputIntervalType.ReferenceRegionSize,
-                            true );
-
-            imageRegistration.run();
-
-            */
-
-            /*
-            ArrayList< AxisType > axisTypes = new ArrayList<>(  );
-            for (int d = 0; d < dataset.numDimensions(); d++)
-            {
-                axisTypes.add( dataset.axis( d ).type() );
-            }
-
-            ArrayList< Integer > axesIdsFixedSequenceOutput = new ArrayList<>();
-            RandomAccessibleInterval raiFSO = imageRegistration.getFixedSequenceOutput( axesIdsFixedSequenceOutput );
-            showRAI(ij.ui(),
-                    ij.dataset(),
-                    raiFSO,
-                    "transformed reference sequence",
-                    axesIdsFixedSequenceOutput,
-                    axisTypes);
-
-            ArrayList< Integer > axesIdsTransformedOutput = new ArrayList<>();
-            RandomAccessibleInterval raiTO = imageRegistration.transformedImgPlus( axesIdsTransformedOutput );
-            showRAI(ij.ui(),
-                    ij.dataset(),
-                    raiTO,
-                    "transformed input",
-                    axesIdsTransformedOutput,
-                    axisTypes); */
 
 
         }

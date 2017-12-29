@@ -138,14 +138,31 @@ public class Registration
     public Output output()
     {
         Output< R > output = new Output<>();
-        output.imgPlus = inputViews.imgPlus( transformedInput, "registered" );
-        output.axisTypes = axes.transformableDimensionsAxisTypes();
-        output.axisOrder = axes.axisOrderAfterTransformation();
-        output.numSpatialDimensions = axes.numSpatialDimensions( output.axisTypes );
+
+        output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.transformedAxisTypes(), "registered" );
+        output.transformedAxisOrder = axes.axisOrder( axes.transformedAxisTypes() );
+        output.transformedNumSpatialDimensions = axes.numSpatialDimensions( axes.transformedAxisTypes() );
+
+        output.referenceImgPlus = inputViews.asImgPlus( referenceRegionSequence(), axes.referenceAxisTypes(), "reference" );
+        output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
+        output.referenceNumSpatialDimensions = axes.numSpatialDimensions( axes.referenceAxisTypes() );
 
         return output;
     }
 
+    private RandomAccessibleInterval< R > referenceRegionSequence()
+    {
+        ArrayList< RandomAccessibleInterval< R > > randomAccessibleIntervals = new ArrayList<>(  );
+
+        for ( long s = axes.sequenceMin(); s < axes.sequenceMax(); s += axes.sequenceIncrement() )
+        {
+            RandomAccessibleInterval fixed = fixed( s, transformations.get( s ) );
+            fixed = filterSequence.apply( fixed );
+            randomAccessibleIntervals.add( fixed );
+        }
+
+        return InputViews.stackAndDropSingletons( randomAccessibleIntervals );
+    }
 
     public RandomAccessibleInterval fixed( long s, InvertibleRealTransform transform )
     {

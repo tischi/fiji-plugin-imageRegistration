@@ -10,8 +10,10 @@ import java.util.ArrayList;
 
 public class Output < R extends RealType< R > & NativeType< R > >
 {
-    public ImgPlus< R > imgPlus;
-    public AxisOrder axisOrder;
-    public ArrayList< AxisType > axisTypes;
-    public long numSpatialDimensions;
+    public ImgPlus< R > transformedImgPlus;
+    public ImgPlus< R > referenceImgPlus;
+    public AxisOrder transformedAxisOrder;
+    public AxisOrder referenceAxisOrder;
+    public long transformedNumSpatialDimensions;
+    public long referenceNumSpatialDimensions;
 }

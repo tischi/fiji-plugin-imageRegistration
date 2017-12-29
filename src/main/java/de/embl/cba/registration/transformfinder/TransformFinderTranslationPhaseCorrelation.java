@@ -61,6 +61,8 @@ public class TransformFinderTranslationPhaseCorrelation
         RandomAccessibleInterval filteredFixedRAI = filterSequence.apply( fixedRAI );
         RandomAccessibleInterval filteredMovingRAI = filterSequence.apply( movingRAI );
 
+        Services.uiService.show( filteredFixedRAI );
+
         final RandomAccessibleInterval< FloatType > pcm = calculatePCM( filteredFixedRAI, filteredMovingRAI );
         final List< PhaseCorrelationPeak2 > shiftPeaks = getShiftPeaks( pcm, filteredFixedRAI, filteredMovingRAI );
         PhaseCorrelationPeak2 shiftPeak = getFirstShiftWithinAllowedRange( shiftPeaks );
@@ -154,8 +156,8 @@ public class TransformFinderTranslationPhaseCorrelation
 
         return peaks;
 
-        /*
-        return PhaseCorrelation2.getShift(
+
+        /*return PhaseCorrelation2.getShift(
                 pcm,
                 img1,
                 img1,
@@ -163,8 +165,8 @@ public class TransformFinderTranslationPhaseCorrelation
                 minOverlap,
                 subpixelAccuracy,
                 interpolateCrossCorrelation,
-                Services.executorService  );
-                */
+                Services.executorService  );*/
+
     }
 
     private PhaseCorrelationPeak2 getFirstShiftWithinAllowedRange( List< PhaseCorrelationPeak2 > peaks )
@@ -194,15 +196,13 @@ public class TransformFinderTranslationPhaseCorrelation
 
         }
 
-        Logger.info( "No shift within the allowed range was found; returning shift with the highest cross-correlation." );
+        Logger.info( "No shift within allowed range was found; returning shift with highest phase-correlation." );
         return peaks.get( 0 );
 
     }
 
     private RandomAccessibleInterval< FloatType > calculatePCM( RandomAccessibleInterval filteredFixedRAI, RandomAccessibleInterval filteredMovingRAI )
     {
-
-
         return PhaseCorrelation2.calculatePCM(
                 filteredFixedRAI,
                 filteredMovingRAI,
