@@ -100,7 +100,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     @Parameter(label = "Maximal translations [pixels]",
             persist = false)
-    protected String transformationParametersMaximalTranslationsInput = "30,150,20";
+    protected String transformationParametersMaximalTranslationsInput = "30,30";
 
     @Parameter(label = "Maximal rotations [degrees]",
             persist = false)
@@ -121,10 +121,10 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     @Parameter(label = "Threshold values [min,max]"
             , persist = false  )
-    protected String imageFilterThreshold = "0,255";
+    protected String imageFilterThreshold = "10,230";
 
     @Parameter(label = "Sub-sampling [pixels]", persist = false)
-    protected String imageFilterSubSampling = "1,1,1";
+    protected String imageFilterSubSampling = "1,1";
 
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
@@ -403,7 +403,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         }
 
         bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );
-
     }
 
     protected String typeName( final int d ) {
@@ -429,7 +428,14 @@ public class RegistrationPlugin<T extends RealType<T>>
         String PATH;
 
         PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
+        PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
         //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif";
+        //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_line.tif";
+        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge.tif";
+        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge_noise.tif";
+
+        //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_shorterline.tif";
+
         //PATH = "/Users/tischer/Documents/henning-falk--3d-embryo-registration--data/large-jump.tif";
 
         Dataset dataset = null;

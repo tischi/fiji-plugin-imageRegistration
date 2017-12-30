@@ -25,7 +25,6 @@ public class Axes
         this.registrationAxisTypes = registrationAxisTypes;
         this.registrationAxesInterval = registrationAxesInterval;
         this.numDimensions = dataset.numDimensions();
-
     }
 
     public static ArrayList< AxisType > axisTypesList( Dataset dataset )
@@ -42,7 +41,12 @@ public class Axes
     public ArrayList< AxisType > referenceAxisTypes()
     {
         ArrayList< AxisType > axisTypes = transformableDimensionsAxisTypes();
-        axisTypes.add( sequenceDimensionAxisType() );
+
+        if ( sequenceMax() - sequenceMin() > 1 )
+        {
+            axisTypes.add( sequenceDimensionAxisType() );
+        }
+
         return axisTypes;
     }
 

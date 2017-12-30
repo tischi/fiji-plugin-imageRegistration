@@ -45,12 +45,14 @@ public class Settings
     public void updateParameters()
     {
         setRegistrationAxesTypes();
+        setRegistrationAxesInterval();
+        this.axes = new Axes( plugin.dataset, registrationAxisTypes, interval );
+
         setImageFilterParameters();
         setTransformSettings();
-        setRegistrationAxesInterval();
         setOutputInterval();
         setNumThreads();
-        this.axes = new Axes( plugin.dataset, registrationAxisTypes, interval );
+
     }
 
     public boolean check()
@@ -143,10 +145,18 @@ public class Settings
 
     private void setGauss()
     {
-        filterSettings.gaussSigma = new double[]{ 10.0D, 1.0D };
-        filterSettings.gaussSigmaSmaller = new double[]{ 2.0D, 2.0D };
-        filterSettings.gaussSigmaLarger = new double[]{ 5.0D, 5.0D };
+        int n = axes.numTransformableDimensions();
+
+        filterSettings.gaussSigma = new double[ n ];
+        Arrays.fill( filterSettings.gaussSigma, 3.0D );
+
+        filterSettings.gaussSigmaSmaller = new double[ n ];
+        Arrays.fill( filterSettings.gaussSigmaSmaller, 3.0D );
+
+        filterSettings.gaussSigmaLarger = new double[ n ];
+        Arrays.fill( filterSettings.gaussSigmaLarger, 9.0D );
     }
+
 
     private void setThreshold()
     {

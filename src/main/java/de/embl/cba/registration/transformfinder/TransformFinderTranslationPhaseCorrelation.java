@@ -62,10 +62,12 @@ public class TransformFinderTranslationPhaseCorrelation
         RandomAccessibleInterval filteredMovingRAI = filterSequence.apply( movingRAI );
 
         Services.uiService.show( filteredFixedRAI );
+        Services.uiService.show( filteredMovingRAI );
+
 
         final RandomAccessibleInterval< FloatType > pcm = calculatePCM( filteredFixedRAI, filteredMovingRAI );
         final List< PhaseCorrelationPeak2 > shiftPeaks = getShiftPeaks( pcm, filteredFixedRAI, filteredMovingRAI );
-        PhaseCorrelationPeak2 shiftPeak = getFirstShiftWithinAllowedRange( shiftPeaks );
+        PhaseCorrelationPeak2 shiftPeak = getFirstShiftWithinAllowedRange( pcm, shiftPeaks );
 
         RealTransform transform = createTranslationTransform( shiftPeak );
 
@@ -152,12 +154,14 @@ public class TransformFinderTranslationPhaseCorrelation
     {
 
         List<PhaseCorrelationPeak2> peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, Services.executorService, nHighestPeaks, subpixelAccuracy);
-        PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img1);
+        PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
+        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelationUtils.sensiblePeaks( peaks, pcm );
+        Collections.sort(sensiblePeaks, Collections.reverseOrder(new PhaseCorrelationUtils.ComparatorByPhaseCorrelation()));
 
-        return peaks;
+        return sensiblePeaks;
 
 
-        /*return PhaseCorrelation2.getShift(
+        /*PhaseCorrelation2.getShift(
                 pcm,
                 img1,
                 img1,
@@ -169,8 +173,11 @@ public class TransformFinderTranslationPhaseCorrelation
 
     }
 
-    private PhaseCorrelationPeak2 getFirstShiftWithinAllowedRange( List< PhaseCorrelationPeak2 > peaks )
+
+    private PhaseCorrelationPeak2 getFirstShiftWithinAllowedRange( RandomAccessibleInterval< FloatType > pcm ,
+                                                                   List< PhaseCorrelationPeak2 > peaks )
     {
+        Services.uiService.show( pcm );
 
         for ( PhaseCorrelationPeak2 peak : peaks )
         {
@@ -219,7 +226,7 @@ public class TransformFinderTranslationPhaseCorrelation
         this.filterSequence = filterSequence;
         subSampling = filterSequence.subSampling();
         numDimensions = fixedRAI.numDimensions();
-        nHighestPeaks = 5;
+        nHighestPeaks = 20;
         subpixelAccuracy = true;
         interpolateCrossCorrelation = true;
 
