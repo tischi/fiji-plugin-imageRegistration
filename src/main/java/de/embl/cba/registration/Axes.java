@@ -66,7 +66,7 @@ public class Axes
 
         axisTypes.add( sequenceDimensionAxisType() );
 
-        for ( AxisType axisType : fixedDimensionsAxisTypes() )
+        for ( AxisType axisType : otherDimensionsAxisTypes() )
         {
             axisTypes.add( axisType );
         }
@@ -111,7 +111,7 @@ public class Axes
 
     public int numFixedDimensions()
     {
-        int numFixedDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisType.Fixed );
+        int numFixedDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisType.Other );
 
         return numFixedDimensions;
     }
@@ -125,7 +125,7 @@ public class Axes
 
     public int fixedDimension( int i )
     {
-        return fixedAxes().get( i );
+        return otherAxes().get( i );
     }
 
     public FinalInterval fixedAxesReferenceInterval()
@@ -135,7 +135,7 @@ public class Axes
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
             {
                 min[ i ] = referenceInterval.min( d );
                 max[ i ] = referenceInterval.max( d );
@@ -146,7 +146,7 @@ public class Axes
         return new FinalInterval( min, max );
     }
 
-    public FinalInterval fixedAxesInputInterval()
+    public FinalInterval otherAxesInputInterval()
     {
         if ( numFixedDimensions() > 0 )
         {
@@ -155,7 +155,7 @@ public class Axes
 
             for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
-                if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+                if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
                 {
                     min[ i ] = dataset.min( d );
                     max[ i ] = dataset.max( d );
@@ -179,7 +179,7 @@ public class Axes
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
             {
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
                 // However, one could imagine in the future to e.g. average channels or sum
@@ -191,19 +191,19 @@ public class Axes
         return fixedReferenceCoordinates;
     }
 
-    public ArrayList< Integer > fixedAxes()
+    public ArrayList< Integer > otherAxes()
     {
-        ArrayList< Integer > fixedDimensions = new ArrayList<>(  );
+        ArrayList< Integer > otherDimensions = new ArrayList<>(  );
 
         for ( int d = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
             {
-                fixedDimensions.add( d );
+                otherDimensions.add( d );
             }
         }
 
-        return fixedDimensions;
+        return otherDimensions;
     }
 
 
@@ -243,9 +243,9 @@ public class Axes
         return axisTypes.stream().filter( x -> x.isSpatial() ).count();
     }
 
-    public ArrayList< AxisType > fixedDimensionsAxisTypes()
+    public ArrayList< AxisType > otherDimensionsAxisTypes()
     {
-        return getAxisTypes( RegistrationAxisType.Fixed );
+        return getAxisTypes( RegistrationAxisType.Other );
     }
 
     public ArrayList< AxisType > transformableDimensionsAxisTypes()

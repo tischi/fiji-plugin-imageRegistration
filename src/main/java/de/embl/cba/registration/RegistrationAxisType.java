@@ -6,5 +6,5 @@ public enum RegistrationAxisType
 {
     Sequence,
     Transformable,
-    Fixed
+    Other
 }

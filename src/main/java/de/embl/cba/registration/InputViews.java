@@ -20,6 +20,9 @@ import net.imglib2.view.Views;
 
 import java.util.*;
 
+// TODO: rearranging the axes does not work for the uiService, why?
+//AxisType[] transformedAxisTypes = axes.axisTypesInputImage().toArray( new AxisType[0] );
+
 public class InputViews
         < R extends RealType< R > & NativeType< R >,
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > > {
@@ -30,22 +33,16 @@ public class InputViews
     OutputIntervalType outputIntervalType;
     RandomAccessibleInterval< R > transformedInput;
 
-    public InputViews( RandomAccessibleInterval inputImage,
-                       Axes axes )
+    public InputViews( RandomAccessibleInterval inputImage, Axes axes )
     {
         this.inputRAI = inputImage;
         this.axes = axes;
     }
 
-
-    // TODO: rearranging the axes does not work for the uiService, why?
-    //AxisType[] transformedAxisTypes = axes.axisTypesInputImage().toArray( new AxisType[0] );
-
     public ImgPlus< R > asImgPlus( RandomAccessibleInterval< R > rai, ArrayList< AxisType> axisTypes, String title )
     {
         Dataset dataset = Services.datasetService.create( Views.zeroMin( rai ) );
-        AxisType[] axisTypesArray = axisTypes.toArray( new AxisType[0] );
-        ImgPlus< R > imgPlus = new ImgPlus( dataset, title, axisTypesArray );
+        ImgPlus< R > imgPlus = new ImgPlus( dataset, title, axisTypes.toArray( new AxisType[0] ) );
         return imgPlus;
     }
 
@@ -70,33 +67,41 @@ public class InputViews
     public static RandomAccessible transform( RandomAccessible input, InvertibleRealTransform transform )
     {
 
-        RealRandomAccessible tmp = Views.interpolate( input, new NLinearInterpolatorFactory() );
-        tmp = RealViews.transform( tmp, transform );
-        RandomAccessible transformed = Views.raster( tmp );
+        RealRandomAccessible rra = Views.interpolate( input, new NLinearInterpolatorFactory() );
 
-        return transformed;
+        rra = RealViews.transform( rra, transform );
+
+        RandomAccessible output = Views.raster( rra );
+
+        return output;
     }
 
 
     public RandomAccessibleInterval transformableReferenceHyperSlice( long s )
     {
-        RandomAccessibleInterval rai = fixedSequenceDimensionView( s );
+        RandomAccessibleInterval rai = fixedSequenceAxisView( s );
 
-        ArrayList< Integer > fixedAxes = axes.fixedAxes();
-        Collections.reverse( fixedAxes );
+        rai = otherAxesProjections( rai );
 
-        for( int axis : fixedAxes )
+        rai = Views.dropSingletonDimensions( rai );
+
+        return rai;
+
+    }
+
+    private RandomAccessibleInterval otherAxesProjections( RandomAccessibleInterval rai )
+    {
+        ArrayList< Integer > otherAxes = axes.otherAxes();
+        Collections.reverse( otherAxes );
+
+        for( int axis : otherAxes )
         {
             long min = axes.getReferenceInterval().min( axis );
             long max = axes.getReferenceInterval().max( axis );
             Projection< R > projection = new Projection< R >( inputRAI, axis, min, max );
             rai = projection.sum();
         }
-
-        rai = Views.dropSingletonDimensions( rai );
-
         return rai;
-
     }
 
     public RandomAccessibleInterval transformableHyperSlice( long s, long[] fixedAxesCoordinates )
@@ -130,7 +135,7 @@ public class InputViews
         max[ axes.sequenceDimension() ] = s;
     }
 
-    private RandomAccessibleInterval fixedSequenceDimensionView( long s )
+    private RandomAccessibleInterval fixedSequenceAxisView( long s )
     {
         FinalInterval interval = fixedSequenceCoordinateInterval( s );
         return Views.interval( inputRAI, interval );
@@ -144,7 +149,6 @@ public class InputViews
         return new FinalInterval( min, max );
     }
 
-
     private void setFixedAxesCoordinates( long[] fixedAxesCoordinates, long[] min, long[] max )
     {
         for ( int i = 0; i < axes.numFixedDimensions( ); ++i )
@@ -155,23 +159,16 @@ public class InputViews
         }
     }
 
-    private RandomAccessibleInterval transformedHyperSlice(
-            long s,
-            InvertibleRealTransform transform,
-            long[] fixedDimensions,
-            FinalInterval interval )
+    private RandomAccessibleInterval transformedHyperSlice( long s, InvertibleRealTransform transform, long[] fixedDimensions, FinalInterval interval )
     {
-
         RandomAccessibleInterval rai = transformableHyperSlice( s, fixedDimensions );
-        RandomAccessible ra = transform( rai, transform );
-        rai = Views.interval( ra, interval );
 
-        return rai;
+        RandomAccessible ra = transform( rai, transform );
+
+        return Views.interval( ra, interval );
     }
 
-    public RandomAccessibleInterval< R > transformedInput(
-            Map< Long, T > transformations,
-            OutputIntervalType outputIntervalType)
+    public RandomAccessibleInterval< R > transformedInput( Map< Long, T > transformations, OutputIntervalType outputIntervalType)
     {
 
         this.transformations = transformations;
@@ -191,7 +188,7 @@ public class InputViews
         if ( axes.numFixedDimensions() > 0 )
         {
             long[] fixedCoordinates = new long[ axes.numFixedDimensions() ];
-            FinalInterval fixedDimensionsInterval = axes.fixedAxesInputInterval();
+            FinalInterval fixedDimensionsInterval = axes.otherAxesInputInterval();
             for ( int i = 0; i < fixedCoordinates.length; ++i )
             {
                 fixedCoordinates[ i ] = fixedDimensionsInterval.min( i );
@@ -205,15 +202,13 @@ public class InputViews
 
     }
 
-    private RandomAccessibleInterval< R > transformedSequences(
-            long[] fixedCoordinates,
-            int loopingDimension )
+    private RandomAccessibleInterval< R > transformedSequences( long[] fixedCoordinates, int loopingDimension )
     {
 
         ArrayList< RandomAccessibleInterval<R> > transformedSequenceList = new ArrayList<>(  );
 
-        long min = axes.fixedAxesInputInterval().min( loopingDimension );
-        long max = axes.fixedAxesInputInterval().max( loopingDimension );
+        long min = axes.otherAxesInputInterval().min( loopingDimension );
+        long max = axes.otherAxesInputInterval().max( loopingDimension );
 
         for ( long coordinate = min; coordinate <= max; ++coordinate )
         {

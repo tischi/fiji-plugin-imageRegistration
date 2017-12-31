@@ -140,7 +140,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             "Min and max values determine a referenceImgPlus region that should be stabilized." +
             "</li>" +
             "<li>" +
-            "Fixed: <b>Multiple</b> axes, for example your channel axis.<br>" +
+            "Other: <b>Multiple</b> axes, for example your channel axis.<br>" +
             "Currently only the min value is used to choose the, e.g., referenceImgPlus channel.<br>" +
             "The transformation is applied to all coordinates for your fixed axes." +
             "</li>";
@@ -239,7 +239,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Z ))
                 typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.CHANNEL ))
-                typeItem.setValue( this, "" + RegistrationAxisType.Fixed );
+                typeItem.setValue( this, "" + RegistrationAxisType.Other );
 
             // Interval minimum
             //
