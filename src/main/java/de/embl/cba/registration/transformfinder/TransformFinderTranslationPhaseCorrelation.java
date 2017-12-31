@@ -3,6 +3,7 @@ package de.embl.cba.registration.transformfinder;
 import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSequence;
+import de.embl.cba.registration.util.PhaseCorrelations;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2Util;
@@ -155,8 +156,8 @@ public class TransformFinderTranslationPhaseCorrelation
 
         List<PhaseCorrelationPeak2> peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, Services.executorService, nHighestPeaks, subpixelAccuracy);
         PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
-        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelationUtils.sensiblePeaks( peaks, pcm );
-        Collections.sort(sensiblePeaks, Collections.reverseOrder(new PhaseCorrelationUtils.ComparatorByPhaseCorrelation()));
+        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm );
+        Collections.sort(sensiblePeaks, Collections.reverseOrder(new PhaseCorrelations.ComparatorByPhaseCorrelation()));
 
         return sensiblePeaks;
 

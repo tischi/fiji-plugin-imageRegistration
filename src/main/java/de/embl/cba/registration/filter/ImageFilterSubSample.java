@@ -1,12 +1,10 @@
 package de.embl.cba.registration.filter;
 
-import de.embl.cba.registration.utils.Duplicator;
+import de.embl.cba.registration.util.Duplicator;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-
-import java.util.Map;
 
 public class ImageFilterSubSample< R extends RealType< R > & NativeType< R > > implements ImageFilter< R, R >
 {

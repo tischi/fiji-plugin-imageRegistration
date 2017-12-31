@@ -1,10 +1,9 @@
-package de.embl.cba.registration.utils;
+package de.embl.cba.registration.util;
 
 import net.imglib2.FinalInterval;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.Interval;
 import net.imglib2.realtransform.Translation;
-import net.imglib2.util.Intervals;
 
 public class IntervalUtils {
 

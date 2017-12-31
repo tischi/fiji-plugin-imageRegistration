@@ -1,4 +1,4 @@
-package de.embl.cba.registration.utils;
+package de.embl.cba.registration.util;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;

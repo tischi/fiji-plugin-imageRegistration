@@ -160,7 +160,7 @@ public class Axes
             if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
             {
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
-                // However, one could imagine in the future to e.g. average channels or compute
+                // However, one could imagine in the future to e.g. average channels or sum
                 // average transformations taking information from multiple channels into account...
                 fixedReferenceCoordinates[ i++ ] = registrationAxesInterval.min( d );
             }

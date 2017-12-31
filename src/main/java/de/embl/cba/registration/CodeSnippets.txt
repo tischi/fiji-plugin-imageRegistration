@@ -27,3 +27,26 @@ THRESHOLD
         ////            ij.get(LegacyService.class).getImageMap().addMapping(  ); // but it's private...
         //            //imp.hide(); ImageJFunctions.show( img );
                    // ij.convert().convert( RAI, Img.class )
+
+
+                   //TransformationType.values();
+
+                           /*
+
+                           //
+                           // Enter inputRAI processing code here ...
+                           // The following is just a Gauss filtering example
+                           //
+                           final double[] sigmas = {1.0, 3.0, 5.0};
+
+                           List<RandomAccessibleInterval<T>> results = new ArrayList<>();
+
+                           for (double sigma : sigmas) {
+                               results.add(opService.filter().gauss(inputRAI, sigma));
+                           }
+
+                           // display result
+                           for (RandomAccessibleInterval<T> elem : results) {
+                               uiService.show(elem);
+                           }
+                           */
