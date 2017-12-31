@@ -166,85 +166,22 @@ public class Registration
 
     public RandomAccessibleInterval fixed( long s, InvertibleRealTransform transform )
     {
-        RandomAccessibleInterval rai;
+        RandomAccessible ra = transformedHyperSlice( s, transform );
 
-        if ( referenceRegionType == ReferenceRegionType.Moving )
-        {
-            rai = inputViews.transformableHyperSlice( s );
-            RandomAccessible ra = inputViews.transform( rai, transform );
-            rai = Views.interval( ra, axes.transformableAxesReferenceInterval() );
-        }
-        else
-        {
-            return null; // TODO
-        }
-
-        return rai;
+        return Views.interval( ra, axes.transformableAxesReferenceInterval() );
     }
 
     public RandomAccessible moving( long s, T transform )
     {
-        RandomAccessibleInterval rai = inputViews.transformableHyperSlice( s );
-
-        RandomAccessible ra = inputViews.transform( rai, transform );
-
-        return ra;
+        return transformedHyperSlice( s,  transform );
     }
 
-
-
-
-
-
-    /*
-    @Deprecated
-    private void populateTransformedSeriesList(
-            Map< Map< Integer, Long >, RandomAccessibleInterval < R > >  transformedSequenceMap,
-            Map< Integer, Long > fixedDimensions,
-            Map< Long, T > transformations )
+    private RandomAccessible transformedHyperSlice( long s, InvertibleRealTransform transform )
     {
-        if ( fixedDimensions.containsValue( null ) )
-        {
-            for ( int d : fixedDimensions.keySet() )
-            {
-                if ( fixedDimensions.get( d ) == null )
-                {
-                    for ( long c = input.min( d ); c <= input.max( d ); ++c )
-                    {
-                        Map< Integer, Long > newFixedDimensions = new LinkedHashMap<>(fixedDimensions);
-                        newFixedDimensions.put( d, c );
-                        populateTransformedSeriesList( transformedSequenceMap, newFixedDimensions, transformations );
-                    }
-                }
-            }
-        }
-        else
-        {
-            List< RandomAccessibleInterval< R > > transformedRaiList = new ArrayList<>();
+        RandomAccessibleInterval rai = inputViews.transformableReferenceHyperSlice( s );
+        return inputViews.transform( rai, transform );
+    }
 
-            for ( long s = input.min( sequenceAxisProperties.axis );
-                  s <= input.max( sequenceAxisProperties.axis );
-                  ++s )
-            {
-                if ( transformations.containsKey( s ) )
-                {
-                    transformedRaiList.add(
-                            getTransformedRAI(
-                                    s,
-                                    transformations.get( s ),
-                                    fixedDimensions ) );
-                }
-            }
-
-            // combine time-series of multiple channels into a channel stack
-            RandomAccessibleInterval< R > transformedInput = Views.stack( transformedRaiList );
-
-            transformedSequenceMap.put( fixedDimensions, transformedInput );
-
-            return;
-        }
-
-    }*/
 
 }
 

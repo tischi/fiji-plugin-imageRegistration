@@ -14,17 +14,22 @@ public class Axes
 
     final private Dataset dataset;
     final private RegistrationAxisType[] registrationAxisTypes;
-    final private FinalInterval registrationAxesInterval;
+    final private FinalInterval referenceInterval;
     final private int numDimensions;
 
     public Axes( Dataset dataset,
                  RegistrationAxisType[] registrationAxisTypes,
-                 FinalInterval registrationAxesInterval )
+                 FinalInterval referenceInterval )
     {
         this.dataset = dataset;
         this.registrationAxisTypes = registrationAxisTypes;
-        this.registrationAxesInterval = registrationAxesInterval;
+        this.referenceInterval = referenceInterval;
         this.numDimensions = dataset.numDimensions();
+    }
+
+    public FinalInterval getReferenceInterval()
+    {
+        return referenceInterval;
     }
 
     public static ArrayList< AxisType > axisTypesList( Dataset dataset )
@@ -78,8 +83,8 @@ public class Axes
         {
             if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
             {
-                min[ i ] = registrationAxesInterval.min( d );
-                max[ i ] = registrationAxesInterval.max( d );
+                min[ i ] = referenceInterval.min( d );
+                max[ i ] = referenceInterval.max( d );
                 ++i;
             }
         }
@@ -120,12 +125,29 @@ public class Axes
 
     public int fixedDimension( int i )
     {
-        return fixedDimensions()[ i ];
+        return fixedAxes().get( i );
     }
 
-    public FinalInterval fixedDimensionsInterval()
+    public FinalInterval fixedAxesReferenceInterval()
     {
+        long[] min = new long[ numFixedDimensions() ];
+        long[] max = new long[ numFixedDimensions() ];
 
+        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        {
+            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
+            {
+                min[ i ] = referenceInterval.min( d );
+                max[ i ] = referenceInterval.max( d );
+                ++i;
+            }
+        }
+
+        return new FinalInterval( min, max );
+    }
+
+    public FinalInterval fixedAxesInputInterval()
+    {
         if ( numFixedDimensions() > 0 )
         {
             long[] min = new long[ numFixedDimensions() ];
@@ -162,28 +184,27 @@ public class Axes
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
                 // However, one could imagine in the future to e.g. average channels or sum
                 // average transformations taking information from multiple channels into account...
-                fixedReferenceCoordinates[ i++ ] = registrationAxesInterval.min( d );
+                fixedReferenceCoordinates[ i++ ] = referenceInterval.min( d );
             }
         }
 
         return fixedReferenceCoordinates;
     }
 
-    public int[] fixedDimensions()
+    public ArrayList< Integer > fixedAxes()
     {
-        int[] fixedDimensions = new int[ numFixedDimensions() ];
+        ArrayList< Integer > fixedDimensions = new ArrayList<>(  );
 
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        for ( int d = 0; d < numDimensions; ++d )
         {
             if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Fixed ) )
             {
-                fixedDimensions[ i++ ] = d;
+                fixedDimensions.add( d );
             }
         }
 
         return fixedDimensions;
     }
-
 
 
 
@@ -249,12 +270,12 @@ public class Axes
 
     public long sequenceMin()
     {
-        return registrationAxesInterval.min( sequenceDimension() );
+        return referenceInterval.min( sequenceDimension() );
     }
 
     public long sequenceMax()
     {
-        return registrationAxesInterval.max( sequenceDimension() );
+        return referenceInterval.max( sequenceDimension() );
     }
 
     public long sequenceIncrement()

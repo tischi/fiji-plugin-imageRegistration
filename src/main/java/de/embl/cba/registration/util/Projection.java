@@ -13,14 +13,14 @@ import net.imglib2.view.Views;
 public class Projection< T extends RealType< T > & NativeType< T > >
 {
 
-    private int[] inputAxesWithoutProjectionAxis;
+    private int[] inputAxesExcludingProjectionAxis;
     private int projectionDimension;
     private RandomAccessibleInterval< T > output;
     private int numOutputDimensions;
     private RandomAccess< T > inputAccess;
     private RandomAccessibleInterval< T > input;
-    private long projectionDimensionMin;
-    private long projectionDimensionMax;
+    private long projectionDimensionIntervalMin;
+    private long projectionDimensionIntervalMax;
     private long[] outputDimensions;
 
     public Projection( RandomAccessibleInterval< T > input, int projectionDimension )
@@ -37,22 +37,15 @@ public class Projection< T extends RealType< T > & NativeType< T > >
         this.inputAccess = input.randomAccess( );
 
         this.projectionDimension = projectionDimension;
-        this.projectionDimensionMin = min;
-        this.projectionDimensionMax = max;
+        this.projectionDimensionIntervalMin = min;
+        this.projectionDimensionIntervalMax = max;
 
-        setInputAxesWithoutProjectionAxis();
-
-        setOutputAsArrayImg( );
+        configureInputAxesExcludingProjectionAxis();
+        initializeOutputArrayImg( );
 
     }
 
     public RandomAccessibleInterval< T > sum()
-    {
-        computeSumProjection();
-        return output;
-    }
-
-    private void computeSumProjection()
     {
         final Cursor< T > outputCursor = Views.iterable( output ).localizingCursor();
 
@@ -60,11 +53,13 @@ public class Projection< T extends RealType< T > & NativeType< T > >
         {
             outputCursor.fwd( );
             setInputAccess( outputCursor );
-            outputCursor.get().set( getSumProjection( ) );
+            setSumProjection( outputCursor );
         }
+
+        return output;
     }
 
-    private void setOutputAsArrayImg()
+    private void initializeOutputArrayImg()
     {
         setOutputDimensions();
         final ImgFactory< T > factory = new ArrayImgFactory< T >();
@@ -73,50 +68,46 @@ public class Projection< T extends RealType< T > & NativeType< T > >
 
     private void setOutputDimensions( )
     {
-
         outputDimensions = new long[ numOutputDimensions ];
 
-        for ( int d = 0; d < inputAxesWithoutProjectionAxis.length; ++d )
+        for ( int d = 0; d < inputAxesExcludingProjectionAxis.length; ++d )
         {
-            outputDimensions[ d ] = input.dimension( inputAxesWithoutProjectionAxis[ d ] );
+            outputDimensions[ d ] = input.dimension( inputAxesExcludingProjectionAxis[ d ] );
         }
-
     }
 
-    private T getSumProjection( )
+    private void setSumProjection( Cursor< T > outputCursor )
     {
-        final RealSum realSum = new RealSum();
+        outputCursor.get().setZero();
 
-        for ( long d = projectionDimensionMin; d <= projectionDimensionMax; ++d )
+        for ( long d = projectionDimensionIntervalMin; d <= projectionDimensionIntervalMax; ++d )
         {
             inputAccess.setPosition( d, projectionDimension );
-            realSum.add( inputAccess.get().getRealDouble() );
+            outputCursor.get().add( inputAccess.get() );
         }
-
-        return ( T ) realSum;
     }
 
     private void setInputAccess( Cursor< T > cursorOutput )
     {
         for ( int d = 0; d < numOutputDimensions; ++d )
         {
-            inputAccess.setPosition( cursorOutput.getLongPosition( d ) , inputAxesWithoutProjectionAxis[ d ] );
+            inputAccess.setPosition( cursorOutput.getLongPosition( d ) , inputAxesExcludingProjectionAxis[ d ] );
         }
     }
 
-    private void setInputAxesWithoutProjectionAxis()
+    private void configureInputAxesExcludingProjectionAxis()
     {
-        inputAxesWithoutProjectionAxis = new int[ numOutputDimensions ];
+        inputAxesExcludingProjectionAxis = new int[ numOutputDimensions ];
 
         for ( int i = 0; i < numOutputDimensions; i++ )
         {
             if ( i >= projectionDimension )
             {
-                inputAxesWithoutProjectionAxis[ i ] = i + 1;
+                inputAxesExcludingProjectionAxis[ i ] = i + 1;
             }
             else
             {
-                inputAxesWithoutProjectionAxis[ i ] = i;
+                inputAxesExcludingProjectionAxis[ i ] = i;
             }
         }
     }

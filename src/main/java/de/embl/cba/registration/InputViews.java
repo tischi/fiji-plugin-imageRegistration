@@ -1,5 +1,6 @@
 package de.embl.cba.registration;
 
+import de.embl.cba.registration.util.Projection;
 import net.imagej.Dataset;
 import net.imagej.ImgPlus;
 import net.imagej.axis.AxisType;
@@ -76,34 +77,73 @@ public class InputViews
         return transformed;
     }
 
-    public RandomAccessibleInterval transformableHyperSlice( long s )
+
+    public RandomAccessibleInterval transformableReferenceHyperSlice( long s )
     {
-        return transformableHyperSlice( s, axes.fixedReferenceCoordinates() );
-    }
+        RandomAccessibleInterval rai = fixedSequenceDimensionView( s );
 
-    public RandomAccessibleInterval transformableHyperSlice(
-            long s,
-            long[] fixedAxesCoordinates )
-    {
+        ArrayList< Integer > fixedAxes = axes.fixedAxes();
+        Collections.reverse( fixedAxes );
 
-        // TODO: simplify below
-        long[] min = Intervals.minAsLongArray( inputRAI );
-        long[] max = Intervals.maxAsLongArray( inputRAI );
+        for( int axis : fixedAxes )
+        {
+            long min = axes.getReferenceInterval().min( axis );
+            long max = axes.getReferenceInterval().max( axis );
+            Projection< R > projection = new Projection< R >( inputRAI, axis, min, max );
+            rai = projection.sum();
+        }
 
-        min[ axes.sequenceDimension() ] = s;
-        max[ axes.sequenceDimension() ] = s;
-
-        setFixedAxesCoordinates( fixedAxesCoordinates, min, max );
-
-        FinalInterval interval = new FinalInterval( min, max );
-
-        RandomAccessibleInterval rai =
-                Views.dropSingletonDimensions(
-                        Views.interval( inputRAI, interval ) );
+        rai = Views.dropSingletonDimensions( rai );
 
         return rai;
 
     }
+
+    public RandomAccessibleInterval transformableHyperSlice( long s, long[] fixedAxesCoordinates )
+    {
+
+        FinalInterval interval = sequenceAxisAndFixedAxesInterval( s, fixedAxesCoordinates );
+
+        RandomAccessibleInterval rai = Views.interval( inputRAI, interval );
+
+        rai = Views.dropSingletonDimensions( rai );
+
+        return rai;
+
+    }
+
+    private FinalInterval sequenceAxisAndFixedAxesInterval( long s, long[] fixedAxesCoordinates )
+    {
+        long[] min = Intervals.minAsLongArray( inputRAI );
+        long[] max = Intervals.maxAsLongArray( inputRAI );
+
+        setSequenceAxisCoordinate( s, min, max );
+
+        setFixedAxesCoordinates( fixedAxesCoordinates, min, max );
+
+        return new FinalInterval( min, max );
+    }
+
+    private void setSequenceAxisCoordinate( long s, long[] min, long[] max )
+    {
+        min[ axes.sequenceDimension() ] = s;
+        max[ axes.sequenceDimension() ] = s;
+    }
+
+    private RandomAccessibleInterval fixedSequenceDimensionView( long s )
+    {
+        FinalInterval interval = fixedSequenceCoordinateInterval( s );
+        return Views.interval( inputRAI, interval );
+    }
+
+    private FinalInterval fixedSequenceCoordinateInterval( long s )
+    {
+        long[] min = Intervals.minAsLongArray( inputRAI );
+        long[] max = Intervals.maxAsLongArray( inputRAI );
+        setSequenceAxisCoordinate( s, min, max );
+        return new FinalInterval( min, max );
+    }
+
 
     private void setFixedAxesCoordinates( long[] fixedAxesCoordinates, long[] min, long[] max )
     {
@@ -151,7 +191,7 @@ public class InputViews
         if ( axes.numFixedDimensions() > 0 )
         {
             long[] fixedCoordinates = new long[ axes.numFixedDimensions() ];
-            FinalInterval fixedDimensionsInterval = axes.fixedDimensionsInterval();
+            FinalInterval fixedDimensionsInterval = axes.fixedAxesInputInterval();
             for ( int i = 0; i < fixedCoordinates.length; ++i )
             {
                 fixedCoordinates[ i ] = fixedDimensionsInterval.min( i );
@@ -172,8 +212,8 @@ public class InputViews
 
         ArrayList< RandomAccessibleInterval<R> > transformedSequenceList = new ArrayList<>(  );
 
-        long min = axes.fixedDimensionsInterval().min( loopingDimension );
-        long max = axes.fixedDimensionsInterval().max( loopingDimension );
+        long min = axes.fixedAxesInputInterval().min( loopingDimension );
+        long max = axes.fixedAxesInputInterval().max( loopingDimension );
 
         for ( long coordinate = min; coordinate <= max; ++coordinate )
         {
