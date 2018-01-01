@@ -17,9 +17,10 @@ public class ThresholdFilterView<T extends RealType<T> > {
 
     public RandomAccessible< T > filter( RandomAccessible< T > input )
     {
-        T threshold = ( T ) parameters.get( ImageFilterParameters.THRESHOLD_MIN_VALUE);
+        //T threshold = ( T ) parameters.get( ImageFilterParameters.THRESHOLD_MIN_VALUE);
 
-        return new ThresholdView( input, threshold );
+        //return new ThresholdView( input, threshold );
+        return null;
     }
 
 }

@@ -4,9 +4,6 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 
 import java.util.ArrayList;
-import java.util.Map;
-
-import static de.embl.cba.registration.filter.ImageFilterParameters.*;
 
 public class FilterSequence
 {
@@ -45,6 +42,7 @@ public class FilterSequence
                 return ( ( ImageFilterSubSample ) imageFilter ).subSampling;
             }
         }
+
         return null;
     }
 }

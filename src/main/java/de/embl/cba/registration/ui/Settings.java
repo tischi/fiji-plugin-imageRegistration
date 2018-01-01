@@ -6,9 +6,9 @@ import de.embl.cba.registration.RegistrationAxisType;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSettings;
 import de.embl.cba.registration.filter.FilterType;
-import de.embl.cba.registration.filter.ImageFilterParameters;
-import de.embl.cba.registration.transformfinder.TransformFinderSettings;
+import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
+import net.imagej.Dataset;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.module.Module;
@@ -16,19 +16,18 @@ import org.scijava.ui.DialogPrompt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 public class Settings
 {
 
     public ArrayList< RegistrationAxisType > registrationAxisTypes;
-    public TransformFinderSettings transformSettings;
+    public TransformSettings transformSettings;
     public FilterSettings filterSettings;
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
     public ExecutorService executorService;
+    public Dataset dataset;
     public Axes axes;
 
     private RegistrationPlugin plugin;
@@ -42,6 +41,7 @@ public class Settings
     {
         this.plugin = plugin;
         this.module = plugin;
+        this.dataset = plugin.dataset;
         updateParameters();
     }
 
@@ -50,7 +50,6 @@ public class Settings
         setRegistrationAxesTypes();
         setRegistrationAxesInterval();
         setAxes();
-
         setImageFilterParameters();
         setTransformSettings();
         setOutputInterval();
@@ -60,7 +59,7 @@ public class Settings
 
     public void setAxes()
     {
-        this.axes = new Axes( plugin.dataset, registrationAxisTypes, interval );
+        this.axes = new Axes( dataset, registrationAxisTypes, interval );
     }
 
     public boolean check()
@@ -177,7 +176,7 @@ public class Settings
 
     private void setTransformSettings()
     {
-        transformSettings = new TransformFinderSettings();
+        transformSettings = new TransformSettings();
         transformSettings.transformFinderType = TransformFinderType.valueOf( plugin.transformationTypeInput );
         setTranslationRange();
         setRotationRange();

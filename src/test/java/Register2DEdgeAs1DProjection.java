@@ -1,28 +1,27 @@
-import de.embl.cba.registration.Output;
-import de.embl.cba.registration.OutputIntervalType;
-import de.embl.cba.registration.Registration;
-import de.embl.cba.registration.RegistrationAxisType;
+import de.embl.cba.registration.*;
+import de.embl.cba.registration.filter.FilterSettings;
 import de.embl.cba.registration.filter.FilterType;
+import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.ui.Settings;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
-import org.scijava.thread.ThreadService;
-import scala.Int;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
+import org.scijava.app.DefaultStatusService;
+
 public class Register2DEdgeAs1DProjection
 {
     public static void main(final String... args) throws Exception
     {
 
-        String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge_noise_small.tif";
+        String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/2d_t_1ch_drift_synthetic_edge_noise_small.tif";
 
         final ImageJ ij = new ImageJ();
 
@@ -33,6 +32,8 @@ public class Register2DEdgeAs1DProjection
         //ij.ui().show(dataset);
 
         Settings settings = getSettings( dataset );
+
+        Services.executorService = Executors.newFixedThreadPool( 4 );
 
         Registration registration = new Registration( dataset, settings );
 
@@ -54,6 +55,8 @@ public class Register2DEdgeAs1DProjection
     {
         Settings settings = new Settings( );
 
+        settings.dataset = dataset;
+
         settings.registrationAxisTypes = new ArrayList<>(  );
         settings.registrationAxisTypes.add( RegistrationAxisType.Other );
         settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
@@ -66,14 +69,20 @@ public class Register2DEdgeAs1DProjection
         settings.executorService = Executors.newFixedThreadPool( 4 );
         settings.outputIntervalType = OutputIntervalType.InputDataSize;
 
+        settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );
-        settings.filterSettings.filterTypes.add( FilterType.None );
+        settings.filterSettings.filterTypes.add( FilterType.SubSample );
+        settings.filterSettings.subSampling = new long[]{ 1L };
 
         settings.setAxes();
 
+        settings.transformSettings = new TransformSettings();
         settings.transformSettings.maximalTranslations = new double[] { 30.0D };
         settings.transformSettings.transformFinderType = TransformFinderType.Translation__PhaseCorrelation;
         settings.transformSettings.maximalRotations = new double[] { 0.0D };
+
+
+
         return settings;
     }
 }

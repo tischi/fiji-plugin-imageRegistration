@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class FilterSettings
 {
-
     public final static String FILTER_TYPE = "Image apply type";
     public final static String SEQUENCE = "Image apply sequence";
     public final static String GAUSS_SIGMA = "Sigma";
@@ -22,6 +21,4 @@ public class FilterSettings
     public double thresholdMin;
     public double thresholdMax;
     public long[] subSampling;
-
-
 }

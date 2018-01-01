@@ -88,7 +88,8 @@ public class Registration
         // TODO: add memory and time
         int min = (int) (s - axes.sequenceMin());
         int max = (int) (axes.sequenceMax() - axes.sequenceMin());
-        statusService.showStatus( min, max, message );
+        Logger.showStatus( min, max, message );
+
     }
 
     public void logTransformations()

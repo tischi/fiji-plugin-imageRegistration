@@ -19,6 +19,19 @@ public class Logger
         statusService = plugin.statusService;
     }
 
+    public static void showStatus( int min, int max, String message )
+    {
+        if ( statusService != null )
+        {
+            statusService.showStatus( min, max, message );
+        }
+        else
+        {
+            IJ.log( message + " " + min + "/" + max );
+            System.out.print( message + " " + min + "/" + max + "\n" );
+        }
+    }
+
     public static void debug(String message )
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -36,7 +49,15 @@ public class Logger
         {
             public void run()
             {
-                logService.info( message ); IJ.log( message );
+                if ( logService != null )
+                {
+                    logService.info( message );
+                }
+                else
+                {
+                    IJ.log( message ); // TODO: remove this
+                    System.out.print( message + "\n" );
+                }
             }
         });
     }

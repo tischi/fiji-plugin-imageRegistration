@@ -45,7 +45,7 @@ public class TransformFinderTranslationPhaseCorrelation
     private long[] subSampling;
 
 
-    TransformFinderTranslationPhaseCorrelation( TransformFinderSettings settings )
+    TransformFinderTranslationPhaseCorrelation( TransformSettings settings )
     {
         this.maximalTranslations = settings.maximalTranslations;
     }
@@ -224,7 +224,6 @@ public class TransformFinderTranslationPhaseCorrelation
     private void configureAlgorithm( RandomAccessibleInterval fixedRAI, FilterSequence filterSequence )
     {
         this.filterSequence = filterSequence;
-        subSampling = filterSequence.subSampling();
         numDimensions = fixedRAI.numDimensions();
         nHighestPeaks = 20;
         subpixelAccuracy = true;
@@ -238,6 +237,17 @@ public class TransformFinderTranslationPhaseCorrelation
         for ( int d = 0; d < numDimensions; ++d )
         {
             minOverlap *= ( fixedRAI.dimension( d ) - maximalTranslations[ d ] );
+        }
+
+        if ( filterSequence.subSampling() != null )
+        {
+            subSampling = filterSequence.subSampling();
+        }
+        else
+        {
+            long[] subSampling = new long[ numDimensions ];
+            Arrays.fill( subSampling, 1L );
+            this.subSampling = subSampling;
         }
     }
 

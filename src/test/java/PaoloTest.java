@@ -1,20 +1,10 @@
-import de.embl.cba.registration.Axes;
-import de.embl.cba.registration.OutputIntervalType;
 import de.embl.cba.registration.RegistrationAxisType;
-import de.embl.cba.registration.filter.FilterSettings;
-import de.embl.cba.registration.transformfinder.TransformFinderSettings;
-import de.embl.cba.registration.ui.RegistrationPlugin;
 import de.embl.cba.registration.ui.Settings;
-import ij.IJ;
-import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
-import net.imglib2.FinalInterval;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 public class PaoloTest
 {
@@ -41,7 +31,7 @@ public class PaoloTest
 
         /*
         public Map< String, Object > filterParameters;
-        public TransformFinderSettings transformSettings;
+        public TransformSettings transformSettings;
         public FilterSettings filterSettings;
         public OutputIntervalType outputIntervalType;
         public FinalInterval interval;

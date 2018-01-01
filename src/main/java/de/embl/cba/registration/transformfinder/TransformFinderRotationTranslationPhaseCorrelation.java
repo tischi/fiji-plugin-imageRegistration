@@ -31,14 +31,14 @@ public class TransformFinderRotationTranslationPhaseCorrelation
 
     private FilterSequence filterSequence;
 
-    TransformFinderRotationTranslationPhaseCorrelation( TransformFinderSettings settings )
+    TransformFinderRotationTranslationPhaseCorrelation( TransformSettings settings )
     {
         configureRotations( settings );
 
         this.transformationFinderTranslationPhaseCorrelation = new TransformFinderTranslationPhaseCorrelation( settings );
     }
 
-    private void configureRotations( TransformFinderSettings settings )
+    private void configureRotations( TransformSettings settings )
     {
         double[] maximalRotationsDegrees = settings.maximalRotations;
         double[] maxRotations = Arrays.stream( maximalRotationsDegrees )
