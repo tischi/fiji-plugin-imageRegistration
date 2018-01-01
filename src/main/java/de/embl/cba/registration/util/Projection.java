@@ -1,12 +1,14 @@
 package de.embl.cba.registration.util;
 
 import net.imglib2.Cursor;
+import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Intervals;
 import net.imglib2.util.RealSum;
 import net.imglib2.view.Views;
 
@@ -19,17 +21,21 @@ public class Projection< T extends RealType< T > & NativeType< T > >
     private int numOutputDimensions;
     private RandomAccess< T > inputAccess;
     private RandomAccessibleInterval< T > input;
-    private long projectionDimensionIntervalMin;
-    private long projectionDimensionIntervalMax;
+    private FinalInterval projectionInterval;
     private long[] outputDimensions;
+
 
     public Projection( RandomAccessibleInterval< T > input, int projectionDimension )
     {
-        this( input, projectionDimension, input.min( projectionDimension ), input.max( projectionDimension ) );
+        init( input, projectionDimension, fullProjectionInterval( input ) );
     }
 
+    public Projection( RandomAccessibleInterval< T > input, int projectionDimension, FinalInterval projectionInterval )
+    {
+        init( input, projectionDimension, projectionInterval );
+    }
 
-    public Projection( RandomAccessibleInterval< T > input, int projectionDimension, long min, long max )
+    private void init( RandomAccessibleInterval< T > input, int projectionDimension, FinalInterval projectionInterval )
     {
         this.numOutputDimensions = input.numDimensions() - 1;
 
@@ -37,15 +43,22 @@ public class Projection< T extends RealType< T > & NativeType< T > >
         this.inputAccess = input.randomAccess( );
 
         this.projectionDimension = projectionDimension;
-        this.projectionDimensionIntervalMin = min;
-        this.projectionDimensionIntervalMax = max;
+        this.projectionInterval = projectionInterval;
 
         configureInputAxesExcludingProjectionAxis();
         initializeOutputArrayImg( );
-
     }
 
-    public RandomAccessibleInterval< T > sum()
+    private FinalInterval fullProjectionInterval( RandomAccessibleInterval< T > input)
+    {
+        long[] minMax = new long[]{ input.min( projectionDimension ), input.max( projectionDimension ) };
+        return Intervals.createMinMax( minMax );
+    }
+
+
+
+
+    public RandomAccessibleInterval< T > average( )
     {
         final Cursor< T > outputCursor = Views.iterable( output ).localizingCursor();
 
@@ -53,7 +66,7 @@ public class Projection< T extends RealType< T > & NativeType< T > >
         {
             outputCursor.fwd( );
             setInputAccess( outputCursor );
-            setSumProjection( outputCursor );
+            setAverageProjection( outputCursor );
         }
 
         return output;
@@ -64,13 +77,24 @@ public class Projection< T extends RealType< T > & NativeType< T > >
         setOutputDimensions();
         final ImgFactory< T > factory = new ArrayImgFactory< T >();
         output = factory.create( outputDimensions, Views.iterable( input ).firstElement() );
+        output = Views.translate( output,  outputOffset() );
+    }
+
+    private long[] outputOffset()
+    {
+        long[] offset = new long[ numOutputDimensions ];
+        for ( int d = 0; d < numOutputDimensions; ++d )
+        {
+            offset[ d ] = input.min( inputAxesExcludingProjectionAxis[ d ] );
+        }
+        return offset;
     }
 
     private void setOutputDimensions( )
     {
         outputDimensions = new long[ numOutputDimensions ];
 
-        for ( int d = 0; d < inputAxesExcludingProjectionAxis.length; ++d )
+        for ( int d = 0; d < numOutputDimensions; ++d )
         {
             outputDimensions[ d ] = input.dimension( inputAxesExcludingProjectionAxis[ d ] );
         }
@@ -80,11 +104,30 @@ public class Projection< T extends RealType< T > & NativeType< T > >
     {
         outputCursor.get().setZero();
 
-        for ( long d = projectionDimensionIntervalMin; d <= projectionDimensionIntervalMax; ++d )
+        for ( long d = projectionInterval.min(0); d <= projectionInterval.max(0 ); ++d )
         {
             inputAccess.setPosition( d, projectionDimension );
             outputCursor.get().add( inputAccess.get() );
         }
+    }
+
+
+    private void setAverageProjection( Cursor< T > outputCursor )
+    {
+        double average = 0;
+        long count = 0;
+
+        for ( long d = projectionInterval.min(0); d <= projectionInterval.max(0 ); ++d )
+        {
+            inputAccess.setPosition( d, projectionDimension );
+            average += inputAccess.get().getRealDouble();
+            count++;
+        }
+
+        average /= count;
+
+        outputCursor.get().setReal( average );
+
     }
 
     private void setInputAccess( Cursor< T > cursorOutput )

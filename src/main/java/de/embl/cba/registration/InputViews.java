@@ -21,7 +21,7 @@ import net.imglib2.view.Views;
 import java.util.*;
 
 // TODO: rearranging the axes does not work for the uiService, why?
-//AxisType[] transformedAxisTypes = axes.axisTypesInputImage().toArray( new AxisType[0] );
+//AxisType[] transformedAxisTypes = axes.inputAxisTypes().toArray( new AxisType[0] );
 
 public class InputViews
         < R extends RealType< R > & NativeType< R >,
@@ -76,7 +76,6 @@ public class InputViews
         return output;
     }
 
-
     public RandomAccessibleInterval transformableReferenceHyperSlice( long s )
     {
         RandomAccessibleInterval rai = fixedSequenceAxisView( s );
@@ -94,14 +93,17 @@ public class InputViews
         ArrayList< Integer > otherAxes = axes.otherAxes();
         Collections.reverse( otherAxes );
 
+        RandomAccessibleInterval projected = rai;
+
         for( int axis : otherAxes )
         {
-            long min = axes.getReferenceInterval().min( axis );
-            long max = axes.getReferenceInterval().max( axis );
-            Projection< R > projection = new Projection< R >( inputRAI, axis, min, max );
-            rai = projection.sum();
+            FinalInterval interval = axes.getReferenceIntervalForAxis( axis );
+            Projection< R > projection = new Projection< R >( projected, axis, interval );
+            projected = projection.average();
         }
-        return rai;
+
+        return projected;
+
     }
 
     public RandomAccessibleInterval transformableHyperSlice( long s, long[] fixedAxesCoordinates )
@@ -137,21 +139,16 @@ public class InputViews
 
     private RandomAccessibleInterval fixedSequenceAxisView( long s )
     {
-        FinalInterval interval = fixedSequenceCoordinateInterval( s );
-        return Views.interval( inputRAI, interval );
-    }
-
-    private FinalInterval fixedSequenceCoordinateInterval( long s )
-    {
         long[] min = Intervals.minAsLongArray( inputRAI );
         long[] max = Intervals.maxAsLongArray( inputRAI );
         setSequenceAxisCoordinate( s, min, max );
-        return new FinalInterval( min, max );
+        FinalInterval interval = new FinalInterval( min, max );
+        return Views.interval( inputRAI, interval );
     }
 
     private void setFixedAxesCoordinates( long[] fixedAxesCoordinates, long[] min, long[] max )
     {
-        for ( int i = 0; i < axes.numFixedDimensions( ); ++i )
+        for ( int i = 0; i < axes.numOtherDimensions( ); ++i )
         {
             int d = axes.fixedDimension( i );
             min[ d ] = fixedAxesCoordinates[ i ];
@@ -178,16 +175,16 @@ public class InputViews
 
         // TODO: below code seems to work but the resulting ImgPlus
         // does not show the right thing using the uiService.show().
-        //rearrangeTransformedAxesIntoSameOrderAsInput();
+        rearrangeTransformedAxesIntoSameOrderAsInput();
 
         return transformedInput;
     }
 
     private long[] initializedFixedCoordinates()
     {
-        if ( axes.numFixedDimensions() > 0 )
+        if ( axes.numOtherDimensions() > 0 )
         {
-            long[] fixedCoordinates = new long[ axes.numFixedDimensions() ];
+            long[] fixedCoordinates = new long[ axes.numOtherDimensions() ];
             FinalInterval fixedDimensionsInterval = axes.otherAxesInputInterval();
             for ( int i = 0; i < fixedCoordinates.length; ++i )
             {
@@ -270,7 +267,7 @@ public class InputViews
         // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 
         ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypes();
-        ArrayList< AxisType > inputAxisTypes = axes.axisTypesInputImage();
+        ArrayList< AxisType > inputAxisTypes = axes.inputAxisTypes();
 
         for ( int inputDimension = 0; inputDimension < inputAxisTypes.size(); ++inputDimension )
         {

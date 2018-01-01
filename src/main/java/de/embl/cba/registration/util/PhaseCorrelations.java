@@ -51,7 +51,7 @@ public class PhaseCorrelations
         return sensiblePeaks;
     }
 
-
+    // TODO: sub-pixel accuracy
     public static ArrayList< PhaseCorrelationPeak2 > pcmMaximum( RandomAccessibleInterval< FloatType > pcm )
     {
         final Cursor< FloatType > cursor = Views.iterable( pcm ).localizingCursor();

@@ -6,19 +6,18 @@ import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Axes
 {
 
     final private Dataset dataset;
-    final private RegistrationAxisType[] registrationAxisTypes;
+    final private ArrayList< RegistrationAxisType > registrationAxisTypes;
     final private FinalInterval referenceInterval;
     final private int numDimensions;
 
     public Axes( Dataset dataset,
-                 RegistrationAxisType[] registrationAxisTypes,
+                 ArrayList< RegistrationAxisType > registrationAxisTypes,
                  FinalInterval referenceInterval )
     {
         this.dataset = dataset;
@@ -81,7 +80,7 @@ public class Axes
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
+            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Transformable ) )
             {
                 min[ i ] = referenceInterval.min( d );
                 max[ i ] = referenceInterval.max( d );
@@ -99,7 +98,7 @@ public class Axes
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
+            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Transformable ) )
             {
                 min[ i ] = dataset.min( d );
                 max[ i ] = dataset.max( d );
@@ -109,18 +108,14 @@ public class Axes
         return new FinalInterval( min, max );
     }
 
-    public int numFixedDimensions()
+    public int numOtherDimensions()
     {
-        int numFixedDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisType.Other );
-
-        return numFixedDimensions;
+        return Collections.frequency( registrationAxisTypes, RegistrationAxisType.Other );
     }
 
     public int numTransformableDimensions()
     {
-        int numTransformableDimensions = Collections.frequency( Arrays.asList( registrationAxisTypes ), RegistrationAxisType.Transformable );
-
-        return numTransformableDimensions;
+        return Collections.frequency( registrationAxisTypes, RegistrationAxisType.Transformable );
     }
 
     public int fixedDimension( int i )
@@ -130,12 +125,12 @@ public class Axes
 
     public FinalInterval fixedAxesReferenceInterval()
     {
-        long[] min = new long[ numFixedDimensions() ];
-        long[] max = new long[ numFixedDimensions() ];
+        long[] min = new long[ numOtherDimensions() ];
+        long[] max = new long[ numOtherDimensions() ];
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
+            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Other ) )
             {
                 min[ i ] = referenceInterval.min( d );
                 max[ i ] = referenceInterval.max( d );
@@ -148,14 +143,14 @@ public class Axes
 
     public FinalInterval otherAxesInputInterval()
     {
-        if ( numFixedDimensions() > 0 )
+        if ( numOtherDimensions() > 0 )
         {
-            long[] min = new long[ numFixedDimensions() ];
-            long[] max = new long[ numFixedDimensions() ];
+            long[] min = new long[ numOtherDimensions() ];
+            long[] max = new long[ numOtherDimensions() ];
 
             for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
-                if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
+                if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Other ) )
                 {
                     min[ i ] = dataset.min( d );
                     max[ i ] = dataset.max( d );
@@ -175,14 +170,14 @@ public class Axes
 
     public long[] fixedReferenceCoordinates( )
     {
-        long[] fixedReferenceCoordinates = new long[ numFixedDimensions() ];
+        long[] fixedReferenceCoordinates = new long[ numOtherDimensions() ];
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
+            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Other ) )
             {
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
-                // However, one could imagine in the future to e.g. average channels or sum
+                // However, one could imagine in the future to e.g. average channels or average
                 // average transformations taking information from multiple channels into account...
                 fixedReferenceCoordinates[ i++ ] = referenceInterval.min( d );
             }
@@ -197,7 +192,7 @@ public class Axes
 
         for ( int d = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Other ) )
+            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Other ) )
             {
                 otherDimensions.add( d );
             }
@@ -214,7 +209,7 @@ public class Axes
 
         for ( int d = 0, i = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( RegistrationAxisType.Transformable ) )
+            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Transformable ) )
             {
                 dimensions[ i++ ] = d;
             }
@@ -229,9 +224,9 @@ public class Axes
 
         for ( int d = 0; d < numDimensions; ++d )
         {
-            if ( registrationAxisTypes[ d ].equals( registrationAxisType ) )
+            if ( registrationAxisTypes.get( d ).equals( registrationAxisType ) )
             {
-                axisTypes.add( axisTypesInputImage().get( d ) );
+                axisTypes.add( inputAxisTypes().get( d ) );
             }
         }
 
@@ -263,9 +258,7 @@ public class Axes
 
     public int sequenceDimension()
     {
-        int sequenceDimension = Arrays.asList( registrationAxisTypes ).indexOf( RegistrationAxisType.Sequence );
-
-        return sequenceDimension;
+        return registrationAxisTypes.indexOf( RegistrationAxisType.Sequence );
     }
 
     public long sequenceMin()
@@ -301,7 +294,7 @@ public class Axes
 
     }
 
-    public ArrayList< AxisType > axisTypesInputImage()
+    public ArrayList< AxisType > inputAxisTypes()
     {
         return axisTypesList( dataset );
     }
@@ -331,4 +324,10 @@ public class Axes
     }
 
 
+    public FinalInterval getReferenceIntervalForAxis( int axis )
+    {
+        long[] min = new long[]{ getReferenceInterval().min( axis ) };
+        long[] max = new long[]{ getReferenceInterval().max( axis ) };
+        return new FinalInterval( min, max );
+    }
 }

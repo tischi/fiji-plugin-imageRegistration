@@ -319,9 +319,9 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 output = registration.output();
 
-                showWithBdv( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
+                //showWithBdv( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
 
-                showWithBdv( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder);
+                showWithBdv( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
 
             }
         } );
@@ -339,7 +339,9 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         for (int d = 0; d < dataset.numDimensions(); ++d )
         {
-            if ( settings.registrationAxisTypes[ d ] == RegistrationAxisType.Transformable )
+            RegistrationAxisType type = settings.registrationAxisTypes.get( d );
+
+            if ( type == RegistrationAxisType.Transformable || type == RegistrationAxisType.Other )
             {
                 if ( dataset.axis( d ).type() == net.imagej.axis.Axes.X )
                 {
@@ -421,8 +423,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        boolean GUI = true;
-        boolean TEST = false;
         boolean LOAD_IJ1_VS = false;
         boolean LOAD_IJ2_DATASET = true;
         String PATH;
@@ -432,7 +432,7 @@ public class RegistrationPlugin<T extends RealType<T>>
         //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif";
         //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_line.tif";
         PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge.tif";
-        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge_noise.tif";
+        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge_noise_small.tif";
 
         //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_shorterline.tif";
 
@@ -457,17 +457,8 @@ public class RegistrationPlugin<T extends RealType<T>>
             }
         }
 
-
-        if ( GUI )
-        {
-            // invoke the plugin
-            ij.command().run( RegistrationPlugin.class, true );
-        }
-        else if ( TEST )
-        {
-
-
-        }
+        // invoke the plugin
+        ij.command().run( RegistrationPlugin.class, true );
 
     }
 

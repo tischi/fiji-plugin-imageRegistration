@@ -50,10 +50,7 @@ public class TransformFinderTranslationPhaseCorrelation
         this.maximalTranslations = settings.maximalTranslations;
     }
 
-    public RealTransform findTransform(
-             RandomAccessibleInterval fixedRAI,
-             RandomAccessible movingRA,
-             FilterSequence filterSequence )
+    public RealTransform findTransform( RandomAccessibleInterval fixedRAI, RandomAccessible movingRA, FilterSequence filterSequence )
     {
 
         configureAlgorithm( fixedRAI, filterSequence );
@@ -62,9 +59,8 @@ public class TransformFinderTranslationPhaseCorrelation
         RandomAccessibleInterval filteredFixedRAI = filterSequence.apply( fixedRAI );
         RandomAccessibleInterval filteredMovingRAI = filterSequence.apply( movingRAI );
 
-        Services.uiService.show( filteredFixedRAI );
-        Services.uiService.show( filteredMovingRAI );
-
+        //Services.uiService.show( filteredFixedRAI );
+        //Services.uiService.show( filteredMovingRAI );
 
         final RandomAccessibleInterval< FloatType > pcm = calculatePCM( filteredFixedRAI, filteredMovingRAI );
         final List< PhaseCorrelationPeak2 > shiftPeaks = getShiftPeaks( pcm, filteredFixedRAI, filteredMovingRAI );
@@ -154,10 +150,13 @@ public class TransformFinderTranslationPhaseCorrelation
     private List<PhaseCorrelationPeak2> getShiftPeaks( RandomAccessibleInterval< FloatType > pcm, RandomAccessibleInterval img1, RandomAccessibleInterval img2 )
     {
 
-        List<PhaseCorrelationPeak2> peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, Services.executorService, nHighestPeaks, subpixelAccuracy);
+        // List<PhaseCorrelationPeak2> peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, Services.executorService, nHighestPeaks, subpixelAccuracy);
+
+
+        List<PhaseCorrelationPeak2> peaks = PhaseCorrelations.pcmMaximum( pcm );
         PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
         List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm );
-        Collections.sort(sensiblePeaks, Collections.reverseOrder(new PhaseCorrelations.ComparatorByPhaseCorrelation()));
+        Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelations.ComparatorByPhaseCorrelation() ) );
 
         return sensiblePeaks;
 
@@ -178,7 +177,7 @@ public class TransformFinderTranslationPhaseCorrelation
     private PhaseCorrelationPeak2 getFirstShiftWithinAllowedRange( RandomAccessibleInterval< FloatType > pcm ,
                                                                    List< PhaseCorrelationPeak2 > peaks )
     {
-        Services.uiService.show( pcm );
+        // Services.uiService.show( pcm );
 
         for ( PhaseCorrelationPeak2 peak : peaks )
         {
@@ -186,7 +185,7 @@ public class TransformFinderTranslationPhaseCorrelation
 
             for ( int d = 0; d < numDimensions; ++d )
             {
-                double shift = peak.getSubpixelShift().getDoublePosition( d );
+                double shift = peak.getShift().getDoublePosition( d );
                 double allowedShift = maximalTranslations[ d ] / subSampling[ d ];
 
                 if ( Math.abs( shift ) > allowedShift )

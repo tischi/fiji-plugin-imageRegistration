@@ -22,7 +22,7 @@ public class ProjectionTest
 
         Projection projection = new Projection( input, 2 );
 
-        RandomAccessibleInterval< FloatType > output = projection.sum();
+        RandomAccessibleInterval< FloatType > output = projection.average();
 
         assert output.numDimensions() == input.numDimensions() - 1;
 

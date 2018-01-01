@@ -61,7 +61,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         this.fixedRAI = fixedRAI;
         this.movingRA = movingRA;
 
-        // Recursively loop through all possible rotations and sum best translations
+        // Recursively loop through all possible rotations and average best translations
         ArrayList< Result > results = new ArrayList<>(  );
         double[] rotations = new double[ rotationInterval.numDimensions() ];
         Arrays.fill( rotations, Double.MAX_VALUE );
@@ -139,7 +139,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
 
         }
 
-         // all rotations are set => sum best translations and add to list
+         // all rotations are set => average best translations and add to list
 
         // rotate
         RandomAccessible< R > rotatedMovingRA;

@@ -22,10 +22,8 @@ import java.util.concurrent.ExecutorService;
 
 public class Settings
 {
-    private final RegistrationPlugin plugin;
-    private final Module module; // TODO: what is the difference between plugin and module?
 
-    public RegistrationAxisType[] registrationAxisTypes;
+    public ArrayList< RegistrationAxisType > registrationAxisTypes;
     public Map< String, Object > filterParameters;
     public TransformFinderSettings transformSettings;
     public FilterSettings filterSettings;
@@ -34,6 +32,12 @@ public class Settings
     public ExecutorService executorService;
     public Axes axes;
 
+    private RegistrationPlugin plugin;
+    private Module module; // TODO: what is the difference between plugin and module?
+
+    public Settings( )
+    {
+    }
 
     public Settings( RegistrationPlugin plugin )
     {
@@ -79,12 +83,12 @@ public class Settings
 
     private void setRegistrationAxesTypes()
     {
-        registrationAxisTypes = new RegistrationAxisType[ plugin.dataset.numDimensions() ];
+        registrationAxisTypes = new ArrayList<>();
 
         for ( int d = 0; d < plugin.dataset.numDimensions(); ++d )
         {
             String axisTypeName = ( String ) plugin.typeInput( d ).getValue( module );
-            registrationAxisTypes[ d ] = RegistrationAxisType.valueOf( axisTypeName );
+            registrationAxisTypes.add( RegistrationAxisType.valueOf( axisTypeName ) );
         }
 
     }
@@ -137,8 +141,7 @@ public class Settings
 
     private void setSubSampling()
     {
-        String[] tmp;
-        tmp = plugin.imageFilterSubSampling.split( "," );
+        String[] tmp = plugin.imageFilterSubSampling.split( "," );
         long[] subSampling = Arrays.stream( tmp ).mapToLong( i -> Long.parseLong( i ) ).toArray();
         filterSettings.subSampling = subSampling;
     }

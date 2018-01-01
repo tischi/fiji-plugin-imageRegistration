@@ -139,12 +139,13 @@ public class Registration
     {
         Output< R > output = new Output<>();
 
-        output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.transformedAxisTypes(), "registered" );
-        output.transformedAxisOrder = axes.axisOrder( axes.transformedAxisTypes() );
+        output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.inputAxisTypes(), "registered" );
+        output.transformedAxisOrder = axes.axisOrder( axes.inputAxisTypes() );
+        //output.transformedAxisOrder = axes.axisOrder( axes.transformedAxisTypes() );
         output.transformedNumSpatialDimensions = axes.numSpatialDimensions( axes.transformedAxisTypes() );
 
         output.referenceImgPlus = inputViews.asImgPlus( referenceRegionSequence(), axes.referenceAxisTypes(), "reference" );
-        output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
+        //output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
         output.referenceNumSpatialDimensions = axes.numSpatialDimensions( axes.referenceAxisTypes() );
 
         return output;
@@ -164,7 +165,7 @@ public class Registration
         return InputViews.stackAndDropSingletons( randomAccessibleIntervals );
     }
 
-    public RandomAccessibleInterval fixed( long s, InvertibleRealTransform transform )
+    public RandomAccessibleInterval fixed( long s, T transform )
     {
         RandomAccessible ra = transformedHyperSlice( s, transform );
 
@@ -173,12 +174,13 @@ public class Registration
 
     public RandomAccessible moving( long s, T transform )
     {
-        return transformedHyperSlice( s,  transform );
+        return transformedHyperSlice( s, transform );
     }
 
     private RandomAccessible transformedHyperSlice( long s, InvertibleRealTransform transform )
     {
         RandomAccessibleInterval rai = inputViews.transformableReferenceHyperSlice( s );
+
         return inputViews.transform( rai, transform );
     }
 
