@@ -91,6 +91,18 @@ public class Registration
         statusService.showStatus( min, max, message );
     }
 
+    public void logTransformations()
+    {
+        Logger.info( "Transformations" );
+
+        for ( long s : axes.sequenceCoordinates() )
+        {
+            Logger.info( "" + s + ": " + transformations.get( s ).toString() );
+        }
+
+    }
+
+
     private List< RandomAccessibleInterval< R > > initializeFixedRAIList()
     {
         return new ArrayList<>(  );

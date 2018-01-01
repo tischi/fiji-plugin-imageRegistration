@@ -266,6 +266,19 @@ public class Axes
         return referenceInterval.min( sequenceDimension() );
     }
 
+    public ArrayList< Long > sequenceCoordinates()
+    {
+        ArrayList< Long > sequenceCoordinates = new ArrayList<>(  );
+
+        for ( long s = sequenceMin(); s <= sequenceMax(); s += sequenceIncrement() )
+        {
+            sequenceCoordinates.add( s );
+        }
+
+        return sequenceCoordinates;
+    }
+
+
     public long sequenceMax()
     {
         return referenceInterval.max( sequenceDimension() );
