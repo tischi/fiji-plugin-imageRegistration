@@ -24,7 +24,6 @@ public class Settings
 {
 
     public ArrayList< RegistrationAxisType > registrationAxisTypes;
-    public Map< String, Object > filterParameters;
     public TransformFinderSettings transformSettings;
     public FilterSettings filterSettings;
     public OutputIntervalType outputIntervalType;
@@ -50,13 +49,18 @@ public class Settings
     {
         setRegistrationAxesTypes();
         setRegistrationAxesInterval();
-        this.axes = new Axes( plugin.dataset, registrationAxisTypes, interval );
+        setAxes();
 
         setImageFilterParameters();
         setTransformSettings();
         setOutputInterval();
         setNumThreads();
 
+    }
+
+    public void setAxes()
+    {
+        this.axes = new Axes( plugin.dataset, registrationAxisTypes, interval );
     }
 
     public boolean check()
@@ -109,7 +113,6 @@ public class Settings
 
     private void setImageFilterParameters()
     {
-        filterParameters = new HashMap<>();
         filterSettings = new FilterSettings();
         setFilters();
         setSubSampling();

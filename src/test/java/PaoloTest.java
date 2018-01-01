@@ -1,5 +1,3 @@
-package de.embl.cba.registration.tests;
-
 import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.OutputIntervalType;
 import de.embl.cba.registration.RegistrationAxisType;
@@ -37,8 +35,8 @@ public class PaoloTest
         Settings settings = new Settings( );
 
         settings.registrationAxisTypes = new ArrayList<>(  );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
         settings.registrationAxisTypes.add( RegistrationAxisType.Other );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
         /*
