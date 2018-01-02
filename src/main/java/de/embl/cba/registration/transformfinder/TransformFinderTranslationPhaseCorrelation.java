@@ -3,6 +3,7 @@ package de.embl.cba.registration.transformfinder;
 import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSequence;
+import de.embl.cba.registration.transform.Translation1D;
 import de.embl.cba.registration.util.PhaseCorrelations;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
@@ -115,19 +116,15 @@ public class TransformFinderTranslationPhaseCorrelation
 
     private RealTransform getTranslationAsRealTransform()
     {
-        if ( translation.length == 2 )
-        {
-            return new Translation2D( translation );
-        }
-        else if ( translation.length == 3 )
-        {
-            return new Translation3D( translation );
-        }
-        else
-        {
-            // TODO: still bug with concatenate?
-            return new Translation( translation );
-        }
+        if ( translation.length == 1 ) return new Translation1D( translation );
+
+        if ( translation.length == 2 ) return new Translation2D( translation );
+
+        if ( translation.length == 3 ) return new Translation3D( translation );
+
+        // TODO: still bug with concatenate?
+        return new Translation( translation );
+
     }
 
     private void logShift( PhaseCorrelationPeak2 shiftPeak )

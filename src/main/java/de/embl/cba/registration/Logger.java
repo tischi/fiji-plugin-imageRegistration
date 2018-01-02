@@ -38,7 +38,7 @@ public class Logger
         {
             public void run()
             {
-                logService.info( message );
+                info( message );
             }
         });
     }

@@ -98,7 +98,21 @@ public class Registration
 
         for ( long s : axes.sequenceCoordinates() )
         {
-            Logger.info( "" + s + ": " + transformations.get( s ).toString() );
+            String transformation = "Cannot print transformations of this type.";
+
+            RealTransform realTransform = transformations.get( s );
+
+            if ( realTransform instanceof AffineTransform3D )
+            {
+                transformation = ((AffineTransform3D)realTransform).toString();
+            }
+
+            if ( realTransform instanceof AffineTransform2D )
+            {
+                transformation = ((AffineTransform2D)realTransform).toString();
+            }
+
+            Logger.info( "" + s + ": " + transformation );
         }
 
     }

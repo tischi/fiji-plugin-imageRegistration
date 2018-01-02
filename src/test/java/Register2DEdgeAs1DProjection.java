@@ -18,10 +18,12 @@ import org.scijava.app.DefaultStatusService;
 
 public class Register2DEdgeAs1DProjection
 {
+    public static String LOCAL_FOLDER = "/Users/tischer/Documents/fiji-plugin-imageRegistration";
+
     public static void main(final String... args) throws Exception
     {
 
-        String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/2d_t_1ch_drift_synthetic_edge_noise_small.tif";
+        String path = LOCAL_FOLDER+"/src/test/resources/Translation1D.tif";
 
         final ImageJ ij = new ImageJ();
 
