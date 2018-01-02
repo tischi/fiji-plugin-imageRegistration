@@ -23,7 +23,7 @@ public class Register2DEdgeAs1DProjection
     public static void main(final String... args) throws Exception
     {
 
-        String path = LOCAL_FOLDER+"/src/test/resources/Translation1D.tif";
+        String path = LOCAL_FOLDER+"/src/test/resources/x22_y25_t3_dy-6_dy+3.tif";
 
         final ImageJ ij = new ImageJ();
 

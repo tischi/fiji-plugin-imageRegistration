@@ -25,6 +25,7 @@ import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
 
 import java.util.*;
 
+// TODO: still bug with concatenate for Translation?
 
 public class TransformFinderTranslationPhaseCorrelation
         < R extends RealType< R > & NativeType< R > >
@@ -122,7 +123,6 @@ public class TransformFinderTranslationPhaseCorrelation
 
         if ( translation.length == 3 ) return new Translation3D( translation );
 
-        // TODO: still bug with concatenate?
         return new Translation( translation );
 
     }

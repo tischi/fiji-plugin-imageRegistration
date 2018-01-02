@@ -1,6 +1,7 @@
 package de.embl.cba.registration;
 
 import de.embl.cba.registration.filter.*;
+import de.embl.cba.registration.transform.Translation1D;
 import de.embl.cba.registration.transformfinder.TransformFinder;
 import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.ui.Settings;
@@ -102,15 +103,22 @@ public class Registration
 
             RealTransform realTransform = transformations.get( s );
 
-            if ( realTransform instanceof AffineTransform3D )
+            if ( realTransform instanceof Translation1D )
             {
-                transformation = ((AffineTransform3D)realTransform).toString();
+                transformation = ((Translation1D)realTransform).toString();
             }
 
             if ( realTransform instanceof AffineTransform2D )
             {
                 transformation = ((AffineTransform2D)realTransform).toString();
             }
+
+            if ( realTransform instanceof AffineTransform3D )
+            {
+                transformation = ((AffineTransform3D)realTransform).toString();
+            }
+
+
 
             Logger.info( "" + s + ": " + transformation );
         }

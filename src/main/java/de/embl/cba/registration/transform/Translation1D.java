@@ -223,4 +223,10 @@ public class Translation1D extends AbstractTranslation implements Concatenable< 
     {
         return TranslationGet.class;
     }
+
+    @Override
+    public String toString()
+    {
+        return "1d-translation: (" + t[ 0 ] + ")";
+    }
 }
