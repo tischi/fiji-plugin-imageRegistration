@@ -4,7 +4,9 @@ import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.ui.Settings;
+import de.embl.cba.registration.views.BDV;
 import net.imagej.Dataset;
+import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
 import org.scijava.app.DefaultStatusService;
+import org.scijava.ui.DefaultUIService;
 
 public class Register2DEdgeAs1DProjection
 {
@@ -22,20 +25,19 @@ public class Register2DEdgeAs1DProjection
 
     public static void main(final String... args) throws Exception
     {
+        Services.executorService = Executors.newFixedThreadPool( 4 );
+        Services.datasetService = new DefaultDatasetService();
+        Services.uiService = new DefaultUIService();
 
-        String path = LOCAL_FOLDER+"/src/test/resources/x22_y25_t3_dy-6_dy+3.tif";
+        String path = LOCAL_FOLDER+"/src/test/resources/x22-y25-t3--edge--translation.tif";
 
         final ImageJ ij = new ImageJ();
-
-        //ij.ui().showUI();
+        ij.ui().showUI();
 
         Dataset dataset = getDataset( path, ij );
-
-        //ij.ui().show(dataset);
+        ij.ui().show( dataset );
 
         Settings settings = getSettings( dataset );
-
-        Services.executorService = Executors.newFixedThreadPool( 4 );
 
         Registration registration = new Registration( dataset, settings );
 
@@ -44,6 +46,12 @@ public class Register2DEdgeAs1DProjection
         registration.logTransformations();
 
         Output output = registration.output();
+
+        ij.ui().show( output.transformedImgPlus );
+        ij.ui().show( output.referenceImgPlus );
+
+        BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+        BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }
 
@@ -82,8 +90,6 @@ public class Register2DEdgeAs1DProjection
         settings.transformSettings.maximalTranslations = new double[] { 30.0D };
         settings.transformSettings.transformFinderType = TransformFinderType.Translation__PhaseCorrelation;
         settings.transformSettings.maximalRotations = new double[] { 0.0D };
-
-
 
         return settings;
     }

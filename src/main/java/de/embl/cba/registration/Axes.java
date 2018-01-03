@@ -7,6 +7,7 @@ import net.imglib2.FinalInterval;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Executors;
 
 public class Axes
 {
@@ -45,11 +46,7 @@ public class Axes
     public ArrayList< AxisType > referenceAxisTypes()
     {
         ArrayList< AxisType > axisTypes = transformableDimensionsAxisTypes();
-
-        if ( sequenceMax() - sequenceMin() > 1 )
-        {
-            axisTypes.add( sequenceDimensionAxisType() );
-        }
+        axisTypes.add( sequenceDimensionAxisType() );
 
         return axisTypes;
     }
@@ -322,6 +319,11 @@ public class Axes
 
     }
 
+    /**
+     * Create an AxisOrder for showing the dataset with the BigDataViewer.
+     * @param axisTypes
+     * @return
+     */
     public AxisOrder axisOrder( ArrayList< AxisType > axisTypes )
     {
         String axisOrderString = "";
@@ -333,7 +335,18 @@ public class Axes
         axisOrderString = axisOrderString.replace( "Time", "T" );
         axisOrderString = axisOrderString.replace( "Channel", "C" );
 
-        return AxisOrder.valueOf(  axisOrderString );
+        AxisOrder axisOrder;
+
+        try
+        {
+            axisOrder = AxisOrder.valueOf(  axisOrderString );
+        }
+        catch ( Exception e ) // BDV does not support all axis orders
+        {
+            axisOrder = AxisOrder.DEFAULT;
+        }
+
+        return axisOrder;
     }
 
 

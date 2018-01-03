@@ -6,6 +6,7 @@ import de.embl.cba.registration.transformfinder.TransformFinder;
 import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.ui.Settings;
 import net.imagej.Dataset;
+import net.imagej.axis.AxisType;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
@@ -31,6 +32,8 @@ public class Registration
     private final ReferenceRegionType referenceRegionType;
     private final OutputIntervalType outputIntervalType;
     private Map< Long, T > transformations;
+    private Map< Long, String > transformationInfos;
+
     private final List< RandomAccessibleInterval< R > > referenceRegions;
     RandomAccessibleInterval< R > transformedInput;
 
@@ -74,7 +77,8 @@ public class Registration
 
             T transform = ( T ) transformFinder.findTransform( fixed, moving, filterSequence );
 
-            addTransform( s + 1, transform );
+            addTransform( s + 1, transform, transformFinder.toString() );
+
         }
 
         transformedInput = inputViews.transformedInput( transformations, outputIntervalType );
@@ -95,32 +99,11 @@ public class Registration
 
     public void logTransformations()
     {
-        Logger.info( "Transformations" );
+        Logger.info( "# Relative transformations between subsequent sequence coordinates" );
 
         for ( long s : axes.sequenceCoordinates() )
         {
-            String transformation = "Cannot print transformations of this type.";
-
-            RealTransform realTransform = transformations.get( s );
-
-            if ( realTransform instanceof Translation1D )
-            {
-                transformation = ((Translation1D)realTransform).toString();
-            }
-
-            if ( realTransform instanceof AffineTransform2D )
-            {
-                transformation = ((AffineTransform2D)realTransform).toString();
-            }
-
-            if ( realTransform instanceof AffineTransform3D )
-            {
-                transformation = ((AffineTransform3D)realTransform).toString();
-            }
-
-
-
-            Logger.info( "" + s + ": " + transformation );
+            Logger.info( "Coordinate " + s + ": " + transformationInfos.get( s ) );
         }
 
     }
@@ -137,17 +120,20 @@ public class Registration
         referenceRegions.add( filterSequence.apply( fixedRAI ) );
     }
 
-    private void addTransform( long s, T relativeTransformation )
+    private void addTransform( long s, T relativeTransformation, String transformationInfo )
     {
         T absoluteTransformation = ( T ) transformations.get( s - 1 ).copy();
         absoluteTransformation.preConcatenate( relativeTransformation );
         transformations.put( s, ( T ) absoluteTransformation );
+        transformationInfos.put( s, transformationInfo );
     }
 
     private void initializeTransforms()
     {
         transformations = new HashMap<>(  );
         transformations.put( axes.sequenceMin(), identityTransformation() );
+        transformationInfos = new HashMap<>(  );
+        transformationInfos.put( axes.sequenceMin(), "Reference => no transformation." );
     }
 
     private T identityTransformation()
@@ -167,7 +153,6 @@ public class Registration
         {
             return (T) new AffineTransform( numTransformableDimensions );
         }
-
     }
 
     public Output output()
@@ -176,11 +161,10 @@ public class Registration
 
         output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.inputAxisTypes(), "registered" );
         output.transformedAxisOrder = axes.axisOrder( axes.inputAxisTypes() );
-        //output.transformedAxisOrder = axes.axisOrder( axes.transformedAxisTypes() );
         output.transformedNumSpatialDimensions = axes.numSpatialDimensions( axes.transformedAxisTypes() );
 
         output.referenceImgPlus = inputViews.asImgPlus( referenceRegionSequence(), axes.referenceAxisTypes(), "reference" );
-        //output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
+        output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
         output.referenceNumSpatialDimensions = axes.numSpatialDimensions( axes.referenceAxisTypes() );
 
         return output;
@@ -190,14 +174,16 @@ public class Registration
     {
         ArrayList< RandomAccessibleInterval< R > > randomAccessibleIntervals = new ArrayList<>(  );
 
-        for ( long s = axes.sequenceMin(); s < axes.sequenceMax(); s += axes.sequenceIncrement() )
+        for ( long s = axes.sequenceMin(); s <= axes.sequenceMax(); s += axes.sequenceIncrement() )
         {
             RandomAccessibleInterval fixed = fixed( s, transformations.get( s ) );
             fixed = filterSequence.apply( fixed );
             randomAccessibleIntervals.add( fixed );
         }
 
-        return InputViews.stackAndDropSingletons( randomAccessibleIntervals );
+        RandomAccessibleInterval rai = InputViews.stackAndDropSingletons( randomAccessibleIntervals );
+
+        return rai;
     }
 
     public RandomAccessibleInterval fixed( long s, T transform )

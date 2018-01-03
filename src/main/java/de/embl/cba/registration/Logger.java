@@ -38,14 +38,14 @@ public class Logger
         {
             public void run()
             {
-                info( message );
+                System.out.print( message + "\n" );
             }
         });
     }
 
     public static void info(String message )
     {
-        SwingUtilities.invokeLater(new Runnable()
+        SwingUtilities.invokeLater( new Runnable()
         {
             public void run()
             {

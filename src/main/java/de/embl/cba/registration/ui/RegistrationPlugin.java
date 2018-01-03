@@ -9,11 +9,9 @@ package de.embl.cba.registration.ui;
  */
 
 
-import bdv.util.AxisOrder;
-import bdv.util.Bdv;
-import bdv.util.BdvFunctions;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
+import de.embl.cba.registration.views.BDV;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
@@ -45,8 +43,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static bdv.viewer.DisplayMode.GROUP;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
@@ -319,9 +315,9 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 output = registration.output();
 
-                //showWithBdv( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
+                //show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
 
-                showWithBdv( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+                BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
 
             }
         } );
@@ -382,29 +378,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         } );
         thread.start();
 
-    }
-
-    private void showWithBdv( ImgPlus img, long numSpatialDimensions, AxisOrder axisOrder )
-    {
-        Bdv bdv = null;
-
-        if ( numSpatialDimensions == 2 )
-        {
-            bdv = BdvFunctions.show(
-                    img,
-                    img.getName(),
-                    Bdv.options().is2D().axisOrder( axisOrder ) );
-
-        }
-        else if ( numSpatialDimensions == 3 )
-        {
-            bdv = BdvFunctions.show(
-                    img,
-                    img.getName(),
-                    Bdv.options().axisOrder( axisOrder ) );
-        }
-
-        bdv.getBdvHandle().getViewerPanel().setDisplayMode( GROUP );
     }
 
     protected String typeName( final int d ) {

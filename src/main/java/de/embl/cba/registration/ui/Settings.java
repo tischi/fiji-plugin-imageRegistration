@@ -26,7 +26,7 @@ public class Settings
     public FilterSettings filterSettings;
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
-    public ExecutorService executorService;
+    public ExecutorService executorService;  // TODO: how does this relate to the Services.executorService?
     public Dataset dataset;
     public Axes axes;
 

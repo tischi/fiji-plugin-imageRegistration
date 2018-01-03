@@ -13,6 +13,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TransformFinderRotationTranslationPhaseCorrelation
         < R extends RealType< R > & NativeType < R > >
@@ -25,17 +26,23 @@ public class TransformFinderRotationTranslationPhaseCorrelation
     //TODO: maybe first look, e.g., every 5 degree and then finer, e.g. 1 degree.
     double rotationStep = 2D * Math.PI / 360D;
 
-    private RandomAccessibleInterval fixedRAI;
-    private RandomAccessible movingRA;
-    private TransformFinderTranslationPhaseCorrelation transformationFinderTranslationPhaseCorrelation;
+    private RandomAccessibleInterval fixed;
+    private RandomAccessible moving;
+    private TransformFinderTranslationPhaseCorrelation translationFinder;
 
     private FilterSequence filterSequence;
+    private ArrayList< RotationAndTransformation > rotationAndTransformationList;
+
+    private Double UNSET_ROTATION = Double.MAX_VALUE;
+    private RotationAndTransformation bestRotationAndTransformation;
+    private RealTransform bestTransform;
+    private ArrayList< Double > rotation;
 
     TransformFinderRotationTranslationPhaseCorrelation( TransformSettings settings )
     {
         configureRotations( settings );
 
-        this.transformationFinderTranslationPhaseCorrelation = new TransformFinderTranslationPhaseCorrelation( settings );
+        this.translationFinder = new TransformFinderTranslationPhaseCorrelation( settings );
     }
 
     private void configureRotations( TransformSettings settings )
@@ -54,153 +61,170 @@ public class TransformFinderRotationTranslationPhaseCorrelation
             FilterSequence filterSequence )
     {
 
-        this.filterSequence = filterSequence;
-
         Logger.debug( "## TransformFinderRotationTranslationPhaseCorrelation" );
 
-        this.fixedRAI = fixedRAI;
-        this.movingRA = movingRA;
+        this.fixed = fixedRAI;
+        this.moving = movingRA;
+        this.filterSequence = filterSequence;
 
-        // Recursively loop through all possible rotations and average best translations
-        ArrayList< Result > results = new ArrayList<>(  );
-        double[] rotations = new double[ rotationInterval.numDimensions() ];
-        Arrays.fill( rotations, Double.MAX_VALUE );
-
-        computeCrossCorrelationAndTranslation( rotations, results );
-
-        // go through list and and find the best transformation
-
-        Result bestResult = new Result();
-        bestResult.crossCorrelation = Double.MIN_VALUE;
-
-        for ( Result result : results )
-        {
-            if ( result.crossCorrelation > bestResult.crossCorrelation )
-            {
-                bestResult.crossCorrelation = result.crossCorrelation;
-                bestResult.rotations = result.rotations;
-                bestResult.translations = result.translations;
-            }
-        }
-
-        Logger.debug( "\n### Result" );
-        Logger.debug( bestResult.toString() );
-
-        // Combine translations and rotations and return result
-
-
-        RealTransform bestTransform;
-        if ( bestResult.rotations.length == 1 )
-        {
-            AffineTransform2D affineTransform2D = new AffineTransform2D();
-            affineTransform2D.rotate( bestResult.rotations[ 0 ] );
-            affineTransform2D.translate( bestResult.translations );
-            bestTransform = affineTransform2D;
-        }
-        else if ( bestResult.rotations.length == 3)
-        {
-            AffineTransform3D affineTransform3D = new AffineTransform3D();
-            for ( int d = 0; d < bestResult.rotations.length; ++d )
-            {
-                affineTransform3D.rotate( d, bestResult.rotations[ d ]);
-            }
-            affineTransform3D.translate( bestResult.translations );
-            bestTransform = affineTransform3D;
-        }
-        else
-        {
-            bestTransform = null; // TODO: throw error (or even better: this should not happen)
-        }
+        initialize();
+        determineBestTranslationForEachRotation( rotation );
+        setBestTransform();
 
         return bestTransform;
+
     }
 
-    private void computeCrossCorrelationAndTranslation(
-            double[] rotations,
-            ArrayList< Result > rotationsTranslationsXCorrList )
+    private RealTransform createAffineTransform( RotationAndTransformation rotationAndTransformation )
     {
+        RealTransform affineTransform = null;
 
-        for ( int d = 0; d < rotations.length; ++d )
+        if ( rotationAndTransformation.rotation.size() == 1 )
         {
-            if ( rotations[ d ] == Double.MAX_VALUE )
-            {
-                for ( double r = rotationInterval.realMin( d );
-                      r <= rotationInterval.realMax( d );
-                      r += rotationStep )
-                {
-                    rotations[ d ] = r;
-                    computeCrossCorrelationAndTranslation(
-                            rotations,
-                            rotationsTranslationsXCorrList );
-                }
-
-                return;
-            }
-
+            AffineTransform2D affineTransform2D = new AffineTransform2D();
+            affineTransform2D.rotate( rotationAndTransformation.rotation.get( 0 ) );
+            affineTransform2D.translate( rotationAndTransformation.translation );
+            affineTransform = affineTransform2D;
         }
-
-         // all rotations are set => average best translations and add to list
-
-        // rotate
-        RandomAccessible< R > rotatedMovingRA;
-
-        if ( rotations.length == 1 )
+        else if ( rotationAndTransformation.rotation.size() == 3)
         {
-            AffineTransform2D rotation2D = new AffineTransform2D();
-            rotation2D.rotate(  rotations[ 0 ]  );
-            rotatedMovingRA = InputViews.transform( movingRA, rotation2D );
-        }
-        else if ( rotations.length == 3)
-        {
-            AffineTransform3D rotation3D = new AffineTransform3D();
-            for ( int d = 0; d < rotations.length; ++d )
+            AffineTransform3D affineTransform3D = new AffineTransform3D();
+            for ( int d = 0; d < rotationAndTransformation.rotation.size(); ++d )
             {
-                rotation3D.rotate( d, rotations[ d ] );
+                affineTransform3D.rotate( d, rotationAndTransformation.rotation.get( d ) );
             }
-            rotatedMovingRA = InputViews.transform( movingRA, rotation3D );
+            affineTransform3D.translate( rotationAndTransformation.translation );
+            affineTransform = affineTransform3D;
         }
         else
         {
-            // TODO: throw error (or even better: this should not happen)
-            rotatedMovingRA = null;
+            affineTransform = null; // TODO: throw error (or even better: this should not happen)
         }
 
-        // find best translations for this rotation
-        transformationFinderTranslationPhaseCorrelation.findTransform( fixedRAI, rotatedMovingRA, filterSequence );
+        return affineTransform;
+    }
 
-        // add result to list
-        Result result = new Result();
-        result.crossCorrelation = transformationFinderTranslationPhaseCorrelation.getCrossCorrelation();
-        result.rotations = rotations.clone();
-        result.translations = transformationFinderTranslationPhaseCorrelation.getTranslation();
+    private void initialize()
+    {
+        rotationAndTransformationList = new ArrayList<>(  );
 
-        rotationsTranslationsXCorrList.add( result );
+        rotation = new ArrayList<>();
+        for ( int d = 0; d < rotationInterval.numDimensions(); ++d )
+        {
+            rotation.add( Double.MAX_VALUE );
+        }
 
     }
 
-    private class Result
+    private void setBestTransform( )
     {
-        double[] rotations;
-        double[] translations;
-        double crossCorrelation;
+
+        bestRotationAndTransformation = new RotationAndTransformation();
+        bestRotationAndTransformation.phaseCorrelation = Double.MIN_VALUE;
+
+        for ( RotationAndTransformation rotationAndTransformation : rotationAndTransformationList )
+        {
+            if ( rotationAndTransformation.phaseCorrelation > bestRotationAndTransformation.phaseCorrelation )
+            {
+                bestRotationAndTransformation.phaseCorrelation = rotationAndTransformation.phaseCorrelation;
+                bestRotationAndTransformation.rotation = rotationAndTransformation.rotation;
+                bestRotationAndTransformation.translation = rotationAndTransformation.translation;
+            }
+        }
+
+        bestTransform = createAffineTransform( bestRotationAndTransformation );
+
+    }
+
+    private void determineBestTranslationForEachRotation( ArrayList< Double > rotation )
+    {
+        if ( rotation.contains( UNSET_ROTATION ) )
+        {
+            int d = rotation.indexOf( UNSET_ROTATION );
+            for ( double r = rotationInterval.realMin( d ); r <= rotationInterval.realMax( d ); r += rotationStep )
+            {
+                rotation.set( d, r );
+                determineBestTranslationForEachRotation( rotation );
+            }
+            return;
+        }
+        else
+        {
+            translationFinder.findTransform( fixed, rotateMoving( rotation ), filterSequence );
+            addRotationAndTranslation( rotation, translationFinder );
+        }
+    }
+
+    private void addRotationAndTranslation( ArrayList< Double > rotation, TransformFinderTranslationPhaseCorrelation translationFinder )
+    {
+        RotationAndTransformation rotationAndTransformation = new RotationAndTransformation();
+        rotationAndTransformation.phaseCorrelation = translationFinder.phaseCorrelation();
+        rotationAndTransformation.rotation = ( ArrayList< Double > ) rotation.clone();
+        rotationAndTransformation.translation = translationFinder.translation();
+        rotationAndTransformationList.add( rotationAndTransformation );
+    }
+
+    private RandomAccessible< R > rotateMoving( ArrayList< Double > rotation )
+    {
+        RandomAccessible< R > rotatedMoving;
+
+        if ( rotation.size() == 1 )
+        {
+            AffineTransform2D rotation2D = new AffineTransform2D();
+            rotation2D.rotate(  rotation.get( 0 )  );
+            rotatedMoving = InputViews.transform( moving, rotation2D );
+        }
+        else if ( rotation.size() == 3)
+        {
+            AffineTransform3D rotation3D = new AffineTransform3D();
+            for ( int d = 0; d < rotation.size(); ++d )
+            {
+                rotation3D.rotate( d, rotation.get( d ) );
+            }
+            rotatedMoving = InputViews.transform( moving, rotation3D );
+        }
+        else
+        {
+            rotatedMoving = null; // TODO: throw error (or even better: this should not happen)
+        }
+
+        return rotatedMoving;
+
+    }
+
+    public String toString()
+    {
+        if ( bestRotationAndTransformation == null ) return "No transformation determined.";
+
+        return bestRotationAndTransformation.toString();
+    }
+
+    private class RotationAndTransformation
+    {
+        ArrayList< Double > rotation;
+        double[] translation;
+        double phaseCorrelation;
 
         @Override
         public String toString()
         {
-            double[] rotationsDegrees =
-                    Arrays.stream( rotations )
-                    .map( x -> 360D * x / (2 * Math.PI))
-                    .toArray();
+            String rotationString = rotation.stream()
+                    .map( x -> 360D * x / (2 * Math.PI) )
+                    .map( Object::toString )
+                    .collect( Collectors.joining(", ") );
+
+            String translationString = Arrays.stream( translation )
+                    .mapToObj( Double::toString )
+                    .collect( Collectors.joining(", ") );
 
             String out = "";
-            out += "Rotations : " + Arrays.toString( rotationsDegrees ) + "\n";
-            out += "Translations : " + Arrays.toString( translations )  + "\n";
-            out += "CrossCorrelation : " + crossCorrelation  + "\n";
+            out += "Rotation: " + rotationString;
+            out += "; Translation: " + translationString;
+            out += "; Phase-correlation: " + phaseCorrelation;
+            out += "\n";
 
             return out;
         }
-
-
     }
 
 }

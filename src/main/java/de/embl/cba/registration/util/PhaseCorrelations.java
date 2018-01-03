@@ -15,27 +15,31 @@ import java.util.List;
 public class PhaseCorrelations
 {
 
-    public static List< PhaseCorrelationPeak2 > sensiblePeaks(
-            List< PhaseCorrelationPeak2 > peaks,
-            Dimensions pcmDims )
+    public static List< PhaseCorrelationPeak2 > sensiblePeaks( List< PhaseCorrelationPeak2 > peaks, Dimensions pcmDims, Dimensions img1, Dimensions img2  )
     {
         List<PhaseCorrelationPeak2> sensiblePeaks = new ArrayList<>(  );
 
         for ( PhaseCorrelationPeak2 peak : peaks )
         {
             boolean isSensible = true;
+
             for ( int d = 0; d < peak.getPcmLocation().numDimensions(); ++d )
             {
-                if ( Math.abs( peak.getShift().getLongPosition( d ) ) > 0 )
+                long absShift = Math.abs( peak.getShift().getLongPosition( d ) );
+
+                if ( absShift >= pcmDims.dimension( d ) )
                 {
-                    if ( peak.getPcmLocation().getLongPosition( d ) == peak.getShift().getLongPosition( d ) )
-                    {
-                        isSensible = false;
-                        continue;
-                    }
+                    isSensible = false;
+                    continue;
                 }
 
-                if ( Math.abs( peak.getShift().getLongPosition( d ) ) >= pcmDims.dimension( d ) )
+                if ( absShift >= img1.dimension( d ) )
+                {
+                    isSensible = false;
+                    continue;
+                }
+
+                if ( absShift >= img2.dimension( d ) )
                 {
                     isSensible = false;
                     continue;

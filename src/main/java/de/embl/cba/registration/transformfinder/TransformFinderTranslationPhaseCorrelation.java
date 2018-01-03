@@ -24,6 +24,7 @@ import net.imglib2.view.Views;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO: still bug with concatenate for Translation?
 
@@ -38,6 +39,8 @@ public class TransformFinderTranslationPhaseCorrelation
     private double[] translation;
 
     private double crossCorrelation;
+    private double phaseCorrelation;
+
     private boolean interpolateCrossCorrelation;
     private boolean subpixelAccuracy;
     private int nHighestPeaks;
@@ -58,19 +61,27 @@ public class TransformFinderTranslationPhaseCorrelation
         configureAlgorithm( fixedRAI, filterSequence );
 
         RandomAccessibleInterval movingRAI = Views.interval( movingRA, fixedRAI );
-        RandomAccessibleInterval filteredFixedRAI = filterSequence.apply( fixedRAI );
-        RandomAccessibleInterval filteredMovingRAI = filterSequence.apply( movingRAI );
+        RandomAccessibleInterval img1 = filterSequence.apply( fixedRAI );
+        RandomAccessibleInterval img2 = filterSequence.apply( movingRAI );
 
-        //Services.uiService.show( filteredFixedRAI );
-        //Services.uiService.show( filteredMovingRAI );
+        final RandomAccessibleInterval< FloatType > pcm = calculatePCM( img1, img2 );
 
-        final RandomAccessibleInterval< FloatType > pcm = calculatePCM( filteredFixedRAI, filteredMovingRAI );
-        final List< PhaseCorrelationPeak2 > shiftPeaks = getShiftPeaks( pcm, filteredFixedRAI, filteredMovingRAI );
-        PhaseCorrelationPeak2 shiftPeak = getFirstShiftWithinAllowedRange( pcm, shiftPeaks );
+        List< PhaseCorrelationPeak2 > peaks;
+        //if ( pcm.numDimensions() == 1 )
+        //{
+            peaks = PhaseCorrelations.pcmMaximum( pcm );
+        //}
+        //else
+        //{
+        //    peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, 10, true );
+        //}
 
-        RealTransform transform = createTranslationTransform( shiftPeak );
+        PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
+        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm, img1, img2 );
+        Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelations.ComparatorByPhaseCorrelation() ) );
+        PhaseCorrelationPeak2 shiftPeak = getFirstShiftWithinAllowedRange( pcm, sensiblePeaks );
 
-        return transform;
+        return createTranslationTransform( shiftPeak );
 
     }
 
@@ -90,11 +101,13 @@ public class TransformFinderTranslationPhaseCorrelation
             logShift( shiftPeak );
 
             crossCorrelation = shiftPeak.getCrossCorr();
+            phaseCorrelation = shiftPeak.getPhaseCorr();
+
         }
         else
         {
-            Logger.debug( "No sensible translations found => returning zero translations.\n" +
-                    "Consider increasing the maximal translations range." );
+            Logger.debug( "No sensible translation found => returning zero translation.\n" +
+                    "Consider increasing the maximal translation range." );
 
             crossCorrelation = Double.NaN;
         }
@@ -104,7 +117,7 @@ public class TransformFinderTranslationPhaseCorrelation
             if ( Math.abs( translation[ d  ] ) > maximalTranslations[ d ] )
             {
                 translation[ d ] = maximalTranslations[ d ] * Math.signum( translation[ d ] );
-                Logger.info( "Shift was larger than allowed => restricting to allowed range." );
+                Logger.debug( "Shift was larger than allowed => restricting to allowed range." );
 
             }
         }
@@ -131,7 +144,7 @@ public class TransformFinderTranslationPhaseCorrelation
     {
         for ( double s : translation )
         {
-            Logger.debug( "translations "+ s );
+            Logger.debug( "translation "+ s );
         }
         Logger.debug("phase-correlation " + shiftPeak.getPhaseCorr());
     }
@@ -152,7 +165,7 @@ public class TransformFinderTranslationPhaseCorrelation
 
         List<PhaseCorrelationPeak2> peaks = PhaseCorrelations.pcmMaximum( pcm );
         PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
-        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm );
+        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm, img1, img2 );
         Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelations.ComparatorByPhaseCorrelation() ) );
 
         return sensiblePeaks;
@@ -226,7 +239,7 @@ public class TransformFinderTranslationPhaseCorrelation
         subpixelAccuracy = true;
         interpolateCrossCorrelation = true;
 
-        final int extensionValue = 10;
+        final int extensionValue = 10; // TODO: what makes sense here?
         extension = new int[ numDimensions ];
         Arrays.fill( extension, extensionValue );
 
@@ -248,15 +261,32 @@ public class TransformFinderTranslationPhaseCorrelation
         }
     }
 
-    public double[] getTranslation()
+    public double[] translation()
     {
         return translation;
     }
 
-    public double getCrossCorrelation()
+    public double crossCorrelation()
     {
         return crossCorrelation;
     }
 
+    public double phaseCorrelation()
+    {
+        return phaseCorrelation;
+    }
+
+
+    public String toString()
+    {
+        String string = "";
+        string += "Translation: ";
+        string += Arrays.stream( translation ).mapToObj( Double::toString ).collect( Collectors.joining("," ) );
+        string += "\n";
+        string += "Phase-correlation: ";
+        string += phaseCorrelation;
+
+        return string;
+    }
 
 }
