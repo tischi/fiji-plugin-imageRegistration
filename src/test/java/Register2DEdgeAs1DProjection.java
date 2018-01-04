@@ -4,7 +4,6 @@ import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.ui.Settings;
-import de.embl.cba.registration.views.BDV;
 import net.imagej.Dataset;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
@@ -16,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
-import org.scijava.app.DefaultStatusService;
 import org.scijava.ui.DefaultUIService;
 
 public class Register2DEdgeAs1DProjection
@@ -39,7 +37,7 @@ public class Register2DEdgeAs1DProjection
 
         Settings settings = getSettings( dataset );
 
-        Registration registration = new Registration( dataset, settings );
+        Registration registration = new Registration( settings );
 
         registration.run();
 
@@ -65,11 +63,11 @@ public class Register2DEdgeAs1DProjection
     {
         Settings settings = new Settings( );
 
-        settings.dataset = dataset;
+        //settings.dataset = dataset;
 
         settings.registrationAxisTypes = new ArrayList<>(  );
         settings.registrationAxisTypes.add( RegistrationAxisType.Other );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
         long[] min = Intervals.minAsLongArray( dataset );
@@ -77,7 +75,7 @@ public class Register2DEdgeAs1DProjection
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputDataSize;
+        settings.outputIntervalType = OutputIntervalType.InputImageSize;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

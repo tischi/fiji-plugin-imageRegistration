@@ -12,7 +12,6 @@ package de.embl.cba.registration.ui;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.util.Enums;
-import de.embl.cba.registration.views.BDV;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
@@ -81,9 +80,9 @@ public class RegistrationPlugin<T extends RealType<T>>
     public String transformationTypeInput = "Translation__PhaseCorrelation";
 
     @Parameter(label = "Output size",
-            choices = {"ReferenceRegionSize", "InputDataSize"},
+            choices = {"ReferenceRegionSize", "InputImageSize"},
             persist = false )
-    protected String outputViewIntervalSizeTypeInput = "InputDataSize";
+    protected String outputViewIntervalSizeTypeInput = "InputImageSize";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message01
@@ -128,7 +127,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             "Min and max values chose a subset of the full dataset.<br>" +
             "</li>" +
             "<li>" +
-            "Transformable: <b>Multiple</b> axes where the transformations occur, e.g. x and y.<br>" +
+            "Registration: <b>Multiple</b> axes where the transformations occur, e.g. x and y.<br>" +
             "Min and max values determine a referenceImgPlus region that should be stabilized." +
             "</li>" +
             "<li>" +
@@ -199,11 +198,11 @@ public class RegistrationPlugin<T extends RealType<T>>
             if ( axisTypes.get( d ).equals( sequenceDefault ) )
                 typeItem.setValue( this, "" + RegistrationAxisType.Sequence );
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.X ))
-                typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisType.Registration );
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Y ))
-                typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisType.Registration );
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Z ))
-                typeItem.setValue( this, "" + RegistrationAxisType.Transformable );
+                typeItem.setValue( this, "" + RegistrationAxisType.Registration );
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.CHANNEL ))
                 typeItem.setValue( this, "" + RegistrationAxisType.Other );
 
@@ -291,7 +290,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             public void run()
             {
 
-                Registration registration = new Registration( dataset, settings );
+                Registration registration = new Registration( settings );
 
                 registration.run();
 
@@ -331,7 +330,7 @@ public class RegistrationPlugin<T extends RealType<T>>
         {
             RegistrationAxisType type = settings.registrationAxisTypes.get( d );
 
-            if ( type == RegistrationAxisType.Transformable || type == RegistrationAxisType.Other )
+            if ( type == RegistrationAxisType.Registration || type == RegistrationAxisType.Other )
             {
                 if ( dataset.axis( d ).type() == net.imagej.axis.Axes.X )
                 {

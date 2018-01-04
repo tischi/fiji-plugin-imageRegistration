@@ -1,12 +1,11 @@
 package de.embl.cba.registration;
 
 import de.embl.cba.registration.filter.*;
-import de.embl.cba.registration.transform.Translation1D;
 import de.embl.cba.registration.transformfinder.TransformFinder;
 import de.embl.cba.registration.transformfinder.TransformFinderFactory;
 import de.embl.cba.registration.ui.Settings;
-import net.imagej.Dataset;
-import net.imagej.axis.AxisType;
+import de.embl.cba.registration.util.MetaImage;
+import de.embl.cba.registration.util.Transforms;
 import net.imglib2.*;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
@@ -38,10 +37,9 @@ public class Registration
 
     private RandomAccessibleInterval< R > transformedInput;
 
-    public Registration( final RandomAccessibleInterval rai, Settings settings )
+    public Registration( Settings settings )
     {
-
-        this.input = rai;
+        this.input = settings.rai;
 
         this.axes = settings.axes;
 
@@ -77,16 +75,10 @@ public class Registration
 
         }
 
-        transformedInput = inputViews.transformedInput( transformations, outputIntervalType );
-
         doneIn( startTimeMilliseconds );
 
     }
 
-    public RandomAccessibleInterval< R > getTransformedInput()
-    {
-        return transformedInput;
-    }
 
     private void showSequenceProgress( long s )
     {
@@ -131,28 +123,24 @@ public class Registration
     private void initializeTransforms()
     {
         transformations = new HashMap<>(  );
-        transformations.put( axes.sequenceMin(), identityTransformation() );
+        transformations.put( axes.sequenceMin(), (T) Transforms.identityAffineTransformation( axes.numRegistrationDimensions() ) );
         transformationInfos = new HashMap<>(  );
         transformationInfos.put( axes.sequenceMin(), "Reference => no transformation." );
     }
 
-    private T identityTransformation()
+    public MetaImage transformedImage( OutputIntervalType outputIntervalType )
     {
+        long start = Logger.start( "# Creating transformed image view..." );
 
-        int numTransformableDimensions = axes.numTransformableDimensions();
+        MetaImage metaImage = new MetaImage();
+        metaImage.title = "transformed";
+        metaImage.rai = inputViews.transformed( transformations, outputIntervalType );;
+        metaImage.axisTypes = axes.inputAxisTypes();
+        metaImage.axisOrder = axes.axisOrder( metaImage.axisTypes );
+        metaImage.numSpatialDimensions = axes.numSpatialDimensions( metaImage.axisTypes );
 
-        if ( numTransformableDimensions == 2 )
-        {
-            return (T) new AffineTransform2D();
-        }
-        else if ( numTransformableDimensions == 3 )
-        {
-            return (T) new AffineTransform3D();
-        }
-        else
-        {
-            return (T) new AffineTransform( numTransformableDimensions );
-        }
+        Logger.doneIn( start );
+        return metaImage;
     }
 
     public Output output()

@@ -4,8 +4,9 @@ import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
-import de.embl.cba.registration.util.Reader;
-import net.imagej.Dataset;
+import de.embl.cba.registration.util.MetaImage;
+import de.embl.cba.registration.Readers;
+import de.embl.cba.registration.Viewers;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
 import net.imagej.axis.AxisType;
@@ -30,25 +31,33 @@ public class Register2DFibSEM1DTranslationFullSize
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        RandomAccessibleInterval rai = Reader.openRAIUsingDefaultSCIFIO( path, ij );
-        ij.ui().show( rai );
+        MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
+        //input.axisTypes = new ArrayList<>(  );
+        //input.axisTypes.add( net.imagej.axis.Axes.X );
+        //input.axisTypes.add( net.imagej.axis.Axes.Y );
+        //input.axisTypes.add( net.imagej.axis.Axes.Z );
+        //Viewers.showImagePlusUsingImpShow( input.imp );
+        Viewers.showImgPlusUsingIjUiShow( input.imgPlus, ij );
 
-        ArrayList< AxisType > axisTypes = Reader.readAxisTypesUsingDefaultSCIFIO( path, ij );
-
-        Settings settings = createSettings( rai, axisTypes );
-
-        Registration registration = new Registration( rai, settings );
-
+        Settings settings = createSettings( input.rai, input.axisTypes );
+        Registration registration = new Registration( settings );
         registration.run();
-
         registration.logTransformations();
 
-        Output output = registration.output();
+        MetaImage transformed = registration.transformedImage( OutputIntervalType.InputImageSize );
 
-        long startTime = Logger.start("Preparing ImageJ1 hyperstack display...");
-        ij.ui().show( output.transformedImgPlus );
-        Logger.doneIn( startTime );
+        /*
+        long start = Logger.start( "# Copy image to RAM..." );
+        ImageFilter imageFilter = new ImageFilterAsArrayImg( null );
+        RandomAccessibleInterval rai = imageFilter.apply( transformed.rai );
+        Logger.doneIn( start );
+        */
 
+        //Viewers.showRAIUsingIjUiShow( transformed.rai, ij );
+        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
+
+
+        // Output output = registration.output();
         //ij.ui().show( output.referenceImgPlus );
         //BDV.show( registration.getTransformedInput(), "registered", output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
@@ -64,7 +73,7 @@ public class Register2DFibSEM1DTranslationFullSize
 
         settings.registrationAxisTypes = new ArrayList<>(  );
         settings.registrationAxisTypes.add( RegistrationAxisType.Other );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
         long[] min = Intervals.minAsLongArray( rai );
@@ -77,7 +86,7 @@ public class Register2DFibSEM1DTranslationFullSize
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputDataSize;
+        settings.outputIntervalType = OutputIntervalType.InputImageSize;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

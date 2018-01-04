@@ -47,6 +47,7 @@ public class Settings
     {
         this.plugin = plugin;
         this.module = plugin;
+        this.rai = plugin.dataset;
         updatePluginParameters();
     }
 
@@ -69,7 +70,7 @@ public class Settings
 
     public boolean check()
     {
-        if ( filterSettings.subSampling.length != axes.numTransformableDimensions() )
+        if ( filterSettings.subSampling.length != axes.numRegistrationDimensions() )
         {
             Services.uiService.showDialog( "Sub-sampling dimensions does not equal number " +
                     "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
@@ -77,7 +78,7 @@ public class Settings
         }
 
 
-        if ( transformSettings.maximalTranslations != null && transformSettings.maximalTranslations.length != axes.numTransformableDimensions() )
+        if ( transformSettings.maximalTranslations != null && transformSettings.maximalTranslations.length != axes.numRegistrationDimensions() )
         {
             Services.uiService.showDialog( "Maximal translation dimensions does not equal number " +
                     "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
@@ -162,7 +163,7 @@ public class Settings
 
     private void setGauss()
     {
-        int n = axes.numTransformableDimensions();
+        int n = axes.numRegistrationDimensions();
 
         filterSettings.gaussSigma = new double[ n ];
         Arrays.fill( filterSettings.gaussSigma, GAUSS_SMALL );

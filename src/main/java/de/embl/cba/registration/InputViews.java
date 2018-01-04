@@ -12,10 +12,10 @@ import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
+import net.imglib2.realtransform.RealTransform;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 import java.util.*;
@@ -106,119 +106,79 @@ public class InputViews
 
     }
 
-    public RandomAccessibleInterval transformableHyperSlice( long s, long[] fixedAxesCoordinates )
+    public RandomAccessibleInterval applyIntervalAndDropSingletons( FinalInterval interval )
     {
-
-        FinalInterval interval = sequenceAxisAndFixedAxesInterval( s, fixedAxesCoordinates );
-
         RandomAccessibleInterval rai = Views.interval( inputRAI, interval );
 
         rai = Views.dropSingletonDimensions( rai );
 
         return rai;
-
-    }
-
-    private FinalInterval sequenceAxisAndFixedAxesInterval( long s, long[] fixedAxesCoordinates )
-    {
-        long[] min = Intervals.minAsLongArray( inputRAI );
-        long[] max = Intervals.maxAsLongArray( inputRAI );
-
-        setSequenceAxisCoordinate( s, min, max );
-
-        setFixedAxesCoordinates( fixedAxesCoordinates, min, max );
-
-        return new FinalInterval( min, max );
-    }
-
-    private void setSequenceAxisCoordinate( long s, long[] min, long[] max )
-    {
-        min[ axes.sequenceDimension() ] = s;
-        max[ axes.sequenceDimension() ] = s;
     }
 
     private RandomAccessibleInterval fixedSequenceAxisView( long s )
     {
-        long[] min = Intervals.minAsLongArray( inputRAI );
-        long[] max = Intervals.maxAsLongArray( inputRAI );
-        setSequenceAxisCoordinate( s, min, max );
-        FinalInterval interval = new FinalInterval( min, max );
+        FinalInterval interval = axes.fixedSequenceAxisInterval( s );
         return Views.interval( inputRAI, interval );
     }
 
-    private void setFixedAxesCoordinates( long[] fixedAxesCoordinates, long[] min, long[] max )
+    private RandomAccessibleInterval transformedHyperSlice( FinalInterval nonTransformableSingletonsInterval, InvertibleRealTransform transform,  FinalInterval viewInterval )
     {
-        for ( int i = 0; i < axes.numOtherDimensions( ); ++i )
-        {
-            int d = axes.fixedDimension( i );
-            min[ d ] = fixedAxesCoordinates[ i ];
-            max[ d ] = fixedAxesCoordinates[ i ];
-        }
-    }
-
-    private RandomAccessibleInterval transformedHyperSlice( long s, InvertibleRealTransform transform, long[] fixedDimensions, FinalInterval interval )
-    {
-        RandomAccessibleInterval rai = transformableHyperSlice( s, fixedDimensions );
+        RandomAccessibleInterval rai = applyIntervalAndDropSingletons( nonTransformableSingletonsInterval );
 
         RandomAccessible ra = transform( rai, transform );
 
-        return Views.interval( ra, interval );
+        return Views.interval( ra, viewInterval );
     }
 
-    public RandomAccessibleInterval< R > transformedInput( Map< Long, T > transformations, OutputIntervalType outputIntervalType)
+    public RandomAccessibleInterval< R > transformed( Map< Long, T > transformations, OutputIntervalType outputIntervalType)
     {
         this.transformations = transformations;
         this.outputIntervalType = outputIntervalType;
 
-        transformedInput = transformedSequences( initializedFixedCoordinates(), 0 );
+        long[] nonTransformableCoordinates = new long[ axes.numNonTransformableDimensions() ];
+        transformedInput = transformedSequences( nonTransformableCoordinates, 0 );
 
         rearrangeTransformedAxesIntoSameOrderAsInput();
 
         return transformedInput;
     }
 
-    private long[] initializedFixedCoordinates()
-    {
-        if ( axes.numOtherDimensions() > 0 )
-        {
-            long[] fixedCoordinates = new long[ axes.numOtherDimensions() ];
-            FinalInterval fixedDimensionsInterval = axes.otherAxesInputInterval();
-            for ( int i = 0; i < fixedCoordinates.length; ++i )
-            {
-                fixedCoordinates[ i ] = fixedDimensionsInterval.min( i );
-            }
-            return fixedCoordinates;
-        }
-        else
-        {
-            return new long[ ]{ 0 };
-        }
 
-    }
-
-    private RandomAccessibleInterval< R > transformedSequences( long[] fixedCoordinates, int loopingDimension )
+    private RandomAccessibleInterval< R > transformedSequences( long[] nonTransformableCoordinates, int loopingDimension )
     {
         ArrayList< RandomAccessibleInterval<R> > transformedSequenceList = new ArrayList<>(  );
 
-        long min = axes.otherAxesInputInterval().min( loopingDimension );
-        long max = axes.otherAxesInputInterval().max( loopingDimension );
+        long min = axes.nonTransformableAxesInterval().min( loopingDimension );
+        long max = axes.nonTransformableAxesInterval().max( loopingDimension );
 
         for ( long coordinate = min; coordinate <= max; ++coordinate )
         {
-            RandomAccessibleInterval transformedSequence;
+            RandomAccessibleInterval transformed = null;
 
-            fixedCoordinates[ loopingDimension ] = coordinate;
+            nonTransformableCoordinates[ loopingDimension ] = coordinate;
 
-            if ( loopingDimension == fixedCoordinates.length - 1 )
+            if ( loopingDimension == nonTransformableCoordinates.length - 1 )
             {
-                transformedSequence = transformedSequence( fixedCoordinates );
+                long s = axes.sequenceCoordinate( nonTransformableCoordinates );
+
+                if ( transformations.containsKey( s ) )
+                {
+                    InvertibleRealTransform transform = axes.expandTransformToAllSpatialDimensions( transformations.get( s ) );
+                    FinalInterval nonTransformableSingletonsInterval = axes.nonTransformableAxesSingletonInterval( nonTransformableCoordinates );
+                    FinalInterval transformedViewInterval = axes.transformableAxesInterval( outputIntervalType );
+                    transformed = transformedHyperSlice( nonTransformableSingletonsInterval, transform, transformedViewInterval );
+                }
             }
             else
             {
-                transformedSequence = transformedSequences( fixedCoordinates, ++loopingDimension );
+                transformed = transformedSequences( nonTransformableCoordinates, ++loopingDimension );
             }
 
-            transformedSequenceList.add( transformedSequence );
+            if ( transformed != null )
+            {
+                transformedSequenceList.add( transformed );
+            }
+
         }
 
         RandomAccessibleInterval rai = stackAndDropSingletons( transformedSequenceList );
@@ -226,35 +186,6 @@ public class InputViews
         return rai;
     }
 
-    private RandomAccessibleInterval< R > transformedSequence( long[] fixedCoordinates )
-    {
-        ArrayList< RandomAccessibleInterval<R> > transformedList = new ArrayList<>(  );
-
-        long min = axes.sequenceMin();
-        long max = axes.sequenceMax();
-
-        for ( long s = min; s <= max; ++s )
-        {
-            if ( transformations.containsKey( s ) )
-            {
-                RandomAccessibleInterval transformed =
-                        transformedHyperSlice(
-                                s,
-                                transformations.get( s ),
-                                fixedCoordinates,
-                                axes.transformableDimensionsOutputInterval( outputIntervalType ) );
-
-                transformedList.add ( transformed );
-            }
-        }
-
-        RandomAccessibleInterval rai = stackAndDropSingletons( transformedList );
-
-        // Services.uiService.show( rai );
-
-        return rai;
-
-    }
 
     private void rearrangeTransformedAxesIntoSameOrderAsInput( )
     {

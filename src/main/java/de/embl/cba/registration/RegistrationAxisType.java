@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public enum RegistrationAxisType
 {
     Sequence,
-    Transformable,
+    Registration,
     Other
 
 

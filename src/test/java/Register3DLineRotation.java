@@ -4,13 +4,11 @@ import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
-import de.embl.cba.registration.views.BDV;
 import net.imagej.Dataset;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
 import net.imglib2.FinalInterval;
 import net.imglib2.util.Intervals;
-import org.scijava.ui.DefaultUIService;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +37,7 @@ public class Register3DLineRotation
 
         Settings settings = settings( dataset );
 
-        Registration registration = new Registration( dataset, settings );
+        Registration registration = new Registration( settings );
 
         registration.run();
 
@@ -65,12 +63,12 @@ public class Register3DLineRotation
     {
         Settings settings = new Settings( );
 
-        settings.dataset = dataset;
+        //settings.dataset = dataset;
 
         settings.registrationAxisTypes = new ArrayList<>(  );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
         long[] min = Intervals.minAsLongArray( dataset );
@@ -79,7 +77,7 @@ public class Register3DLineRotation
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputDataSize;
+        settings.outputIntervalType = OutputIntervalType.InputImageSize;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

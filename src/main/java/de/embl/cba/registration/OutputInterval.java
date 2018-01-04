@@ -11,7 +11,7 @@ public class OutputInterval
     /*
     public FinalInterval getTransformableDimensionsOutputInterval()
     {
-        if ( outputIntervalType == OutputIntervalType.InputDataSize )
+        if ( outputIntervalType == OutputIntervalType.InputImageSize )
         {
             return transformableAxesSettings.inputInterval;
         }
