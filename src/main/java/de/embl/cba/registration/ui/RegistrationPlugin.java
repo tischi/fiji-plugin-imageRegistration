@@ -157,9 +157,8 @@ public class RegistrationPlugin<T extends RealType<T>>
             callback = "showOutputWithIJHyperstack" )
     private Button showOutputWithIJHyperstack;
 
-    Output output;
-
     // Initialization
+
     private void init()
     {
         Services.setServices( this );
@@ -169,7 +168,6 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         configureAxesUI();
     }
-
     private void configureAxesUI()
     {
         List< String > registrationAxisTypes = Enums.asStringList( RegistrationAxisType.values() );
@@ -273,6 +271,8 @@ public class RegistrationPlugin<T extends RealType<T>>
         // the plugin is executed via a callback to computeRegistration()
     }
 
+    Output output;
+
     // Callbacks
 
     private void intervalChanged()
@@ -299,7 +299,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 //show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
 
-                BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+                //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
 
             }
         } );
@@ -307,7 +307,19 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
+    private void showOutputWithIJHyperstack() {
 
+        Thread thread = new Thread(new Runnable() {
+            public void run()
+            {
+                long startTime = Logger.start("# Preparing result for ImageJ Hyperstack display...");
+                uiService.show( output.transformedImgPlus );
+                Logger.doneIn( startTime );
+            }
+        } );
+        thread.start();
+
+    }
 
     // Other
 
@@ -348,19 +360,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    protected void showOutputWithIJHyperstack() {
 
-        Thread thread = new Thread(new Runnable() {
-            public void run()
-            {
-                long startTime = Logger.start("# Preparing result for ImageJ Hyperstack display...");
-                uiService.show( output.transformedImgPlus );
-                Logger.doneIn( startTime );
-            }
-        } );
-        thread.start();
-
-    }
 
     protected String typeName( final int d ) {
         return "type" + d;
@@ -380,18 +380,9 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         boolean LOAD_IJ1_VS = false;
         boolean LOAD_IJ2_DATASET = true;
-        String PATH;
 
-        PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
-        PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
-        //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_2ch_drift_synthetic_blur.tif";
-        //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_line.tif";
-        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge.tif";
-        PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_edge_noise_small.tif";
-
-        //PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/test-data/2d_t_1ch_drift_synthetic_shorterline.tif";
-
-        //PATH = "/Users/tischer/Documents/henning-falk--3d-embryo-registration--data/large-jump.tif";
+        //String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x80-y270-z600--fib-sem--translation-y.tif";
+        String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
 
         Dataset dataset = null;
         int n = 0;

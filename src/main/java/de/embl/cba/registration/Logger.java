@@ -19,16 +19,29 @@ public class Logger
         statusService = plugin.statusService;
     }
 
-    public static void showStatus( int min, int max, String message )
+    public static void showStatus( int current, int total, String message )
     {
         if ( statusService != null )
         {
-            statusService.showStatus( min, max, message );
+            statusService.showStatus( current, total, message );
         }
         else
         {
-            IJ.log( message + " " + min + "/" + max );
-            System.out.print( message + " " + min + "/" + max + "\n" );
+            IJ.log( message + " " + current + "/" + total );
+            System.out.print( message + " " + current + "/" + total + "\n" );
+        }
+    }
+
+    public static void showStatus( String message )
+    {
+        if ( statusService != null )
+        {
+            statusService.showStatus( message );
+        }
+        else
+        {
+            IJ.log( message );
+            System.out.print( message + "\n" );
         }
     }
 

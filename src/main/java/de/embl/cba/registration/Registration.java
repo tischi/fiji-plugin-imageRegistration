@@ -23,7 +23,6 @@ public class Registration
         < R extends RealType< R > & NativeType < R >,
                 T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable < T > > {
 
-    private final Dataset dataset;
     private final RandomAccessibleInterval< R > input;
     private final InputViews inputViews;
     private final FilterSequence filterSequence;
@@ -34,14 +33,15 @@ public class Registration
     private Map< Long, T > transformations;
     private Map< Long, String > transformationInfos;
 
+    // output
     private final List< RandomAccessibleInterval< R > > referenceRegions;
-    RandomAccessibleInterval< R > transformedInput;
 
-    public Registration( final Dataset dataset, Settings settings )
+    private RandomAccessibleInterval< R > transformedInput;
+
+    public Registration( final RandomAccessibleInterval rai, Settings settings )
     {
 
-        this.dataset = dataset;
-        this.input = ( RandomAccessibleInterval<R> ) dataset;
+        this.input = rai;
 
         this.axes = settings.axes;
 
@@ -83,13 +83,18 @@ public class Registration
 
     }
 
+    public RandomAccessibleInterval< R > getTransformedInput()
+    {
+        return transformedInput;
+    }
+
     private void showSequenceProgress( long s )
     {
-        String message = "Sequence registration";
+        String message = "Registration";
         // TODO: add memory and time
-        int min = (int) (s - axes.sequenceMin());
-        int max = (int) (axes.sequenceMax() - axes.sequenceMin());
-        Logger.showStatus( min, max, message );
+        int current = (int) (s + 1 - axes.sequenceMin());
+        int total = (int) (axes.sequenceMax() - axes.sequenceMin());
+        Logger.showStatus( current, total, message );
     }
 
     public void logTransformations()
@@ -152,6 +157,8 @@ public class Registration
 
     public Output output()
     {
+        long startTime = Logger.start("Creating registered image...");
+
         Output< R > output = new Output<>();
 
         output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.inputAxisTypes(), "registered" );
@@ -161,6 +168,8 @@ public class Registration
         output.referenceImgPlus = inputViews.asImgPlus( referenceRegionSequence(), axes.referenceAxisTypes(), "reference" );
         output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
         output.referenceNumSpatialDimensions = axes.numSpatialDimensions( axes.referenceAxisTypes() );
+
+        Logger.doneIn( startTime );
 
         return output;
     }

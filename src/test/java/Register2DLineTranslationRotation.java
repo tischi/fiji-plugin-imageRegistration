@@ -1,22 +1,22 @@
 import bdv.util.AxisOrder;
-import de.embl.cba.registration.*;
-import de.embl.cba.registration.filter.FilterSettings;
-import de.embl.cba.registration.filter.FilterType;
-import de.embl.cba.registration.transformfinder.TransformFinderType;
-import de.embl.cba.registration.transformfinder.TransformSettings;
-import de.embl.cba.registration.ui.Settings;
-import de.embl.cba.registration.views.BDV;
-import net.imagej.Dataset;
-import net.imagej.DefaultDatasetService;
-import net.imagej.ImageJ;
-import net.imglib2.FinalInterval;
-import net.imglib2.util.Intervals;
-import org.scijava.ui.DefaultUIService;
+        import de.embl.cba.registration.*;
+        import de.embl.cba.registration.filter.FilterSettings;
+        import de.embl.cba.registration.filter.FilterType;
+        import de.embl.cba.registration.transformfinder.TransformFinderType;
+        import de.embl.cba.registration.transformfinder.TransformSettings;
+        import de.embl.cba.registration.ui.Settings;
+        import de.embl.cba.registration.views.BDV;
+        import net.imagej.Dataset;
+        import net.imagej.DefaultDatasetService;
+        import net.imagej.ImageJ;
+        import net.imglib2.FinalInterval;
+        import net.imglib2.util.Intervals;
+        import org.scijava.ui.DefaultUIService;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
+        import java.io.File;
+        import java.io.IOException;
+        import java.util.ArrayList;
+        import java.util.concurrent.Executors;
 
 public class Register2DLineTranslationRotation
 {
@@ -52,7 +52,7 @@ public class Register2DLineTranslationRotation
         ij.ui().show( output.transformedImgPlus );
         ij.ui().show( output.referenceImgPlus );
 
-        BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+        //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }

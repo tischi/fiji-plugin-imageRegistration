@@ -50,8 +50,8 @@ public class Register2DEdgeAs1DProjection
         ij.ui().show( output.transformedImgPlus );
         ij.ui().show( output.referenceImgPlus );
 
-        BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
-        BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
+        //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+        //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }
 

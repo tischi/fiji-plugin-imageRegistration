@@ -1,24 +1,22 @@
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.filter.FilterSettings;
 import de.embl.cba.registration.filter.FilterType;
-import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
+import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
-import de.embl.cba.registration.views.BDV;
+import de.embl.cba.registration.util.Reader;
 import net.imagej.Dataset;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
+import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.util.Intervals;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
-import org.scijava.app.DefaultStatusService;
-
-public class Register2DFibSem1DTranslation
+public class Register2DFibSEM1DTranslationFullSize
 {
     public static String LOCAL_FOLDER = "/Users/tischer/Documents/fiji-plugin-imageRegistration";
 
@@ -27,18 +25,19 @@ public class Register2DFibSem1DTranslation
         Services.executorService = Executors.newFixedThreadPool( 4 );
         Services.datasetService = new DefaultDatasetService();
 
-        //String path = LOCAL_FOLDER+"/src/test/resources/x80-y222-z5--fib-sem--translation-y.tif";
-        String path = LOCAL_FOLDER+"/src/test/resources/x80-y270-z600--fib-sem--translation-y.tif";
+        String path ="/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
 
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        Dataset dataset = getDataset( path, ij );
-        ij.ui().show( dataset );
+        RandomAccessibleInterval rai = Reader.openRAIUsingDefaultSCIFIO( path, ij );
+        ij.ui().show( rai );
 
-        Settings settings = getSettings( dataset );
+        ArrayList< AxisType > axisTypes = Reader.readAxisTypesUsingDefaultSCIFIO( path, ij );
 
-        Registration registration = new Registration( dataset, settings );
+        Settings settings = createSettings( rai, axisTypes );
+
+        Registration registration = new Registration( rai, settings );
 
         registration.run();
 
@@ -46,35 +45,35 @@ public class Register2DFibSem1DTranslation
 
         Output output = registration.output();
 
+        long startTime = Logger.start("Preparing ImageJ1 hyperstack display...");
         ij.ui().show( output.transformedImgPlus );
-        ij.ui().show( output.referenceImgPlus );
+        Logger.doneIn( startTime );
 
-        //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+        //ij.ui().show( output.referenceImgPlus );
+        //BDV.show( registration.getTransformedInput(), "registered", output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }
 
-    private static Dataset getDataset(  String path, ImageJ ij ) throws IOException
-    {
-        final File file = new File( path );
-        return ij.scifio().datasetIO().open(file.getPath());
-    }
-
-    private static Settings getSettings( Dataset dataset )
+    private static Settings createSettings( RandomAccessibleInterval rai, ArrayList< AxisType > axisTypes )
     {
         Settings settings = new Settings( );
 
-        settings.dataset = dataset;
+        settings.rai = rai;
+        settings.axisTypes = axisTypes;
 
         settings.registrationAxisTypes = new ArrayList<>(  );
         settings.registrationAxisTypes.add( RegistrationAxisType.Other );
         settings.registrationAxisTypes.add( RegistrationAxisType.Transformable );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
-        long[] min = Intervals.minAsLongArray( dataset );
-        long[] max = Intervals.maxAsLongArray( dataset );
-        min[ 1 ] = 150;
-        max[ 1 ] = 200;
+        long[] min = Intervals.minAsLongArray( rai );
+        long[] max = Intervals.maxAsLongArray( rai );
+
+        min[ 0 ] = 0; max[ 0 ] = 50;
+        min[ 1 ] = 200; max[ 1 ] = 270;
+        min[ 2 ] = 0; max[ 2 ] = 50;
+
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );

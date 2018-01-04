@@ -76,7 +76,8 @@ public class TransformFinderTranslationPhaseCorrelation
         PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
         List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm, img1, img2 );
         Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelations.ComparatorByPhaseCorrelation() ) );
-        PhaseCorrelationPeak2 peak = getFirstShiftWithinAllowedRange( pcm, sensiblePeaks );
+        PhaseCorrelationPeak2 peak = sensiblePeaks.get( 0 );
+        //PhaseCorrelationPeak2 peak = getFirstShiftWithinAllowedRange( pcm, sensiblePeaks );
         setTranslationFromShiftPeak( peak );
     }
 
@@ -183,7 +184,7 @@ public class TransformFinderTranslationPhaseCorrelation
     {
         numDimensions = fixedRAI.numDimensions();
         configurePhaseCorrelation();
-        configurePCMMaximaFinder( fixedRAI );
+        //configurePCMMaximaFinder( fixedRAI );
         setSubSampling( filterSequence );
 
     }
@@ -242,8 +243,7 @@ public class TransformFinderTranslationPhaseCorrelation
         String string = "";
         string += "Translation: ";
         string += Arrays.stream( translation ).mapToObj( Double::toString ).collect( Collectors.joining("," ) );
-        string += "\n";
-        string += "Phase-correlation: ";
+        string += "; Phase-correlation: ";
         string += phaseCorrelation;
 
         return string;

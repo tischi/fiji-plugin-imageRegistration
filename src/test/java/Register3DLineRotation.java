@@ -50,7 +50,7 @@ public class Register3DLineRotation
         ij.ui().show( output.transformedImgPlus );
         ij.ui().show( output.referenceImgPlus );
 
-        BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+        //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }

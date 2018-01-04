@@ -4,6 +4,7 @@ import bdv.util.AxisOrder;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,19 +13,23 @@ import java.util.concurrent.Executors;
 public class Axes
 {
 
-    final private Dataset dataset;
     final private ArrayList< RegistrationAxisType > registrationAxisTypes;
+    final private ArrayList< AxisType > axisTypes;
+
     final private FinalInterval referenceInterval;
     final private int numDimensions;
+    final private RandomAccessibleInterval rai;
 
-    public Axes( Dataset dataset,
+    public Axes( RandomAccessibleInterval rai,
                  ArrayList< RegistrationAxisType > registrationAxisTypes,
+                 ArrayList< AxisType > axisTypes,
                  FinalInterval referenceInterval )
     {
-        this.dataset = dataset;
+        this.rai = rai;
         this.registrationAxisTypes = registrationAxisTypes;
+        this.axisTypes = axisTypes;
         this.referenceInterval = referenceInterval;
-        this.numDimensions = dataset.numDimensions();
+        this.numDimensions = registrationAxisTypes.size();
     }
 
     public FinalInterval getReferenceInterval()
@@ -97,8 +102,8 @@ public class Axes
         {
             if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Transformable ) )
             {
-                min[ i ] = dataset.min( d );
-                max[ i ] = dataset.max( d );
+                min[ i ] = rai.min( d );
+                max[ i ] = rai.max( d );
                 ++i;
             }
         }
@@ -149,8 +154,8 @@ public class Axes
             {
                 if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Other ) )
                 {
-                    min[ i ] = dataset.min( d );
-                    max[ i ] = dataset.max( d );
+                    min[ i ] = rai.min( d );
+                    max[ i ] = rai.max( d );
                     ++i;
                 }
             }
@@ -306,7 +311,7 @@ public class Axes
 
     public ArrayList< AxisType > inputAxisTypes()
     {
-        return axisTypesList( dataset );
+        return axisTypes;
     }
 
     public AxisOrder axisOrderAfterTransformation()
@@ -316,7 +321,6 @@ public class Axes
         AxisOrder axisOrder = axisOrder( axisTypes );
 
         return axisOrder;
-
     }
 
     /**

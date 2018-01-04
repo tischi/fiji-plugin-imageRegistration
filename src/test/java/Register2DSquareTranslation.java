@@ -35,7 +35,7 @@ public class Register2DSquareTranslation
 
         Dataset dataset = getDataset( path, ij );
         //ij.ui().show( dataset );
-        BDV.show( dataset.getImgPlus(), 2, AxisOrder.XYT );
+        //BDV.show( dataset.getImgPlus(), 2, AxisOrder.XYT );
 
         Settings settings = getSettings( dataset );
 
@@ -50,7 +50,7 @@ public class Register2DSquareTranslation
         ij.ui().show( output.transformedImgPlus );
         ij.ui().show( output.referenceImgPlus );
 
-        BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
+        //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }

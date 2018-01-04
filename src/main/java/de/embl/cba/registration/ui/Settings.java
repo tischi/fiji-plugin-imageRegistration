@@ -8,8 +8,9 @@ import de.embl.cba.registration.filter.FilterSettings;
 import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
-import net.imagej.Dataset;
+import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.module.Module;
 import org.scijava.ui.DialogPrompt;
@@ -22,16 +23,21 @@ public class Settings
 {
 
     public ArrayList< RegistrationAxisType > registrationAxisTypes;
+    public ArrayList< AxisType > axisTypes;
+
     public TransformSettings transformSettings;
     public FilterSettings filterSettings;
     public OutputIntervalType outputIntervalType;
     public FinalInterval interval;
     public ExecutorService executorService;  // TODO: how does this relate to the Services.executorService?
-    public Dataset dataset;
     public Axes axes;
+    public RandomAccessibleInterval rai;
 
     private RegistrationPlugin plugin;
     private Module module; // TODO: what is the difference between plugin and module?
+
+    private double GAUSS_SMALL = 2.0D;
+    private double GAUSS_LARGE = 6.0D;
 
     public Settings( )
     {
@@ -41,25 +47,24 @@ public class Settings
     {
         this.plugin = plugin;
         this.module = plugin;
-        this.dataset = plugin.dataset;
-        updateParameters();
+        updatePluginParameters();
     }
 
-    public void updateParameters()
+    public void updatePluginParameters()
     {
-        setRegistrationAxesTypes();
+        setRegistrationAxisTypes();
+        setAxisTypes();
         setRegistrationAxesInterval();
         setAxes();
         setImageFilterParameters();
         setTransformSettings();
         setOutputInterval();
         setNumThreads();
-
     }
 
     public void setAxes()
     {
-        this.axes = new Axes( dataset, registrationAxisTypes, interval );
+        this.axes = new Axes( rai, registrationAxisTypes, axisTypes, interval );
     }
 
     public boolean check()
@@ -70,7 +75,9 @@ public class Settings
                     "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
             return false;
         }
-        if ( transformSettings.maximalTranslations.length != axes.numTransformableDimensions() )
+
+
+        if ( transformSettings.maximalTranslations != null && transformSettings.maximalTranslations.length != axes.numTransformableDimensions() )
         {
             Services.uiService.showDialog( "Maximal translation dimensions does not equal number " +
                     "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
@@ -84,7 +91,7 @@ public class Settings
         executorService = plugin.threadService.getExecutorService(); // TODO
     }
 
-    private void setRegistrationAxesTypes()
+    private void setRegistrationAxisTypes()
     {
         registrationAxisTypes = new ArrayList<>();
 
@@ -94,6 +101,11 @@ public class Settings
             registrationAxisTypes.add( RegistrationAxisType.valueOf( axisTypeName ) );
         }
 
+    }
+
+    private void setAxisTypes()
+    {
+        axisTypes = Axes.axisTypesList( plugin.dataset );
     }
 
     private void setRegistrationAxesInterval()
@@ -122,6 +134,7 @@ public class Settings
     private void setFilters()
     {
         filterSettings.filterTypes  = new ArrayList<>(  );
+
         filterSettings.filterTypes.add( FilterType.SubSample );
 
         FilterType filterType = FilterType.valueOf( plugin.imageFilterType );
@@ -135,7 +148,6 @@ public class Settings
         {
             filterSettings.filterTypes.add( FilterType.valueOf( plugin.imageFilterType ) );
         }
-
 
         //filterSettings.filterTypes.add( FilterType.AsArrayImg );
 
@@ -153,13 +165,13 @@ public class Settings
         int n = axes.numTransformableDimensions();
 
         filterSettings.gaussSigma = new double[ n ];
-        Arrays.fill( filterSettings.gaussSigma, 3.0D );
+        Arrays.fill( filterSettings.gaussSigma, GAUSS_SMALL );
 
         filterSettings.gaussSigmaSmaller = new double[ n ];
-        Arrays.fill( filterSettings.gaussSigmaSmaller, 3.0D );
+        Arrays.fill( filterSettings.gaussSigmaSmaller, GAUSS_SMALL );
 
         filterSettings.gaussSigmaLarger = new double[ n ];
-        Arrays.fill( filterSettings.gaussSigmaLarger, 9.0D );
+        Arrays.fill( filterSettings.gaussSigmaLarger, GAUSS_LARGE );
     }
 
 
