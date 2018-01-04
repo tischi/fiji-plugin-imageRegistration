@@ -7,4 +7,6 @@ public enum RegistrationAxisType
     Sequence,
     Transformable,
     Other
+
+
 }

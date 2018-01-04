@@ -167,14 +167,11 @@ public class InputViews
 
     public RandomAccessibleInterval< R > transformedInput( Map< Long, T > transformations, OutputIntervalType outputIntervalType)
     {
-
         this.transformations = transformations;
         this.outputIntervalType = outputIntervalType;
 
         transformedInput = transformedSequences( initializedFixedCoordinates(), 0 );
 
-        // TODO: below code seems to work but the resulting ImgPlus
-        // does not show the right thing using the uiService.show().
         rearrangeTransformedAxesIntoSameOrderAsInput();
 
         return transformedInput;
@@ -201,7 +198,6 @@ public class InputViews
 
     private RandomAccessibleInterval< R > transformedSequences( long[] fixedCoordinates, int loopingDimension )
     {
-
         ArrayList< RandomAccessibleInterval<R> > transformedSequenceList = new ArrayList<>(  );
 
         long min = axes.otherAxesInputInterval().min( loopingDimension );
@@ -226,8 +222,6 @@ public class InputViews
         }
 
         RandomAccessibleInterval rai = stackAndDropSingletons( transformedSequenceList );
-
-        // Services.uiService.show( rai ); // TODO: does not do the dimensionality right. why?
 
         return rai;
     }

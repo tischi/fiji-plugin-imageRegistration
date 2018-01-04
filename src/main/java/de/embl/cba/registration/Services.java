@@ -2,6 +2,7 @@ package de.embl.cba.registration;
 
 import de.embl.cba.registration.ui.RegistrationPlugin;
 import net.imagej.DatasetService;
+import net.imagej.ImageJ;
 import org.scijava.app.StatusService;
 import org.scijava.log.LogService;
 import org.scijava.ui.UIService;
@@ -15,6 +16,8 @@ public abstract class Services
     public static ExecutorService executorService;
     public static StatusService statusService;
     public static UIService uiService;
+    public static ImageJ ij;
+
 
     public static void setServices( RegistrationPlugin plugin )
     {

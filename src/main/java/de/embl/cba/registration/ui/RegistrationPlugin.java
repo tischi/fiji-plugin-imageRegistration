@@ -11,6 +11,7 @@ package de.embl.cba.registration.ui;
 
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
+import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.views.BDV;
 import ij.IJ;
 import ij.ImagePlus;
@@ -41,8 +42,6 @@ import java.awt.*;
 import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Plugin(type = Command.class,
         menuPath = "Plugins>Registration>N-D Sequence Registration",
@@ -94,12 +93,10 @@ public class RegistrationPlugin<T extends RealType<T>>
             "The order must be the same as your axes appear down below.<br>" +
             "Maximal transformation values are between subsequent sequence coordinates.<br>";
 
-    @Parameter(label = "Maximal translations [pixels]",
-            persist = false)
-    protected String transformationParametersMaximalTranslationsInput = "30,30";
+    //@Parameter(label = "Maximal translations [pixels]", persist = false)
+    //protected String transformationParametersMaximalTranslationsInput = "30,30";
 
-    @Parameter(label = "Maximal rotations [degrees]",
-            persist = false)
+    @Parameter(label = "Maximal rotations [degrees]", persist = false)
     protected String transformationParameterMaximalRotationsInput = "2";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
@@ -121,7 +118,6 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     @Parameter(label = "Sub-sampling [pixels]", persist = false)
     protected String imageFilterSubSampling = "1,1";
-
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message03
@@ -155,59 +151,35 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     @Parameter(label = "Compute registration",
             callback = "computeRegistration" )
-    private Button computeRegistrationButton;
+    private Button computeRegistration;
 
     @Parameter(label = "Get result as ImageJ stack (can take some time...)",
             callback = "showOutputWithIJHyperstack" )
-    private Button showOutputWithIJHyperstackButton;
+    private Button showOutputWithIJHyperstack;
 
     Output output;
 
     // Initialization
-
     private void init()
     {
         Services.setServices( this );
-        Logger.setLoggers( this );
+        Logger.setLogger( this );
 
-        Logger.debug( "# Initializing UI...");
+        dealWithVirtualStackInputs();
 
-        if ( imagePlus != null )
-        {
-            if ( imagePlus.getStack() instanceof VirtualStack )
-            {
-                img = ImageJFunctions.wrap( imagePlus );
-            }
-        }
+        configureAxesUI();
+    }
+
+    private void configureAxesUI()
+    {
+        List< String > registrationAxisTypes = Enums.asStringList( RegistrationAxisType.values() );
+        ArrayList< AxisType > axisTypes = Axes.axisTypesList( dataset );
+        AxisType sequenceDefault = guessSequenceAxis( axisTypes );
 
         boolean persist = false;
 
-        List< String > registrationAxisTypes =
-                Stream.of( RegistrationAxisType.values() )
-                        .map( RegistrationAxisType::name )
-                        .collect( Collectors.toList() );
-
-        ArrayList< AxisType > axisTypes = Axes.axisTypesList( dataset );
-
-        // Guess default axisType choices
-        //
-        AxisType sequenceDefault = axisTypes.get( 0 );
-        if ( axisTypes.contains( net.imagej.axis.Axes.TIME ) )
-        {
-            sequenceDefault = net.imagej.axis.Axes.TIME;
-        }
-        else if ( axisTypes.contains( net.imagej.axis.Axes.Z ) )
-        {
-            sequenceDefault = net.imagej.axis.Axes.Z;
-        }
-        else if ( axisTypes.contains( net.imagej.axis.Axes.CHANNEL ) )
-        {
-            sequenceDefault = net.imagej.axis.Axes.CHANNEL;
-        }
-
         for (int d = 0; d < dataset.numDimensions(); d++)
         {
-
             String var;
 
             // Message
@@ -263,26 +235,36 @@ public class RegistrationPlugin<T extends RealType<T>>
             maxItem.setDefaultValue( dataset.max( d ) );
             maxItem.setCallback( "intervalChanged" );
 
-
-            // Other
-            // - Sequence axis: referenceImgPlus point
-            // - Transformation axis: maximal displacement
-            //
-//            var = "other";
-//            final MutableModuleItem<Long> otherItem =
-//                    addInput( varName(d, var), Long.class);
-//            otherItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
-//            otherItem.setPersisted( persist );
-//            otherItem.setLabel( var );
-//            otherItem.setValue(this, dataset.max( d ) );
-//            otherItem.setMinimumValue( dataset.min( d ) );
-//            otherItem.setMaximumValue( dataset.max( d ) );
-
-            Logger.debug( "...done.");
-
-
         }
+    }
 
+    private void dealWithVirtualStackInputs()
+    {
+        if ( imagePlus != null )
+        {
+            if ( imagePlus.getStack() instanceof VirtualStack )
+            {
+                img = ImageJFunctions.wrap( imagePlus );
+            }
+        }
+    }
+
+    private AxisType guessSequenceAxis( ArrayList< AxisType > axisTypes )
+    {
+        AxisType sequenceDefault = axisTypes.get( 0 );
+        if ( axisTypes.contains( net.imagej.axis.Axes.TIME ) )
+        {
+            sequenceDefault = net.imagej.axis.Axes.TIME;
+        }
+        else if ( axisTypes.contains( net.imagej.axis.Axes.Z ) )
+        {
+            sequenceDefault = net.imagej.axis.Axes.Z;
+        }
+        else if ( axisTypes.contains( net.imagej.axis.Axes.CHANNEL ) )
+        {
+            sequenceDefault = net.imagej.axis.Axes.CHANNEL;
+        }
+        return sequenceDefault;
     }
 
     public void run()

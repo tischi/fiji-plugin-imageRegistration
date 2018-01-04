@@ -23,13 +23,14 @@ public class Register3DLineRotation
 
     public static void main(final String... args) throws Exception
     {
-        String path = LOCAL_FOLDER+"/src/test/resources/x50-y50-z50-t4--line--rotation-z10-y10-x10.tif";
+        String path = LOCAL_FOLDER+"/src/test/resources/x25-y50-z30-t4--line--rotation-z10-y10-x10.tif";
 
         Services.executorService = Executors.newFixedThreadPool( 4 );
         Services.datasetService = new DefaultDatasetService();
-        Services.uiService = new DefaultUIService();
 
         final ImageJ ij = new ImageJ();
+        Services.ij = ij;
+
         ij.ui().showUI();
 
         Dataset dataset = getDataset( path, ij );
@@ -74,6 +75,7 @@ public class Register3DLineRotation
 
         long[] min = Intervals.minAsLongArray( dataset );
         long[] max = Intervals.maxAsLongArray( dataset );
+        max[ 3 ] = 1;
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
@@ -82,15 +84,14 @@ public class Register3DLineRotation
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );
         settings.filterSettings.filterTypes.add( FilterType.SubSample );
-
         settings.filterSettings.subSampling = new long[]{ 1L, 1L, 1L };
 
         settings.setAxes();
 
         settings.transformSettings = new TransformSettings();
-        settings.transformSettings.maximalTranslations = new double[] { 50.0D, 50.0D, 50.D };
+        settings.transformSettings.maximalTranslations = new double[] { 1000.0D, 1000.0D, 1000.D };
         settings.transformSettings.transformFinderType = TransformFinderType.Rotation_Translation__PhaseCorrelation;
-        settings.transformSettings.maximalRotations = new double[] { 30.0D, 30.0D, 30.0D };
+        settings.transformSettings.maximalRotations = new double[] { 0, 0, 15.0D };
 
         return settings;
     }

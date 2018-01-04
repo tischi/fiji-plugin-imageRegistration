@@ -13,7 +13,7 @@ public class Logger
     public static LogService logService;
     public static StatusService statusService;
 
-    public static void setLoggers( RegistrationPlugin plugin )
+    public static void setLogger( RegistrationPlugin plugin )
     {
         logService = plugin.logService;
         statusService = plugin.statusService;

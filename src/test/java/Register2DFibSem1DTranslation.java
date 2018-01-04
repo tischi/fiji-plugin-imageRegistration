@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 
 import org.scijava.app.DefaultStatusService;
 
-public class RegisterFibSemTranslationY
+public class Register2DFibSem1DTranslation
 {
     public static String LOCAL_FOLDER = "/Users/tischer/Documents/fiji-plugin-imageRegistration";
 
@@ -94,7 +94,7 @@ public class RegisterFibSemTranslationY
         settings.setAxes();
 
         settings.transformSettings = new TransformSettings();
-        settings.transformSettings.maximalTranslations = new double[] { 30.0D };
+        settings.transformSettings.maximalTranslations = new double[] { 3000.0D };
         settings.transformSettings.transformFinderType = TransformFinderType.Translation__PhaseCorrelation;
         settings.transformSettings.maximalRotations = new double[] { 0.0D };
 

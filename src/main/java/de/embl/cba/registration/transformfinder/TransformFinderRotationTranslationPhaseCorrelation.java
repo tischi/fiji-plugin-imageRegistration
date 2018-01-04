@@ -2,15 +2,18 @@ package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.InputViews;
 import de.embl.cba.registration.Logger;
+import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSequence;
-import net.imglib2.FinalRealInterval;
+import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.ops.parse.token.Real;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.RealTransform;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,11 +23,11 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         implements TransformFinder
 {
 
-    FinalRealInterval rotationInterval;
+    FinalInterval rotationInterval;
 
     //TODO: make rotationStep configurable
     //TODO: maybe first look, e.g., every 5 degree and then finer, e.g. 1 degree.
-    double rotationStep = 2D * Math.PI / 360D;
+    int rotationStep = 1;
 
     private RandomAccessibleInterval fixed;
     private RandomAccessible moving;
@@ -33,32 +36,18 @@ public class TransformFinderRotationTranslationPhaseCorrelation
     private FilterSequence filterSequence;
     private ArrayList< RotationAndTransformation > rotationAndTransformationList;
 
-    private Double UNSET_ROTATION = Double.MAX_VALUE;
+    private Long UNSET_ROTATION = Long.MAX_VALUE;
     private RotationAndTransformation bestRotationAndTransformation;
     private RealTransform bestTransform;
-    private ArrayList< Double > rotation;
 
     TransformFinderRotationTranslationPhaseCorrelation( TransformSettings settings )
     {
-        configureRotations( settings );
+        configureRotationRanges( settings );
 
         this.translationFinder = new TransformFinderTranslationPhaseCorrelation( settings );
     }
 
-    private void configureRotations( TransformSettings settings )
-    {
-        double[] maximalRotationsDegrees = settings.maximalRotations;
-        double[] maxRotations = Arrays.stream( maximalRotationsDegrees )
-                .map( x -> 2D * Math.PI * x / 360D ).toArray();
-        double[] minRotations = Arrays.stream( maxRotations ).map( x -> -x ).toArray();
-
-        this.rotationInterval = new FinalRealInterval( minRotations, maxRotations );
-    }
-
-    public RealTransform findTransform(
-            RandomAccessibleInterval fixedRAI,
-            RandomAccessible movingRA,
-            FilterSequence filterSequence )
+    public RealTransform findTransform( RandomAccessibleInterval fixedRAI, RandomAccessible movingRA, FilterSequence filterSequence )
     {
 
         Logger.debug( "## TransformFinderRotationTranslationPhaseCorrelation" );
@@ -67,7 +56,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         this.moving = movingRA;
         this.filterSequence = filterSequence;
 
-        initialize();
+        ArrayList< Long > rotation = initialize();;
         determineBestTranslationForEachRotation( rotation );
         setBestTransform();
 
@@ -75,44 +64,65 @@ public class TransformFinderRotationTranslationPhaseCorrelation
 
     }
 
+    private void configureRotationRanges( TransformSettings settings )
+    {
+        double[] maximalRotationsDegrees = settings.maximalRotations;
+        long[] maxRotations = Arrays.stream( maximalRotationsDegrees ).mapToLong( x -> ( long ) x ).toArray();
+        long[] minRotations = Arrays.stream( maximalRotationsDegrees ).mapToLong( x -> ( long ) - x ).toArray();
+        this.rotationInterval = new FinalInterval( minRotations, maxRotations );
+    }
+
     private RealTransform createAffineTransform( RotationAndTransformation rotationAndTransformation )
     {
-        RealTransform affineTransform = null;
 
         if ( rotationAndTransformation.rotation.size() == 1 )
         {
-            AffineTransform2D affineTransform2D = new AffineTransform2D();
-            affineTransform2D.rotate( rotationAndTransformation.rotation.get( 0 ) );
-            affineTransform2D.translate( rotationAndTransformation.translation );
-            affineTransform = affineTransform2D;
-        }
-        else if ( rotationAndTransformation.rotation.size() == 3)
-        {
-            AffineTransform3D affineTransform3D = new AffineTransform3D();
-            for ( int d = 0; d < rotationAndTransformation.rotation.size(); ++d )
-            {
-                affineTransform3D.rotate( d, rotationAndTransformation.rotation.get( d ) );
-            }
-            affineTransform3D.translate( rotationAndTransformation.translation );
-            affineTransform = affineTransform3D;
-        }
-        else
-        {
-            affineTransform = null; // TODO: throw error (or even better: this should not happen)
+            return createAffineTransform2D( rotationAndTransformation );
         }
 
+        if ( rotationAndTransformation.rotation.size() == 3)
+        {
+            return createAffineTransform3D( rotationAndTransformation );
+        }
+
+        return null;
+
+    }
+
+    private RealTransform createAffineTransform3D( RotationAndTransformation rotationAndTransformation )
+    {
+        RealTransform affineTransform;
+        AffineTransform3D affineTransform3D = new AffineTransform3D();
+        for ( int d = 0; d < rotationAndTransformation.rotation.size(); ++d )
+        {
+            affineTransform3D.rotate( d, asRadian( rotationAndTransformation.rotation.get( d ) ) );
+        }
+        affineTransform3D.translate( rotationAndTransformation.translation );
+        affineTransform = affineTransform3D;
         return affineTransform;
     }
 
-    private void initialize()
+    private RealTransform createAffineTransform2D( RotationAndTransformation rotationAndTransformation )
+    {
+        RealTransform affineTransform;
+        AffineTransform2D affineTransform2D = new AffineTransform2D();
+        affineTransform2D.rotate( asRadian( rotationAndTransformation.rotation.get( 0 ) ) );
+        affineTransform2D.translate( rotationAndTransformation.translation );
+        affineTransform = affineTransform2D;
+        return affineTransform;
+    }
+
+    private ArrayList< Long > initialize()
     {
         rotationAndTransformationList = new ArrayList<>(  );
 
-        rotation = new ArrayList<>();
+        ArrayList< Long > rotation = new ArrayList<>();
         for ( int d = 0; d < rotationInterval.numDimensions(); ++d )
         {
-            rotation.add( Double.MAX_VALUE );
+            rotation.add( UNSET_ROTATION );
         }
+
+        return rotation;
 
     }
 
@@ -136,60 +146,72 @@ public class TransformFinderRotationTranslationPhaseCorrelation
 
     }
 
-    private void determineBestTranslationForEachRotation( ArrayList< Double > rotation )
+    private void determineBestTranslationForEachRotation( ArrayList< Long > rotation )
     {
         if ( rotation.contains( UNSET_ROTATION ) )
         {
             int d = rotation.indexOf( UNSET_ROTATION );
-            for ( double r = rotationInterval.realMin( d ); r <= rotationInterval.realMax( d ); r += rotationStep )
+            for ( long r = rotationInterval.min( d ); r <= rotationInterval.max( d ); r += rotationStep )
             {
                 rotation.set( d, r );
-                determineBestTranslationForEachRotation( rotation );
+                determineBestTranslationForEachRotation( new ArrayList<>( rotation ) );
             }
             return;
         }
         else
         {
-            translationFinder.findTransform( fixed, rotateMoving( rotation ), filterSequence );
+
+            RandomAccessible moving = rotateMoving( rotation );
+
+            /*  FOR DEBUGGING
+            if ( rotation.get ( 0 ) == 0 && rotation.get( 1 ) == 0 && rotation.get( 2 ) == -10 )
+            {
+                Services.ij.ui().show( Views.interval( moving, fixed ) );
+                Services.ij.ui().show( Views.interval( fixed, fixed ) );
+            }
+            */
+
+            translationFinder.findTransform( fixed, moving, filterSequence );
             addRotationAndTranslation( rotation, translationFinder );
         }
     }
 
-    private void addRotationAndTranslation( ArrayList< Double > rotation, TransformFinderTranslationPhaseCorrelation translationFinder )
+    private void addRotationAndTranslation( ArrayList< Long > rotation, TransformFinderTranslationPhaseCorrelation translationFinder )
     {
         RotationAndTransformation rotationAndTransformation = new RotationAndTransformation();
         rotationAndTransformation.phaseCorrelation = translationFinder.phaseCorrelation();
-        rotationAndTransformation.rotation = ( ArrayList< Double > ) rotation.clone();
+        rotationAndTransformation.rotation = new ArrayList<>( rotation );
         rotationAndTransformation.translation = translationFinder.translation();
         rotationAndTransformationList.add( rotationAndTransformation );
     }
 
-    private RandomAccessible< R > rotateMoving( ArrayList< Double > rotation )
+    private RandomAccessible< R > rotateMoving( ArrayList< Long > rotation )
     {
-        RandomAccessible< R > rotatedMoving;
 
         if ( rotation.size() == 1 )
         {
             AffineTransform2D rotation2D = new AffineTransform2D();
-            rotation2D.rotate(  rotation.get( 0 )  );
-            rotatedMoving = InputViews.transform( moving, rotation2D );
+            rotation2D.rotate(  asRadian( rotation.get( 0 ) ) );
+            return InputViews.transform( moving, rotation2D );
         }
-        else if ( rotation.size() == 3)
+
+        if ( rotation.size() == 3)
         {
             AffineTransform3D rotation3D = new AffineTransform3D();
             for ( int d = 0; d < rotation.size(); ++d )
             {
-                rotation3D.rotate( d, rotation.get( d ) );
+                rotation3D.rotate( d, asRadian( rotation.get( d ) ) );
             }
-            rotatedMoving = InputViews.transform( moving, rotation3D );
-        }
-        else
-        {
-            rotatedMoving = null; // TODO: throw error (or even better: this should not happen)
+            return InputViews.transform( moving, rotation3D );
         }
 
-        return rotatedMoving;
+        return null;
 
+    }
+
+    private double asRadian( long rotation )
+    {
+        return ( Math.PI / 180.D ) * rotation;
     }
 
     public String toString()
@@ -201,7 +223,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
 
     private class RotationAndTransformation
     {
-        ArrayList< Double > rotation;
+        ArrayList< Long > rotation;
         double[] translation;
         double phaseCorrelation;
 
@@ -209,7 +231,6 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         public String toString()
         {
             String rotationString = rotation.stream()
-                    .map( x -> 360D * x / (2 * Math.PI) )
                     .map( Object::toString )
                     .collect( Collectors.joining(", ") );
 
@@ -221,7 +242,6 @@ public class TransformFinderRotationTranslationPhaseCorrelation
             out += "Rotation: " + rotationString;
             out += "; Translation: " + translationString;
             out += "; Phase-correlation: " + phaseCorrelation;
-            out += "\n";
 
             return out;
         }

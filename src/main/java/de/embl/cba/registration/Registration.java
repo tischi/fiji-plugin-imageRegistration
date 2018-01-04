@@ -37,9 +37,7 @@ public class Registration
     private final List< RandomAccessibleInterval< R > > referenceRegions;
     RandomAccessibleInterval< R > transformedInput;
 
-    public Registration(
-            final Dataset dataset,
-            Settings settings )
+    public Registration( final Dataset dataset, Settings settings )
     {
 
         this.dataset = dataset;
@@ -56,9 +54,7 @@ public class Registration
 
         this.filterSequence = new FilterSequence( settings.filterSettings );
 
-        this.transformFinder = TransformFinderFactory.create(
-                settings.transformSettings.transformFinderType,
-                settings.transformSettings );
+        this.transformFinder = TransformFinderFactory.create( settings.transformSettings.transformFinderType, settings.transformSettings );
 
     }
 
@@ -94,7 +90,6 @@ public class Registration
         int min = (int) (s - axes.sequenceMin());
         int max = (int) (axes.sequenceMax() - axes.sequenceMin());
         Logger.showStatus( min, max, message );
-
     }
 
     public void logTransformations()

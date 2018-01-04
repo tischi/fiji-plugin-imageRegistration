@@ -178,14 +178,13 @@ public class Settings
     {
         transformSettings = new TransformSettings();
         transformSettings.transformFinderType = TransformFinderType.valueOf( plugin.transformationTypeInput );
-        setTranslationRange();
-        setRotationRange();
+        //setTranslationRange( plugin.transformationParametersMaximalTranslationsInput );
+        setRotationRange( plugin.transformationParameterMaximalRotationsInput );
     }
 
-    private void setRotationRange()
+    private void setRotationRange( String rangeString )
     {
-        String[] tmp;
-        tmp = plugin.transformationParameterMaximalRotationsInput.split( "," );
+        String[] tmp = rangeString.split( "," );
         double[] transformationParametersMaximalRotations = new double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {
@@ -194,10 +193,9 @@ public class Settings
         transformSettings.maximalRotations = transformationParametersMaximalRotations;
     }
 
-    private void setTranslationRange()
+    private void setTranslationRange( String rangeString )
     {
-        String[] tmp;
-        tmp = plugin.transformationParametersMaximalTranslationsInput.split( "," );
+        String[] tmp = rangeString.split( "," );
         double[] maximalTranslations = new double[ tmp.length ];
         for ( int i = 0; i < tmp.length; ++i )
         {

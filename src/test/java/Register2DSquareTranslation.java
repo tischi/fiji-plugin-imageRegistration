@@ -93,7 +93,7 @@ public class Register2DSquareTranslation
         settings.setAxes();
 
         settings.transformSettings = new TransformSettings();
-        settings.transformSettings.maximalTranslations = new double[] { 50.0D, 50.0D };
+        settings.transformSettings.maximalTranslations = new double[] { 5000, 5000.0D };
         settings.transformSettings.transformFinderType = TransformFinderType.Translation__PhaseCorrelation;
         settings.transformSettings.maximalRotations = new double[] { 0.0D };
 
