@@ -31,6 +31,7 @@ public class Axes
     private Integer sequenceDimensionWithinNonTransformableDimensions;
     private ArrayList< Integer > spatialAxes;
     private ArrayList< Integer > registrationAxes;
+    private ArrayList< Integer > transformableAxes;
 
     public Axes( RandomAccessibleInterval input,
                  ArrayList< RegistrationAxisType > registrationAxisTypes,
@@ -138,32 +139,12 @@ public class Axes
 
     public int numNonTransformableDimensions()
     {
-        if ( numNonTransformableDimensions == null)
-        {
-            numNonTransformableDimensions = 0;
-
-            for ( int d = 0, i = 0; d < numDimensions; ++d )
-            {
-                if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) || ! axisTypes.get( d ).isSpatial() )
-                {
-                    numNonTransformableDimensions++;
-
-                    if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) )
-                    {
-                        sequenceDimensionWithinNonTransformableDimensions = i;
-                    }
-
-                    i++;
-                }
-            }
-        }
-
-        return numNonTransformableDimensions;
+        return nonTransformableAxes().size();
     }
 
     public long sequenceCoordinate( long[] nonTransformableCoordinates )
     {
-        assert nonTransformableCoordinates.length == numNonTransformableDimensions;
+        assert nonTransformableCoordinates.length == nonTransformableAxes().size();
 
         return nonTransformableCoordinates[ sequenceDimensionWithinNonTransformableDimensions ];
     }
@@ -171,7 +152,7 @@ public class Axes
 
     public int numRegistrationDimensions()
     {
-        return Collections.frequency( registrationAxisTypes, RegistrationAxisType.Registration );
+        return registrationAxes().size();
     }
 
     public int fixedDimension( int i )
@@ -210,7 +191,7 @@ public class Axes
 
                 for ( int d = 0, i = 0; d < numDimensions; ++d )
                 {
-                    if ( !registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) && !axisTypes.get( d ).isSpatial() )
+                    if ( ! registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) && !axisTypes.get( d ).isSpatial() )
                     {
                         min[ i ] = input.min( d );
                         max[ i ] = input.max( d );
@@ -268,11 +249,18 @@ public class Axes
         {
             nonTransformableAxes = new ArrayList<>(  );
 
-            for ( int d = 0; d < numDimensions; ++d )
+            for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
                 if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) || ! axisTypes.get( d ).isSpatial() )
                 {
                     nonTransformableAxes.add( d );
+
+                    if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) )
+                    {
+                        sequenceDimensionWithinNonTransformableDimensions = i;
+                    }
+
+                    i++;
                 }
             }
         }
@@ -285,6 +273,8 @@ public class Axes
     {
         if ( registrationAxes == null )
         {
+            registrationAxes = new ArrayList<>(  );
+
             for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
                 if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Registration ) )
@@ -297,6 +287,24 @@ public class Axes
         return registrationAxes;
     }
 
+
+    public ArrayList< Integer > transformableAxes()
+    {
+        if ( transformableAxes == null )
+        {
+            transformableAxes = new ArrayList<>(  );
+
+            for ( int d = 0, i = 0; d < numDimensions; ++d )
+            {
+                if ( axisTypes.get( d ).isSpatial() && d != sequenceDimension() )
+                {
+                    transformableAxes.add( d );
+                }
+            }
+        }
+
+        return transformableAxes;
+    }
 
     public ArrayList< Integer > spatialAxes()
     {
@@ -336,22 +344,12 @@ public class Axes
 
     public int numSpatialDimensions( )
     {
-        return (int) axisTypes.stream().filter( x -> x.isSpatial() ).count();
+        return spatialAxes().size();
     }
 
-    public long numSpatialNonSequenceDimensions()
+    public long numTransformableDimensions()
     {
-        int numSpatialNonSequenceDimensions = 0;
-
-        for ( int d = 0; d < numDimensions; ++d )
-        {
-            if ( axisTypes.get( d ).isSpatial() && d != sequenceDimension() )
-            {
-                numSpatialNonSequenceDimensions++;
-            }
-        }
-
-        return numSpatialNonSequenceDimensions;
+        return transformableAxes().size();
     }
 
     public ArrayList< AxisType > otherDimensionsAxisTypes()
@@ -477,9 +475,9 @@ public class Axes
 
     public InvertibleRealTransform expandTransformToAllSpatialDimensions( InvertibleRealTransform transform )
     {
-        if ( numSpatialDimensions() > numRegistrationDimensions() )
+        if ( numTransformableDimensions() > numRegistrationDimensions() )
         {
-            if ( numSpatialDimensions() == 2 )
+            if ( numTransformableDimensions() == 2 )
             {
                 AffineTransform2D expandedTransform = new AffineTransform2D();
 
@@ -487,12 +485,12 @@ public class Axes
                 {
                     double translation = ( ( AffineTransform ) transform ).get( 0, 1 );
 
-                    if ( registrationAxes.get( 0 ) == spatialAxes.get( 0 ) )
+                    if ( registrationAxes().get( 0 ) == transformableAxes().get( 0 ) )
                     {
                         expandedTransform.translate( translation, 0 );
                     }
 
-                    if ( registrationAxes.get( 0 ) == spatialAxes.get( 1 ) )
+                    if ( registrationAxes().get( 0 ) == transformableAxes().get( 1 ) )
                     {
                         expandedTransform.translate( 0, translation );
                     }
@@ -517,7 +515,7 @@ public class Axes
         long[] min = Intervals.minAsLongArray( input );
         long[] max = Intervals.maxAsLongArray( input );
 
-        for ( int i = 0; i < numNonTransformableDimensions; ++i )
+        for ( int i = 0; i < numNonTransformableDimensions(); ++i )
         {
             int d = nonTransformableAxes.get( i );
             min[ d ] = nonTransformableCoordinates[ i ];
