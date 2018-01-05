@@ -1,8 +1,6 @@
 package de.embl.cba.registration;
 
 import bdv.util.AxisOrder;
-import de.embl.cba.registration.transform.Translation1D;
-import de.embl.cba.registration.util.Transforms;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
@@ -10,11 +8,9 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.InvertibleRealTransform;
-import net.imglib2.realtransform.RealTransform;
 import net.imglib2.util.Intervals;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class Axes
 {
@@ -32,6 +28,9 @@ public class Axes
     private ArrayList< Integer > spatialAxes;
     private ArrayList< Integer > registrationAxes;
     private ArrayList< Integer > transformableAxes;
+    private FinalInterval transformableAxesInputInterval;
+    private FinalInterval registrationAxesReferenceInterval;
+    private FinalInterval nonTransformableAxesInterval;
 
     public Axes( RandomAccessibleInterval input,
                  ArrayList< RegistrationAxisType > registrationAxisTypes,
@@ -79,11 +78,10 @@ public class Axes
     {
         ArrayList< AxisType > axisTypes = transformableDimensionsAxisTypes();
         axisTypes.add( sequenceDimensionAxisType() );
-
         return axisTypes;
     }
 
-    public ArrayList< AxisType > transformedAxisTypes()
+    public ArrayList< AxisType > transformedOutputAxisTypes()
     {
         ArrayList< AxisType > axisTypes = new ArrayList<>(  );
 
@@ -92,9 +90,7 @@ public class Axes
             axisTypes.add( axisType );
         }
 
-        axisTypes.add( sequenceDimensionAxisType() );
-
-        for ( AxisType axisType : otherDimensionsAxisTypes() )
+        for ( AxisType axisType : nonTransformableDimensionsAxisTypes() )
         {
             axisTypes.add( axisType );
         }
@@ -102,40 +98,75 @@ public class Axes
         return axisTypes;
     }
 
-    public FinalInterval transformableAxesReferenceInterval()
+    public FinalInterval registrationAxesReferenceInterval()
     {
-        long[] min = new long[ numRegistrationDimensions() ];
-        long[] max = new long[ numRegistrationDimensions() ];
-
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        if ( registrationAxesReferenceInterval == null )
         {
-            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Registration ) )
+            long[] min = new long[ registrationAxes().size() ];
+            long[] max = new long[ registrationAxes().size() ];
+
+            for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
-                min[ i ] = referenceInterval.min( d );
-                max[ i ] = referenceInterval.max( d );
-                ++i;
+                if ( registrationAxes().contains( d ) )
+                {
+                    min[ i ] = referenceInterval.min( d );
+                    max[ i ] = referenceInterval.max( d );
+                    ++i;
+                }
             }
+
+            registrationAxesReferenceInterval = new FinalInterval( min, max );
         }
 
-        return new FinalInterval( min, max );
+        return registrationAxesReferenceInterval;
     }
 
-    public FinalInterval transformableAxesInputInterval()
+    public FinalInterval nonTransformableAxesInterval()
     {
-        long[] min = new long[ numRegistrationDimensions() ];
-        long[] max = new long[ numRegistrationDimensions() ];
-
-        for ( int d = 0, i = 0; d < numDimensions; ++d )
+        if ( nonTransformableAxesInterval == null )
         {
-            if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Registration ) )
+            long[] min = new long[ transformableAxes().size() ];
+            long[] max = new long[ transformableAxes().size() ];
+
+            for ( int d = 0, i = 0; d < numDimensions; ++d )
             {
-                min[ i ] = input.min( d );
-                max[ i ] = input.max( d );
-                ++i;
+                if ( nonTransformableAxes().contains( d ) )
+                {
+                    min[ i ] = input.min( d );
+                    max[ i ] = input.max( d );
+                    ++i;
+                }
             }
+
+            nonTransformableAxesInterval = new FinalInterval( min, max );
+
         }
-        return new FinalInterval( min, max );
+
+        return nonTransformableAxesInterval;
     }
+
+    public FinalInterval transformableAxesInterval()
+    {
+        if ( transformableAxesInputInterval == null )
+        {
+            long[] min = new long[ transformableAxes().size() ];
+            long[] max = new long[ transformableAxes().size() ];
+
+            for ( int d = 0, i = 0; d < numDimensions; ++d )
+            {
+                if ( transformableAxes().contains( d ) )
+                {
+                    min[ i ] = input.min( d );
+                    max[ i ] = input.max( d );
+                    ++i;
+                }
+            }
+            transformableAxesInputInterval = new FinalInterval( min, max );
+        }
+
+        return transformableAxesInputInterval;
+    }
+
 
     public int numNonTransformableDimensions()
     {
@@ -178,37 +209,6 @@ public class Axes
         return new FinalInterval( min, max );
     }
 
-    public FinalInterval nonTransformableAxesInterval()
-    {
-        if ( nonSequenceNonSpatialAxesInputInterval == null )
-        {
-            int numNonSequenceNonSpatialDimensions = numNonTransformableDimensions();
-
-            if ( numNonSequenceNonSpatialDimensions > 0 )
-            {
-                long[] min = new long[ numNonSequenceNonSpatialDimensions ];
-                long[] max = new long[ numNonSequenceNonSpatialDimensions ];
-
-                for ( int d = 0, i = 0; d < numDimensions; ++d )
-                {
-                    if ( ! registrationAxisTypes.get( d ).equals( RegistrationAxisType.Sequence ) && !axisTypes.get( d ).isSpatial() )
-                    {
-                        min[ i ] = input.min( d );
-                        max[ i ] = input.max( d );
-                        ++i;
-                    }
-                }
-                nonSequenceNonSpatialAxesInputInterval = new FinalInterval( min, max );
-            }
-            else
-            {
-                nonSequenceNonSpatialAxesInputInterval = new FinalInterval( new long[]{ 0 }, new long[]{ 0 } );
-            }
-        }
-
-        return nonSequenceNonSpatialAxesInputInterval;
-
-    }
 
     public long[] fixedReferenceCoordinates( )
     {
@@ -352,14 +352,28 @@ public class Axes
         return transformableAxes().size();
     }
 
-    public ArrayList< AxisType > otherDimensionsAxisTypes()
+    public ArrayList< AxisType > nonTransformableDimensionsAxisTypes()
     {
-        return getAxisTypes( RegistrationAxisType.Other );
+        ArrayList< AxisType > nonTransformableDimensionsAxisTypes = new ArrayList<>(  );
+
+        for ( int d : nonTransformableAxes() )
+        {
+            nonTransformableDimensionsAxisTypes.add( axisTypes.get( d ) );
+
+        }
+        return nonTransformableDimensionsAxisTypes;
     }
 
     public ArrayList< AxisType > transformableDimensionsAxisTypes()
     {
-        return getAxisTypes( RegistrationAxisType.Registration );
+        ArrayList< AxisType > transformableDimensionsAxisTypes = new ArrayList<>(  );
+
+        for ( int d : transformableAxes() )
+        {
+            transformableDimensionsAxisTypes.add( axisTypes.get( d ) );
+
+        }
+        return transformableDimensionsAxisTypes;
     }
 
     public AxisType sequenceDimensionAxisType()
@@ -407,11 +421,11 @@ public class Axes
     {
         if ( outputIntervalType.equals( OutputIntervalType.InputImageSize ) )
         {
-            return transformableAxesInputInterval();
+            return transformableAxesInterval();
         }
         else if ( outputIntervalType.equals( OutputIntervalType.ReferenceRegionSize ) )
         {
-            return transformableAxesReferenceInterval();
+            return null; // TODO
         }
         else
         {
@@ -427,7 +441,7 @@ public class Axes
 
     public AxisOrder axisOrderAfterTransformation()
     {
-        ArrayList< AxisType > axisTypes = transformedAxisTypes();
+        ArrayList< AxisType > axisTypes = transformedOutputAxisTypes();
 
         AxisOrder axisOrder = axisOrder( axisTypes );
 

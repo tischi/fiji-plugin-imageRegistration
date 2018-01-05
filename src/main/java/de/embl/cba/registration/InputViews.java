@@ -12,7 +12,6 @@ import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.realtransform.InvertibleRealTransform;
-import net.imglib2.realtransform.RealTransform;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -21,7 +20,7 @@ import net.imglib2.view.Views;
 import java.util.*;
 
 // TODO: rearranging the axes does not work for the uiService, why?
-//AxisType[] transformedAxisTypes = axes.inputAxisTypes().toArray( new AxisType[0] );
+//AxisType[] transformedOutputAxisTypes = axes.inputAxisTypes().toArray( new AxisType[0] );
 
 public class InputViews
         < R extends RealType< R > & NativeType< R >,
@@ -46,10 +45,6 @@ public class InputViews
         return imgPlus;
     }
 
-    public RandomAccessibleInterval< R > referenceInterval( RandomAccessible< R > ra )
-    {
-        return Views.interval( ra, axes.transformableAxesReferenceInterval() );
-    }
 
     public RandomAccessible< R > transform( RandomAccessibleInterval< R > rai, InvertibleRealTransform transform )
     {
@@ -135,7 +130,7 @@ public class InputViews
         this.transformations = transformations;
         this.outputIntervalType = outputIntervalType;
 
-        long[] nonTransformableCoordinates = new long[ axes.numNonTransformableDimensions() ];
+        long[] nonTransformableCoordinates = new long[ axes.nonTransformableAxes().size() ];
         transformedInput = transformedSequences( nonTransformableCoordinates, 0 );
 
         rearrangeTransformedAxesIntoSameOrderAsInput();
@@ -191,7 +186,7 @@ public class InputViews
     {
         // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 
-        ArrayList< AxisType > transformedAxisTypes = axes.transformedAxisTypes();
+        ArrayList< AxisType > transformedAxisTypes = axes.transformedOutputAxisTypes();
         ArrayList< AxisType > inputAxisTypes = axes.inputAxisTypes();
 
         for ( int inputDimension = 0; inputDimension < inputAxisTypes.size(); ++inputDimension )

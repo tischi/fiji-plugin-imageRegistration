@@ -151,7 +151,7 @@ public class Registration
 
         output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.inputAxisTypes(), "registered" );
         output.transformedAxisOrder = axes.axisOrder( axes.inputAxisTypes() );
-        output.transformedNumSpatialDimensions = axes.numSpatialDimensions( axes.transformedAxisTypes() );
+        output.transformedNumSpatialDimensions = axes.numSpatialDimensions( axes.transformedOutputAxisTypes() );
 
         output.referenceImgPlus = inputViews.asImgPlus( referenceRegionSequence(), axes.referenceAxisTypes(), "reference" );
         output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
@@ -182,7 +182,7 @@ public class Registration
     {
         RandomAccessible ra = transformedHyperSlice( s, transform );
 
-        return Views.interval( ra, axes.transformableAxesReferenceInterval() );
+        return Views.interval( ra, axes.registrationAxesReferenceInterval() );
     }
 
     public RandomAccessible moving( long s, T transform )

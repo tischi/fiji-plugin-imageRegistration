@@ -26,7 +26,6 @@ public class Readers
     {
         long start = Logger.start("# Open image using default SCIFIO...");
 
-
         final File file = new File( path );
         Dataset dataset = ij.scifio().datasetIO().open( file.getPath() );
 
@@ -35,7 +34,6 @@ public class Readers
         metaImage.rai = metaImage.imgPlus;
         metaImage.axisTypes = Axes.axisTypesList( dataset );
         metaImage.axisOrder = Axes.axisOrder( metaImage.axisTypes );
-
 
         Logger.doneIn( start );
         return metaImage;
