@@ -33,9 +33,7 @@ public class Registration
     private Map< Long, String > transformationInfos;
 
     // output
-    private final List< RandomAccessibleInterval< R > > referenceRegions;
-
-    private RandomAccessibleInterval< R > transformedInput;
+    private RandomAccessibleInterval< R > transformed;
 
     public Registration( Settings settings )
     {
@@ -48,7 +46,6 @@ public class Registration
         this.outputIntervalType = settings.outputIntervalType;
 
         this.referenceRegionType = ReferenceRegionType.Moving; // TODO: not used (get from UI)
-        this.referenceRegions = new ArrayList<>();
 
         this.filterSequence = new FilterSequence( settings.filterSettings );
 
@@ -64,29 +61,27 @@ public class Registration
 
         for ( long s = axes.sequenceMin(); s < axes.sequenceMax(); s += axes.sequenceIncrement() )
         {
-            showSequenceProgress( s );
+            showProgress( s );
 
             RandomAccessibleInterval fixed = fixed( s, transformations.get( s ) );
             RandomAccessible moving = moving( s + 1, transformations.get( s ) );
 
             T transform = ( T ) transformFinder.findTransform( fixed, moving, filterSequence );
 
-            addTransform( s + 1, transform, transformFinder.toString() );
-
+            addTransform( s + 1, transform, transformFinder.asString() );
         }
 
         doneIn( startTimeMilliseconds );
 
     }
 
-
-    private void showSequenceProgress( long s )
+    private void showProgress( long s )
     {
         String message = "Registration";
-        // TODO: add memory and time
-        int current = (int) (s + 1 - axes.sequenceMin());
-        int total = (int) (axes.sequenceMax() - axes.sequenceMin());
-        Logger.showStatus( current, total, message );
+        int current = ( int ) ( s + 1 - axes.sequenceMin() );
+        int total = ( int ) ( axes.sequenceMax() - axes.sequenceMin() );
+        Logger.showStatus( current, total, message );  // TODO: add memory and time
+
     }
 
     public void logTransformations()
@@ -98,17 +93,6 @@ public class Registration
             Logger.info( "Coordinate " + s + ": " + transformationInfos.get( s ) );
         }
 
-    }
-
-    private List< RandomAccessibleInterval< R > > initializeFixedRAIList()
-    {
-        return new ArrayList<>(  );
-    }
-
-    private void addReferenceRegion( RandomAccessibleInterval fixedRAI )
-    {
-        // to show the user for 'debugging'
-        referenceRegions.add( filterSequence.apply( fixedRAI ) );
     }
 
     private void addTransform( long s, T relativeTransformation, String transformationInfo )
@@ -133,7 +117,7 @@ public class Registration
 
         MetaImage metaImage = new MetaImage();
         metaImage.title = "transformed";
-        metaImage.rai = inputViews.transformed( transformations, outputIntervalType );;
+        metaImage.rai = inputViews.transformed( transformations, outputIntervalType );
         metaImage.axisTypes = axes.inputAxisTypes();
         metaImage.axisOrder = axes.axisOrder( metaImage.axisTypes );
         metaImage.numSpatialDimensions = axes.numSpatialDimensions( metaImage.axisTypes );
@@ -142,27 +126,22 @@ public class Registration
         return metaImage;
     }
 
-    /*
-    public Output output()
+    public MetaImage processedAndTransformedReferenceImage( )
     {
-        long startTime = Logger.start("Creating registered image...");
+        long start = Logger.start( "# Creating transformed reference image view..." );
 
-        Output< R > output = new Output<>();
+        MetaImage metaImage = new MetaImage();
+        metaImage.title = "transformed";
+        metaImage.rai = processedAndTransformedReferenceRegionSequence();
+        //metaImage.axisTypes = axes.inputAxisTypes();
+        //metaImage.axisOrder = axes.axisOrder( metaImage.axisTypes );
+        //metaImage.numSpatialDimensions = axes.numSpatialDimensions( metaImage.axisTypes );
 
-        output.transformedImgPlus = inputViews.asImgPlus( transformedInput, axes.inputAxisTypes(), "registered" );
-        output.transformedAxisOrder = axes.axisOrder( axes.inputAxisTypes() );
-        output.transformedNumSpatialDimensions = axes.numSpatialDimensions( axes.transformedOutputAxisTypes() );
+        Logger.doneIn( start );
+        return metaImage;
+    }
 
-        output.referenceImgPlus = inputViews.asImgPlus( referenceRegionSequence(), axes.referenceAxisTypes(), "reference" );
-        output.referenceAxisOrder = axes.axisOrder( axes.referenceAxisTypes() );
-        output.referenceNumSpatialDimensions = axes.numSpatialDimensions( axes.referenceAxisTypes() );
-
-        Logger.doneIn( startTime );
-
-        return output;
-    }*/
-
-    private RandomAccessibleInterval< R > referenceRegionSequence()
+    private RandomAccessibleInterval< R > processedAndTransformedReferenceRegionSequence()
     {
         ArrayList< RandomAccessibleInterval< R > > randomAccessibleIntervals = new ArrayList<>(  );
 
@@ -196,7 +175,6 @@ public class Registration
 
         return inputViews.transform( rai, transform );
     }
-
 
 }
 

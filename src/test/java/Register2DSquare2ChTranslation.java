@@ -5,52 +5,50 @@ import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
 import de.embl.cba.registration.util.MetaImage;
-import de.embl.cba.registration.Readers;
-import de.embl.cba.registration.Viewers;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.util.Intervals;
-
+import net.imglib2.view.Views;
+import org.scijava.ui.DefaultUIService;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
-public class Register2DFibSEM1DTranslationFullSize
+public class Register2DSquare2ChTranslation
 {
     public static String LOCAL_FOLDER = "/Users/tischer/Documents/fiji-plugin-imageRegistration";
 
-    public static void main( final String... args ) throws Exception
+    public static void main(final String... args) throws Exception
     {
         Services.executorService = Executors.newFixedThreadPool( 4 );
         Services.datasetService = new DefaultDatasetService();
+        Services.uiService = new DefaultUIService();
 
-        String path ="/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
+        String path = LOCAL_FOLDER + "/src/test/resources/x90-y94-c2-t3--square--translation.tif";
 
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
         MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        //input.axisTypes = new ArrayList<>(  );
-        //input.axisTypes.add( net.imagej.axis.Axes.X );
-        //input.axisTypes.add( net.imagej.axis.Axes.Y );
-        //input.axisTypes.add( net.imagej.axis.Axes.Z );
-        //Viewers.showImagePlusUsingImpShow( input.imp );
         Viewers.showImgPlusUsingIJUI( input.imgPlus, ij );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
         registration.run();
         registration.logTransformations();
-
+        
         MetaImage transformed = registration.transformedImage( OutputIntervalType.InputImageSize );
+
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
-        MetaImage reference = registration.processedAndTransformedReferenceImage( );
-        Viewers.showRAIUsingIJUIShow( reference.rai, ij );
+        Viewers.showRAIUsingIJUIShow( transformed.rai, ij );
+
 
     }
+
 
     private static Settings createSettings( RandomAccessibleInterval rai, ArrayList< AxisType > axisTypes )
     {
@@ -60,16 +58,13 @@ public class Register2DFibSEM1DTranslationFullSize
         settings.axisTypes = axisTypes;
 
         settings.registrationAxisTypes = new ArrayList<>(  );
-        settings.registrationAxisTypes.add( RegistrationAxisType.Other );
         settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Other );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
         long[] min = Intervals.minAsLongArray( rai );
         long[] max = Intervals.maxAsLongArray( rai );
-
-        min[ 0 ] = 840; max[ 0 ] = min[ 0 ] + 30;
-        min[ 1 ] = 210; max[ 1 ] = min[ 1 ] + 80;
-        //min[ 2 ] = 0; max[ 2 ] = 500;
 
         settings.interval = new FinalInterval( min, max );
 
@@ -79,18 +74,16 @@ public class Register2DFibSEM1DTranslationFullSize
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );
         settings.filterSettings.filterTypes.add( FilterType.SubSample );
-        settings.filterSettings.subSampling = new long[]{ 1L };
         settings.filterSettings.filterTypes.add( FilterType.Threshold );
-        settings.filterSettings.filterTypes.add( FilterType.DifferenceOfGaussian );
-        settings.filterSettings.thresholdMin = 5.0D;
-        settings.filterSettings.thresholdMax = 150.0D;
-        settings.filterSettings.gaussSigmaSmaller = new double[]{ 2.0D };
-        settings.filterSettings.gaussSigmaLarger = new double[]{ 6.0D };
+        settings.filterSettings.thresholdMin = 100;
+        settings.filterSettings.thresholdMax = 300;
+
+        settings.filterSettings.subSampling = new long[]{ 1L, 1L };
 
         settings.setAxes();
 
         settings.transformSettings = new TransformSettings();
-        settings.transformSettings.maximalTranslations = new double[] { 3000.0D };
+        settings.transformSettings.maximalTranslations = new double[] { 5000, 5000.0D };
         settings.transformSettings.transformFinderType = TransformFinderType.Translation__PhaseCorrelation;
         settings.transformSettings.maximalRotations = new double[] { 0.0D };
 

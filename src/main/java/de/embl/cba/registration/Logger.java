@@ -21,6 +21,7 @@ public class Logger
 
     public static void showStatus( int current, int total, String message )
     {
+
         if ( statusService != null )
         {
             statusService.showStatus( current, total, message );
@@ -30,19 +31,28 @@ public class Logger
             IJ.log( message + " " + current + "/" + total );
             System.out.print( message + " " + current + "/" + total + "\n" );
         }
+
+        waitSomeTime();
+
     }
 
     public static void showStatus( String message )
     {
-        if ( statusService != null )
+        SwingUtilities.invokeLater(new Runnable()
         {
-            statusService.showStatus( message );
-        }
-        else
-        {
-            IJ.log( message );
-            System.out.print( message + "\n" );
-        }
+            public void run()
+            {
+                if ( statusService != null )
+                {
+                    statusService.showStatus( message );
+                }
+                else
+                {
+                    IJ.log( message );
+                    System.out.print( message + "\n" );
+                }
+            }
+        });
     }
 
     public static void debug(String message )
@@ -90,5 +100,16 @@ public class Logger
     }
 
 
+    public static void waitSomeTime()
+    {
+        try
+        {
+            Thread.sleep( 10 );
+        }
+        catch ( InterruptedException e )
+        {
+            e.printStackTrace();
+        }
+    }
 
 }

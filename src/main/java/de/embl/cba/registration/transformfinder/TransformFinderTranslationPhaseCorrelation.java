@@ -31,7 +31,6 @@ public class TransformFinderTranslationPhaseCorrelation
 {
 
 
-
     private int numDimensions;
     private int[] extension;
     private long[] subSampling;
@@ -238,7 +237,7 @@ public class TransformFinderTranslationPhaseCorrelation
     }
 
 
-    public String toString()
+    public String asString()
     {
         String string = "";
         string += "Translation: ";

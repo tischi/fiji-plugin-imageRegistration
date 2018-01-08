@@ -23,7 +23,7 @@ public abstract class Viewers
     }
 
 
-    public static void showRAIUsingIjUiShow( RandomAccessibleInterval rai, ImageJ ij )
+    public static void showRAIUsingIJUIShow( RandomAccessibleInterval rai, ImageJ ij )
     {
         long start = Logger.start( "# Showing RAI using ij.ui().show()..." );
         ij.ui().show( rai );
@@ -44,14 +44,12 @@ public abstract class Viewers
         Logger.doneIn( start );
     }
 
-    public static void showRAIUsingUIService( RandomAccessibleInterval rai, UIService uiService )
+    public static void viewRAIWithUIService( RandomAccessibleInterval rai, UIService uiService )
     {
         long start = Logger.start( "# Showing ImgPlus using uiService.show()..." );
         uiService.show( rai );
         Logger.doneIn( start );
     }
-
-
 
     public static void showRAIUsingBdv( RandomAccessibleInterval rai, String title, long numSpatialDimensions, AxisOrder axisOrder )
     {

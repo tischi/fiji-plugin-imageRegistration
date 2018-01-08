@@ -76,7 +76,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     public StatusService statusService;
 
     @Parameter(label = "Transformation type and finder method",
-            choices = {"Translation__PhaseCorrelation", "Rotation_Translation__PhaseCorrelation"},
+            choices = {"Translation__PhaseCorrelation"}, //, "Rotation_Translation__PhaseCorrelation"},
             persist = false )
     public String transformationTypeInput = "Translation__PhaseCorrelation";
 
@@ -101,7 +101,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message02
-            = "<html> "  +
+            = "<html>"  +
             "<br>IMAGE PRE-PROCESSING<br>" +
             "For finding the transformations it can help to pre-process the images.<br>" +
             "For example, the phase-correlation algorithm is very noise sensitive.<br>" +
@@ -119,26 +119,26 @@ public class RegistrationPlugin<T extends RealType<T>>
     @Parameter(label = "Sub-sampling [pixels]", persist = false)
     protected String imageFilterSubSampling = "1,1";
 
-    @Parameter( visibility = ItemVisibility.MESSAGE )
+    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
     private String message03
-            = "<html> "  +
-            "<br>AXES SET-UP<br>" +
-            "<li>" +
-            "Sequence: <b>One</b> axis along which you want to register, e.g. time or z.<br>" +
-            "Min and max values chose a subset of the full dataset.<br>" +
-            "</li>" +
-            "<li>" +
-            "Registration: <b>Multiple</b> axes where the transformations occur, e.g. x and y.<br>" +
-            "Min and max values determine a referenceImgPlus region that should be stabilized." +
-            "</li>" +
-            "<li>" +
-            "Other: <b>Multiple</b> axes, for example your channel axis.<br>" +
-            "Currently only the min value is used to choose the, e.g., referenceImgPlus channel.<br>" +
-            "The transformation is applied to all coordinates for your fixed axes." +
-            "</li>";
+            = "<html>"
+            + "<br>AXES SET-UP<br>"
+            + "<li>"
+            + "Sequence axis: <b>One</b> axis along which you want to register your data, typically the time or z-axis.<br>"
+            + "Min and max values chose a subset of the full dataset.<br>"
+            + "</li>"
+            + "<li>"
+            + "Registration axes: <b>Multiple</b> axes to be transformed, e.g. the x- and y-axis.<br>"
+            + "Min and max values determine the reference region that should be stabilized."
+            + "</li>"
+            + "<li>"
+            + "Other axes: <b>Multiple</b> axes, for example the channel axis.<br>"
+            + "Min and max values determine a reference range within which an average value will be computed.<br>"
+            + "</li>";
 
     protected Img img;
     private MetaImage transformedOutput;
+    private MetaImage processedAndTransformedReference;
 
     @SuppressWarnings("unchecked")
     protected MutableModuleItem<Long> varInput(final int d, final String var) {
@@ -154,9 +154,14 @@ public class RegistrationPlugin<T extends RealType<T>>
             callback = "computeRegistration" )
     private Button computeRegistration;
 
-    @Parameter(label = "Get result as ImageJ stack (can take some time...)",
+    @Parameter(label = "View transformed output as ImageJ stack",
             callback = "showTransformedOutputAsIJHyperstack" )
     private Button showTransformedOutputAsIJHyperstack;
+
+    @Parameter(label = "View processed and transformed reference region as ImageJ stack",
+            callback = "showProcessedAndTransformedReferenceAsIJHyperstack" )
+    private Button showProcessedAndTransformedReferenceAsIJHyperstack;
+
 
     // Initialization
 
@@ -287,16 +292,17 @@ public class RegistrationPlugin<T extends RealType<T>>
         if ( ! settings.check() ) return;
 
         Thread thread = new Thread(new Runnable() {
+
+
             public void run()
             {
 
                 Registration registration = new Registration( settings );
 
                 registration.run();
-
                 registration.logTransformations();
-
                 transformedOutput = registration.transformedImage( OutputIntervalType.InputImageSize );
+                processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
 
                 Viewers.showRAIUsingBdv( transformedOutput.rai, transformedOutput.title, transformedOutput.numSpatialDimensions, transformedOutput.axisOrder );
 
@@ -312,10 +318,38 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void showTransformedOutputAsIJHyperstack() {
 
+        if ( transformedOutput == null )
+        {
+            Logger.statusService.warn( "No transformed output image available yet." );
+            return;
+        }
+
+        Logger.statusService.warn(
+                "This is currently quite slow (e.g. 3 GB can take ~5 min).\n" +
+                        "Please be patient..." );
+
+        Thread thread2 = new Thread(new Runnable() {
+            public void run()
+            {
+                Viewers.viewRAIWithUIService( transformedOutput.rai, uiService );
+            }
+        } );
+        thread2.start();
+
+    }
+
+    private void showProcessedAndTransformedReferenceAsIJHyperstack() {
+
+        if ( processedAndTransformedReference == null )
+        {
+            Logger.statusService.warn( "No transformed reference image available yet." );
+            return;
+        }
+
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                Viewers.showRAIUsingUIService( transformedOutput.rai, uiService );
+                Viewers.viewRAIWithUIService( processedAndTransformedReference.rai, uiService );
             }
         } );
         thread.start();
@@ -378,8 +412,8 @@ public class RegistrationPlugin<T extends RealType<T>>
         boolean LOAD_IJ1_VS = false;
         boolean LOAD_IJ2_DATASET = true;
 
-        //String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x80-y270-z600--fib-sem--translation-y.tif";
-        String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
+        String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x90-y94-c2-t3--square--translation.tif";
+        //String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
 
         Dataset dataset = null;
 

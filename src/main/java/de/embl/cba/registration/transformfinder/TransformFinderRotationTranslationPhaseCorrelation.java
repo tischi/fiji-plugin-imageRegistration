@@ -2,18 +2,15 @@ package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.InputViews;
 import de.embl.cba.registration.Logger;
-import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSequence;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.ops.parse.token.Real;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.RealTransform;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -156,7 +153,6 @@ public class TransformFinderRotationTranslationPhaseCorrelation
                 rotation.set( d, r );
                 determineBestTranslationForEachRotation( new ArrayList<>( rotation ) );
             }
-            return;
         }
         else
         {
@@ -214,7 +210,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         return ( Math.PI / 180.D ) * rotation;
     }
 
-    public String toString()
+    public String asString()
     {
         if ( bestRotationAndTransformation == null ) return "No transformation determined.";
 
@@ -227,7 +223,6 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         double[] translation;
         double phaseCorrelation;
 
-        @Override
         public String toString()
         {
             String rotationString = rotation.stream()

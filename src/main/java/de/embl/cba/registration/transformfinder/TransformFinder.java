@@ -11,4 +11,6 @@ public interface TransformFinder< R extends RealType< R > & NativeType< R > > {
 
      RealTransform findTransform( RandomAccessibleInterval< R > fixedRAI, RandomAccessible< R > movingRA, FilterSequence filterSequence);
 
+     String asString();
+
 }

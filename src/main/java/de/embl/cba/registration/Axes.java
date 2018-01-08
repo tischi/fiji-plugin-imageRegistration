@@ -31,6 +31,8 @@ public class Axes
     private FinalInterval transformableAxesInputInterval;
     private FinalInterval registrationAxesReferenceInterval;
     private FinalInterval nonTransformableAxesInterval;
+    private Long sequenceMin;
+    private Long sequenceMax;
 
     public Axes( RandomAccessibleInterval input,
                  ArrayList< RegistrationAxisType > registrationAxisTypes,
@@ -90,9 +92,14 @@ public class Axes
             axisTypes.add( axisType );
         }
 
+        axisTypes.add( sequenceDimensionAxisType() );
+
         for ( AxisType axisType : nonTransformableDimensionsAxisTypes() )
         {
-            axisTypes.add( axisType );
+            if ( ! axisType.equals( sequenceDimensionAxisType() ) )
+            {
+                axisTypes.add( axisType );
+            }
         }
 
         return axisTypes;
@@ -359,7 +366,6 @@ public class Axes
         for ( int d : nonTransformableAxes() )
         {
             nonTransformableDimensionsAxisTypes.add( axisTypes.get( d ) );
-
         }
         return nonTransformableDimensionsAxisTypes;
     }
@@ -391,7 +397,11 @@ public class Axes
 
     public long sequenceMin()
     {
-        return referenceInterval.min( sequenceDimension() );
+        if ( sequenceMin == null )
+        {
+            sequenceMin = referenceInterval.min( sequenceDimension() );
+        }
+        return sequenceMin;
     }
 
     public ArrayList< Long > sequenceCoordinates()
@@ -409,7 +419,11 @@ public class Axes
 
     public long sequenceMax()
     {
-        return referenceInterval.max( sequenceDimension() );
+        if ( sequenceMax == null )
+        {
+            sequenceMax = referenceInterval.max( sequenceDimension() );
+        }
+        return sequenceMax;
     }
 
     public long sequenceIncrement()
