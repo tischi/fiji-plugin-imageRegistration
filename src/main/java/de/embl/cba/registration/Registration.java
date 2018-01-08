@@ -100,7 +100,6 @@ public class Registration
 
     }
 
-
     private List< RandomAccessibleInterval< R > > initializeFixedRAIList()
     {
         return new ArrayList<>(  );
@@ -143,6 +142,7 @@ public class Registration
         return metaImage;
     }
 
+    /*
     public Output output()
     {
         long startTime = Logger.start("Creating registered image...");
@@ -160,7 +160,7 @@ public class Registration
         Logger.doneIn( startTime );
 
         return output;
-    }
+    }*/
 
     private RandomAccessibleInterval< R > referenceRegionSequence()
     {

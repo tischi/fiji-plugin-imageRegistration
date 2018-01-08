@@ -37,7 +37,7 @@ public class Register2DFibSEM1DTranslationFullSize
         //input.axisTypes.add( net.imagej.axis.Axes.Y );
         //input.axisTypes.add( net.imagej.axis.Axes.Z );
         //Viewers.showImagePlusUsingImpShow( input.imp );
-        Viewers.showImgPlusUsingIjUiShow( input.imgPlus, ij );
+        Viewers.showImgPlusUsingIJUI( input.imgPlus, ij );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );

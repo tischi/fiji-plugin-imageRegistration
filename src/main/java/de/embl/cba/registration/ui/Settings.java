@@ -175,7 +175,6 @@ public class Settings
         Arrays.fill( filterSettings.gaussSigmaLarger, GAUSS_LARGE );
     }
 
-
     private void setThreshold()
     {
         String[] tmp;
@@ -192,7 +191,7 @@ public class Settings
         transformSettings = new TransformSettings();
         transformSettings.transformFinderType = TransformFinderType.valueOf( plugin.transformationTypeInput );
         //setTranslationRange( plugin.transformationParametersMaximalTranslationsInput );
-        setRotationRange( plugin.transformationParameterMaximalRotationsInput );
+        //setRotationRange( plugin.transformationParameterMaximalRotationsInput );
     }
 
     private void setRotationRange( String rangeString )
@@ -219,6 +218,7 @@ public class Settings
 
     private void setOutputInterval()
     {
-        outputIntervalType = OutputIntervalType.valueOf( plugin.outputViewIntervalSizeTypeInput );
+        // outputIntervalType = OutputIntervalType.valueOf( plugin.outputViewIntervalSizeTypeInput );
+        outputIntervalType = OutputIntervalType.InputImageSize; // TODO
     }
 }

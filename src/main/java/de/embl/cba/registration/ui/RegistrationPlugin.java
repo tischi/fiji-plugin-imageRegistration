@@ -12,6 +12,7 @@ package de.embl.cba.registration.ui;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.util.Enums;
+import de.embl.cba.registration.util.MetaImage;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
@@ -79,31 +80,31 @@ public class RegistrationPlugin<T extends RealType<T>>
             persist = false )
     public String transformationTypeInput = "Translation__PhaseCorrelation";
 
-    @Parameter(label = "Output size",
-            choices = {"ReferenceRegionSize", "InputImageSize"},
-            persist = false )
-    protected String outputViewIntervalSizeTypeInput = "InputImageSize";
+    //@Parameter(label = "Output size",
+    //        choices = {"ReferenceRegionSize", "InputImageSize"},
+    //        persist = false )
+    //protected String outputViewIntervalSizeTypeInput = "InputImageSize";
 
-    @Parameter( visibility = ItemVisibility.MESSAGE )
-    private String message01
-            = "<html> "  +
-            "<br>MAXIMAL TRANSFORMATION RANGES<br>" +
-            "Please enter values as comma-separated list with one number per transformable dimension. <br>" +
-            "The order must be the same as your axes appear down below.<br>" +
-            "Maximal transformation values are between subsequent sequence coordinates.<br>";
+    //@Parameter( visibility = ItemVisibility.MESSAGE )
+    //private String message01
+    //        = "<html> "  +
+    //       "<br>MAXIMAL TRANSFORMATION RANGES<br>" +
+    //        "Please enter values as comma-separated list with one number per transformable dimension. <br>" +
+    //        "The order must be the same as your axes appear down below.<br>" +
+    //        "Maximal transformation values are between subsequent sequence coordinates.<br>";
 
     //@Parameter(label = "Maximal translations [pixels]", persist = false)
     //protected String transformationParametersMaximalTranslationsInput = "30,30";
 
-    @Parameter(label = "Maximal rotations [degrees]", persist = false)
-    protected String transformationParameterMaximalRotationsInput = "2";
+    //@Parameter(label = "Maximal rotations [degrees]", persist = false)
+    //protected String transformationParameterMaximalRotationsInput = "2";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
     private String message02
             = "<html> "  +
             "<br>IMAGE PRE-PROCESSING<br>" +
             "For finding the transformations it can help to pre-process the images.<br>" +
-            "For example, phase- and cross-correlation are very noise sensitive.<br>" +
+            "For example, the phase-correlation algorithm is very noise sensitive.<br>" +
             "Typically it helps to threshold above the noise level.<br>";
 
     @Parameter( label = "Image pre-processing",
@@ -137,6 +138,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             "</li>";
 
     protected Img img;
+    private MetaImage transformedOutput;
 
     @SuppressWarnings("unchecked")
     protected MutableModuleItem<Long> varInput(final int d, final String var) {
@@ -153,8 +155,8 @@ public class RegistrationPlugin<T extends RealType<T>>
     private Button computeRegistration;
 
     @Parameter(label = "Get result as ImageJ stack (can take some time...)",
-            callback = "showOutputWithIJHyperstack" )
-    private Button showOutputWithIJHyperstack;
+            callback = "showTransformedOutputAsIJHyperstack" )
+    private Button showTransformedOutputAsIJHyperstack;
 
     // Initialization
 
@@ -167,6 +169,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
         configureAxesUI();
     }
+
     private void configureAxesUI()
     {
         List< String > registrationAxisTypes = Enums.asStringList( RegistrationAxisType.values() );
@@ -270,10 +273,7 @@ public class RegistrationPlugin<T extends RealType<T>>
         // the plugin is executed via a callback to computeRegistration()
     }
 
-    Output output;
-
     // Callbacks
-
     private void intervalChanged()
     {
         Settings settings = new Settings( this  );
@@ -294,7 +294,11 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 registration.run();
 
-                output = registration.output();
+                registration.logTransformations();
+
+                transformedOutput = registration.transformedImage( OutputIntervalType.InputImageSize );
+
+                Viewers.showRAIUsingBdv( transformedOutput.rai, transformedOutput.title, transformedOutput.numSpatialDimensions, transformedOutput.axisOrder );
 
                 //show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
 
@@ -306,14 +310,12 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    private void showOutputWithIJHyperstack() {
+    private void showTransformedOutputAsIJHyperstack() {
 
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                long startTime = Logger.start("# Preparing result for ImageJ Hyperstack display...");
-                uiService.show( output.transformedImgPlus );
-                Logger.doneIn( startTime );
+                Viewers.showRAIUsingUIService( transformedOutput.rai, uiService );
             }
         } );
         thread.start();
@@ -359,8 +361,6 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-
-
     protected String typeName( final int d ) {
         return "type" + d;
     }
@@ -369,9 +369,7 @@ public class RegistrationPlugin<T extends RealType<T>>
         return "var" + d + ":" + var;
     }
 
-
     // Main
-
     public static void main(final String... args) throws Exception {
         // toArrayImg the ImageJ application context with all available services
         final ImageJ ij = new ImageJ();
@@ -381,10 +379,9 @@ public class RegistrationPlugin<T extends RealType<T>>
         boolean LOAD_IJ2_DATASET = true;
 
         //String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x80-y270-z600--fib-sem--translation-y.tif";
-        String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
+        String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
 
         Dataset dataset = null;
-        int n = 0;
 
         // Load data
         if ( LOAD_IJ1_VS )
@@ -397,7 +394,6 @@ public class RegistrationPlugin<T extends RealType<T>>
 
             if (file != null) {
                 dataset = ij.scifio().datasetIO().open(file.getPath());
-                n = dataset.numDimensions();
                 ij.ui().show(dataset);
             }
         }

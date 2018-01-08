@@ -43,10 +43,10 @@ public class Register3DLineRotation
 
         registration.logTransformations();
 
-        Output output = registration.output();
+        //Output output = registration.output();
 
-        ij.ui().show( output.transformedImgPlus );
-        ij.ui().show( output.referenceImgPlus );
+        //ij.ui().show( output.transformedImgPlus );
+        //ij.ui().show( output.referenceImgPlus );
 
         //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );

@@ -41,10 +41,10 @@ public class Register2DFibSem1DTranslation
 
         registration.logTransformations();
 
-        Output output = registration.output();
-
-        ij.ui().show( output.transformedImgPlus );
-        ij.ui().show( output.referenceImgPlus );
+//        Output output = registration.output();
+//
+//        ij.ui().show( output.transformedImgPlus );
+//        ij.ui().show( output.referenceImgPlus );
 
         //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
         //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );

@@ -8,6 +8,7 @@ import ij.ImagePlus;
 import net.imagej.ImageJ;
 import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
+import org.scijava.ui.UIService;
 
 import static bdv.viewer.DisplayMode.GROUP;
 
@@ -29,12 +30,28 @@ public abstract class Viewers
         Logger.doneIn( start );
     }
 
-    public static void showImgPlusUsingIjUiShow( ImgPlus imgPlus, ImageJ ij )
+    public static void showImgPlusUsingIJUI( ImgPlus imgPlus, ImageJ ij )
     {
         long start = Logger.start( "# Showing ImgPlus using ij.ui().show()..." );
         ij.ui().show( imgPlus );
         Logger.doneIn( start );
     }
+
+    public static void showImgPlusUsingUIService( ImgPlus imgPlus, UIService uiService )
+    {
+        long start = Logger.start( "# Showing ImgPlus using uiService.show()..." );
+        uiService.show( imgPlus );
+        Logger.doneIn( start );
+    }
+
+    public static void showRAIUsingUIService( RandomAccessibleInterval rai, UIService uiService )
+    {
+        long start = Logger.start( "# Showing ImgPlus using uiService.show()..." );
+        uiService.show( rai );
+        Logger.doneIn( start );
+    }
+
+
 
     public static void showRAIUsingBdv( RandomAccessibleInterval rai, String title, long numSpatialDimensions, AxisOrder axisOrder )
     {

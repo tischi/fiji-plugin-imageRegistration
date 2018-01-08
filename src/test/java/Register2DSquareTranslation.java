@@ -4,10 +4,13 @@ import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
+import de.embl.cba.registration.util.MetaImage;
 import net.imagej.Dataset;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
+import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.ui.DefaultUIService;
 
@@ -31,25 +34,17 @@ public class Register2DSquareTranslation
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        Dataset dataset = getDataset( path, ij );
-        //ij.ui().show( dataset );
-        //BDV.show( dataset.getImgPlus(), 2, AxisOrder.XYT );
+        MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
+        Viewers.showImgPlusUsingIJUI( input.imgPlus, ij );
 
-        Settings settings = getSettings( dataset );
-
+        Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
-
         registration.run();
-
         registration.logTransformations();
 
-        Output output = registration.output();
+        MetaImage transformed = registration.transformedImage( OutputIntervalType.InputImageSize );
+        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
-        ij.ui().show( output.transformedImgPlus );
-        ij.ui().show( output.referenceImgPlus );
-
-        //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
-        //BDV.show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder );
 
     }
 
@@ -59,19 +54,20 @@ public class Register2DSquareTranslation
         return ij.scifio().datasetIO().open(file.getPath());
     }
 
-    private static Settings getSettings( Dataset dataset )
+    private static Settings createSettings( RandomAccessibleInterval rai, ArrayList< AxisType > axisTypes )
     {
         Settings settings = new Settings( );
 
-        //settings.dataset = dataset;
+        settings.rai = rai;
+        settings.axisTypes = axisTypes;
 
         settings.registrationAxisTypes = new ArrayList<>(  );
         settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
-        long[] min = Intervals.minAsLongArray( dataset );
-        long[] max = Intervals.maxAsLongArray( dataset );
+        long[] min = Intervals.minAsLongArray( rai );
+        long[] max = Intervals.maxAsLongArray( rai );
 
         settings.interval = new FinalInterval( min, max );
 
@@ -84,7 +80,6 @@ public class Register2DSquareTranslation
         settings.filterSettings.filterTypes.add( FilterType.Threshold );
         settings.filterSettings.thresholdMin = 100;
         settings.filterSettings.thresholdMax = 300;
-
 
         settings.filterSettings.subSampling = new long[]{ 1L, 1L };
 
