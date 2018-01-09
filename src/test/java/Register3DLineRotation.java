@@ -77,7 +77,7 @@ public class Register3DLineRotation
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputImageSize;
+        settings.outputIntervalSizeType = OutputIntervalSizeType.InputImage;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

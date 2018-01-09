@@ -15,14 +15,12 @@ import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.util.MetaImage;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.VirtualStack;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.img.Img;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
@@ -81,9 +79,9 @@ public class RegistrationPlugin<T extends RealType<T>>
     public String transformationTypeInput = "Translation__PhaseCorrelation";
 
     //@Parameter(label = "Output size",
-    //        choices = {"ReferenceRegionSize", "InputImageSize"},
+    //        choices = {"ReferenceRegion", "InputImage"},
     //        persist = false )
-    //protected String outputViewIntervalSizeTypeInput = "InputImageSize";
+    //protected String outputViewIntervalSizeTypeInput = "InputImage";
 
     //@Parameter( visibility = ItemVisibility.MESSAGE )
     //private String message01
@@ -137,7 +135,7 @@ public class RegistrationPlugin<T extends RealType<T>>
             + "</li>";
 
     protected Img img;
-    private MetaImage transformedOutput;
+    private MetaImage transformed;
     private MetaImage processedAndTransformedReference;
 
     @SuppressWarnings("unchecked")
@@ -154,11 +152,11 @@ public class RegistrationPlugin<T extends RealType<T>>
             callback = "computeRegistration" )
     private Button computeRegistration;
 
-    @Parameter(label = "View transformed output as ImageJ stack",
+    @Parameter(label = "View registered image as ImageJ stack",
             callback = "showTransformedOutputAsIJHyperstack" )
     private Button showTransformedOutputAsIJHyperstack;
 
-    @Parameter(label = "View processed and transformed reference region as ImageJ stack",
+    @Parameter(label = "View processed and registered reference region as ImageJ stack",
             callback = "showProcessedAndTransformedReferenceAsIJHyperstack" )
     private Button showProcessedAndTransformedReferenceAsIJHyperstack;
 
@@ -169,9 +167,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     {
         Services.setServices( this );
         Logger.setLogger( this );
-
-        dealWithVirtualStackInputs();
-
+        //dealWithVirtualStackInputs();
         configureAxesUI();
     }
 
@@ -245,6 +241,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void dealWithVirtualStackInputs()
     {
+        /*
         if ( imagePlus != null )
         {
             if ( imagePlus.getStack() instanceof VirtualStack )
@@ -252,6 +249,7 @@ public class RegistrationPlugin<T extends RealType<T>>
                 img = ImageJFunctions.wrap( imagePlus );
             }
         }
+        */
     }
 
     private AxisType guessSequenceAxis( ArrayList< AxisType > axisTypes )
@@ -301,10 +299,10 @@ public class RegistrationPlugin<T extends RealType<T>>
 
                 registration.run();
                 registration.logTransformations();
-                transformedOutput = registration.transformedImage( OutputIntervalType.InputImageSize );
+                transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
                 processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
 
-                Viewers.showRAIUsingBdv( transformedOutput.rai, transformedOutput.title, transformedOutput.numSpatialDimensions, transformedOutput.axisOrder );
+                Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
 
                 //show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
 
@@ -318,20 +316,16 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void showTransformedOutputAsIJHyperstack() {
 
-        if ( transformedOutput == null )
+        if ( transformed == null )
         {
             Logger.statusService.warn( "No transformed output image available yet." );
             return;
         }
 
-        Logger.statusService.warn(
-                "This is currently quite slow (e.g. 3 GB can take ~5 min).\n" +
-                        "Please be patient..." );
-
         Thread thread2 = new Thread(new Runnable() {
             public void run()
             {
-                Viewers.viewRAIWithUIService( transformedOutput.rai, uiService );
+                Viewers.showRAIAsImgPlusWithUIService( transformed.rai, datasetService, transformed.axisTypes, transformed.title, uiService );
             }
         } );
         thread2.start();
@@ -349,7 +343,7 @@ public class RegistrationPlugin<T extends RealType<T>>
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                Viewers.viewRAIWithUIService( processedAndTransformedReference.rai, uiService );
+                Viewers.showRAIWithUIService( processedAndTransformedReference.rai, uiService );
             }
         } );
         thread.start();

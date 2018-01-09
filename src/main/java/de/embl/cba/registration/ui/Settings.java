@@ -1,7 +1,7 @@
 package de.embl.cba.registration.ui;
 
 import de.embl.cba.registration.Axes;
-import de.embl.cba.registration.OutputIntervalType;
+import de.embl.cba.registration.OutputIntervalSizeType;
 import de.embl.cba.registration.RegistrationAxisType;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSettings;
@@ -27,7 +27,7 @@ public class Settings
 
     public TransformSettings transformSettings;
     public FilterSettings filterSettings;
-    public OutputIntervalType outputIntervalType;
+    public OutputIntervalSizeType outputIntervalSizeType;
     public FinalInterval interval;
     public ExecutorService executorService;  // TODO: how does this relate to the Services.executorService?
     public Axes axes;
@@ -73,7 +73,7 @@ public class Settings
         if ( filterSettings.subSampling.length != axes.numRegistrationDimensions() )
         {
             Services.uiService.showDialog( "Sub-sampling dimensions does not equal number " +
-                    "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
+                    "of registration dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
             return false;
         }
 
@@ -81,7 +81,7 @@ public class Settings
         if ( transformSettings.maximalTranslations != null && transformSettings.maximalTranslations.length != axes.numRegistrationDimensions() )
         {
             Services.uiService.showDialog( "Maximal translation dimensions does not equal number " +
-                    "of transformable dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
+                    "of registration dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
             return false;
         }
         return true;
@@ -218,7 +218,7 @@ public class Settings
 
     private void setOutputInterval()
     {
-        // outputIntervalType = OutputIntervalType.valueOf( plugin.outputViewIntervalSizeTypeInput );
-        outputIntervalType = OutputIntervalType.InputImageSize; // TODO
+        // outputIntervalSizeType = OutputIntervalSizeType.valueOf( plugin.outputViewIntervalSizeTypeInput );
+        outputIntervalSizeType = OutputIntervalSizeType.InputImage; // TODO
     }
 }

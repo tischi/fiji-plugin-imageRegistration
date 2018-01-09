@@ -5,15 +5,12 @@ import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
 import de.embl.cba.registration.util.MetaImage;
-import net.imagej.DefaultDatasetService;
-import net.imagej.ImageJ;
+import net.imagej.*;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.util.Intervals;
-import net.imglib2.view.Views;
-import org.scijava.ui.DefaultUIService;
+
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
@@ -25,26 +22,44 @@ public class Register2DSquare2ChTranslation
     {
         Services.executorService = Executors.newFixedThreadPool( 4 );
         Services.datasetService = new DefaultDatasetService();
-        Services.uiService = new DefaultUIService();
 
         String path = LOCAL_FOLDER + "/src/test/resources/x90-y94-c2-t3--square--translation.tif";
 
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
+        Services.uiService = ij.ui();
 
         MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        Viewers.showImgPlusUsingIJUI( input.imgPlus, ij );
+        Viewers.showImgPlusUsingUIService( input.imgPlus, ij.ui() );
+        Viewers.showRAIUsingBdv( input.imgPlus, "input", 2, input.axisOrder );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
         registration.run();
         registration.logTransformations();
-        
-        MetaImage transformed = registration.transformedImage( OutputIntervalType.InputImageSize );
+
+        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
 
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
+        Viewers.showRAIAsImgPlusWithUIService( transformed.rai, Services.datasetService, transformed.axisTypes, transformed.title, Services.uiService );
 
-        Viewers.showRAIUsingIJUIShow( transformed.rai, ij );
+
+        //DatasetIOService datasetIOService = new DefaultDatasetIOService();
+        //DatasetService datasetService = new DefaultDatasetService();
+        //datasetIOService.save( datasetService.create( transformed.rai  ),   )
+        //Dataset dataset = Services.datasetService.create( Views.zeroMin( transformed.rai ) );
+
+
+        //AxisType[] axisTypes = transformed.axisTypes.toArray( new AxisType[0]);
+
+        //final ImageJ ij = new ImageJ();
+        //ij.ui().showUI();
+        //UIService uiService = new DefaultUIService();
+
+
+        //Img img = OpService.run( net.imagej.ops.create.img.CreateImgFromRAI.class, transformed.rai );
+        //ops.run(net.imagej.ops.copy.CopyRAI.class, img, rai);
+        //Viewers.showImgPlusWithIJUI( imgPlus, ij );
 
 
     }
@@ -69,7 +84,7 @@ public class Register2DSquare2ChTranslation
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputImageSize;
+        settings.outputIntervalSizeType = OutputIntervalSizeType.InputImage;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

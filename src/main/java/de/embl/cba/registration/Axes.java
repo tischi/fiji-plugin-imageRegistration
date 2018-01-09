@@ -5,14 +5,19 @@ import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.concatenate.Concatenable;
+import net.imglib2.concatenate.PreConcatenable;
 import net.imglib2.realtransform.AffineTransform;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.util.Intervals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-public class Axes
+public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > >
 {
 
     final private ArrayList< RegistrationAxisType > registrationAxisTypes;
@@ -431,13 +436,21 @@ public class Axes
         return 1;
     }
 
-    public FinalInterval transformableAxesInterval( OutputIntervalType outputIntervalType )
+    public FinalInterval transformableAxesInterval(
+            OutputIntervalSizeType outputIntervalSizeType,
+            Map< Long, T > transforms )
     {
-        if ( outputIntervalType.equals( OutputIntervalType.InputImageSize ) )
+        if ( outputIntervalSizeType.equals( OutputIntervalSizeType.InputImage ) )
         {
             return transformableAxesInterval();
         }
-        else if ( outputIntervalType.equals( OutputIntervalType.ReferenceRegionSize ) )
+
+        if ( outputIntervalSizeType.equals( OutputIntervalSizeType.AllTransformationsEncompassing ) )
+        {
+            return allTransformationsEncompassingInterval( transformableAxesInterval(), transforms );
+        }
+
+        if ( outputIntervalSizeType.equals( OutputIntervalSizeType.ReferenceRegion ) )
         {
             return null; // TODO
         }
@@ -446,6 +459,62 @@ public class Axes
             return null; // TODO
         }
 
+    }
+
+
+    public FinalInterval allTransformationsEncompassingInterval( FinalInterval interval, Map< Long, T > transforms )
+    {
+        long[] min = Intervals.minAsLongArray( interval );
+        long[] max = Intervals.maxAsLongArray( interval );
+        FinalInterval union = new FinalInterval( min, max );
+
+        for ( T transform : transforms.values() )
+        {
+            FinalInterval bounding = boundingIntervalAfterTransformation( interval, transform );
+            union = Intervals.union( bounding, union );
+        }
+
+        return union;
+    }
+    
+    public FinalInterval boundingIntervalAfterTransformation( FinalInterval interval, T transform )
+    {
+        List< long[ ] > corners = Corners.corners( interval );
+        long[] min = Intervals.minAsLongArray( interval );
+        long[] max = Intervals.maxAsLongArray( interval );
+
+        for ( long[] corner : corners )
+        {
+            double[] transformedCorner = transformedCorner( transform, corner );
+
+            replaceMinMaxByLargerExtends( min, max, transformedCorner );
+        }
+
+        return new FinalInterval( min, max );
+    }
+
+    private void replaceMinMaxByLargerExtends( long[] min, long[] max, double[] transformedCorner )
+    {
+        for ( int d = 0; d < transformedCorner.length; ++d )
+        {
+            if ( transformedCorner[ d ] > max[ d ] )
+            {
+                max[ d ] = (long) transformedCorner[ d ];
+            }
+
+            if ( transformedCorner[ d ] > min[ d ] )
+            {
+                min[ d ] = (long) transformedCorner[ d ];
+            }
+        }
+    }
+
+    private double[] transformedCorner( T transform, long[] corner )
+    {
+        double[] cornerAsDouble = Arrays.stream( corner ).mapToDouble( x -> x ).toArray();
+        double[] transformedCorner = new double[ corner.length ];
+        transform.apply( cornerAsDouble, transformedCorner );
+        return transformedCorner;
     }
 
     public ArrayList< AxisType > inputAxisTypes()
@@ -492,14 +561,12 @@ public class Axes
         return axisOrder;
     }
 
-
     public FinalInterval getReferenceIntervalForAxis( int axis )
     {
         long[] min = new long[]{ getReferenceInterval().min( axis ) };
         long[] max = new long[]{ getReferenceInterval().max( axis ) };
         return new FinalInterval( min, max );
     }
-
 
     public InvertibleRealTransform expandTransformToAllSpatialDimensions( InvertibleRealTransform transform )
     {
@@ -535,8 +602,6 @@ public class Axes
         return null;
 
     }
-
-
 
     FinalInterval nonTransformableAxesSingletonInterval( long[] nonTransformableCoordinates )
     {

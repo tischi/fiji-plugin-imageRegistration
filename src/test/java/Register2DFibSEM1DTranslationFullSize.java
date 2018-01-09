@@ -32,23 +32,21 @@ public class Register2DFibSEM1DTranslationFullSize
         ij.ui().showUI();
 
         MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        //input.axisTypes = new ArrayList<>(  );
-        //input.axisTypes.add( net.imagej.axis.Axes.X );
-        //input.axisTypes.add( net.imagej.axis.Axes.Y );
-        //input.axisTypes.add( net.imagej.axis.Axes.Z );
-        //Viewers.showImagePlusUsingImpShow( input.imp );
-        Viewers.showImgPlusUsingIJUI( input.imgPlus, ij );
+
+        Viewers.showImgPlusUsingUIService( input.imgPlus, ij.ui() );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
         registration.run();
         registration.logTransformations();
 
-        MetaImage transformed = registration.transformedImage( OutputIntervalType.InputImageSize );
+        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
+        Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );
+
         MetaImage reference = registration.processedAndTransformedReferenceImage( );
-        Viewers.showRAIUsingIJUIShow( reference.rai, ij );
+        Viewers.showRAIWithUIService( reference.rai, ij.ui() );
 
     }
 
@@ -69,12 +67,12 @@ public class Register2DFibSEM1DTranslationFullSize
 
         min[ 0 ] = 840; max[ 0 ] = min[ 0 ] + 30;
         min[ 1 ] = 210; max[ 1 ] = min[ 1 ] + 80;
-        //min[ 2 ] = 0; max[ 2 ] = 500;
+        min[ 2 ] = 0; max[ 2 ] = 50;
 
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputImageSize;
+        settings.outputIntervalSizeType = OutputIntervalSizeType.InputImage;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

@@ -28,7 +28,7 @@ public class Registration
     private final TransformFinder transformFinder;
     private final Axes axes;
     private final ReferenceRegionType referenceRegionType;
-    private final OutputIntervalType outputIntervalType;
+    private final OutputIntervalSizeType outputIntervalType;
     private Map< Long, T > transformations;
     private Map< Long, String > transformationInfos;
 
@@ -43,7 +43,7 @@ public class Registration
 
         this.inputViews = new InputViews( input, axes );
 
-        this.outputIntervalType = settings.outputIntervalType;
+        this.outputIntervalType = settings.outputIntervalSizeType;
 
         this.referenceRegionType = ReferenceRegionType.Moving; // TODO: not used (get from UI)
 
@@ -111,13 +111,13 @@ public class Registration
         transformationInfos.put( axes.sequenceMin(), "Reference => no transformation." );
     }
 
-    public MetaImage transformedImage( OutputIntervalType outputIntervalType )
+    public MetaImage transformedImage( OutputIntervalSizeType outputIntervalSizeType )
     {
         long start = Logger.start( "# Creating transformed image view..." );
 
         MetaImage metaImage = new MetaImage();
         metaImage.title = "transformed";
-        metaImage.rai = inputViews.transformed( transformations, outputIntervalType );
+        metaImage.rai = inputViews.transformed( transformations, outputIntervalSizeType );
         metaImage.axisTypes = axes.inputAxisTypes();
         metaImage.axisOrder = axes.axisOrder( metaImage.axisTypes );
         metaImage.numSpatialDimensions = axes.numSpatialDimensions( metaImage.axisTypes );

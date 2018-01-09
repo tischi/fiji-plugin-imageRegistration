@@ -29,7 +29,7 @@ public class InputViews
     final RandomAccessibleInterval input;
     final Axes axes;
     Map< Long, T > transformations;
-    OutputIntervalType outputIntervalType;
+    OutputIntervalSizeType outputIntervalSizeType;
     RandomAccessibleInterval< R > transformed;
 
     public InputViews( RandomAccessibleInterval inputImage, Axes axes )
@@ -124,13 +124,13 @@ public class InputViews
         return Views.interval( ra, viewInterval );
     }
 
-    public RandomAccessibleInterval< R > transformed( Map< Long, T > transformations, OutputIntervalType outputIntervalType)
+    public RandomAccessibleInterval< R > transformed( Map< Long, T > transformations, OutputIntervalSizeType outputIntervalSizeType )
     {
         this.transformations = transformations;
-        this.outputIntervalType = outputIntervalType;
+        this.outputIntervalSizeType = outputIntervalSizeType;
 
         long[] nonTransformableCoordinates = new long[ axes.nonTransformableAxes().size() ];
-        transformed = transformedSequences( nonTransformableCoordinates, 0 );
+        transformed = transformedSequences( nonTransformableCoordinates, -1 );
 
         rearrangeTransformedAxesIntoSameOrderAsInput();
 
@@ -139,6 +139,8 @@ public class InputViews
 
     private RandomAccessibleInterval< R > transformedSequences( long[] nonTransformableCoordinates, int loopingDimension )
     {
+        loopingDimension++;
+
         ArrayList< RandomAccessibleInterval<R> > transformedSequenceList = new ArrayList<>(  );
 
         long min = axes.nonTransformableAxesInterval().min( loopingDimension );
@@ -158,13 +160,13 @@ public class InputViews
                 {
                     InvertibleRealTransform transform = axes.expandTransformToAllSpatialDimensions( transformations.get( s ) );
                     FinalInterval nonTransformableSingletonsInterval = axes.nonTransformableAxesSingletonInterval( nonTransformableCoordinates );
-                    FinalInterval transformedViewInterval = axes.transformableAxesInterval( outputIntervalType );
+                    FinalInterval transformedViewInterval = axes.transformableAxesInterval( outputIntervalSizeType, transformations );
                     transformed = transformedHyperSlice( nonTransformableSingletonsInterval, transform, transformedViewInterval );
                 }
             }
             else
             {
-                transformed = transformedSequences( nonTransformableCoordinates, ++loopingDimension );
+                transformed = transformedSequences( nonTransformableCoordinates, loopingDimension );
             }
 
             if ( transformed != null )

@@ -5,7 +5,6 @@ import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
 import de.embl.cba.registration.util.MetaImage;
-import net.imagej.Dataset;
 import net.imagej.DefaultDatasetService;
 import net.imagej.ImageJ;
 import net.imagej.axis.AxisType;
@@ -14,8 +13,6 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.util.Intervals;
 import org.scijava.ui.DefaultUIService;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
@@ -35,24 +32,18 @@ public class Register2DSquareTranslation
         ij.ui().showUI();
 
         MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        Viewers.showImgPlusUsingIJUI( input.imgPlus, ij );
+        Viewers.showImgPlusUsingUIService( input.imgPlus, ij.ui() );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
         registration.run();
         registration.logTransformations();
 
-        MetaImage transformed = registration.transformedImage( OutputIntervalType.InputImageSize );
+        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
-
     }
 
-    private static Dataset getDataset(  String path, ImageJ ij ) throws IOException
-    {
-        final File file = new File( path );
-        return ij.scifio().datasetIO().open(file.getPath());
-    }
 
     private static Settings createSettings( RandomAccessibleInterval rai, ArrayList< AxisType > axisTypes )
     {
@@ -72,7 +63,7 @@ public class Register2DSquareTranslation
         settings.interval = new FinalInterval( min, max );
 
         settings.executorService = Executors.newFixedThreadPool( 4 );
-        settings.outputIntervalType = OutputIntervalType.InputImageSize;
+        settings.outputIntervalSizeType = OutputIntervalSizeType.InputImage;
 
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );

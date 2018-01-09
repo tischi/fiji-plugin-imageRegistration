@@ -29,7 +29,6 @@ public class Logger
         else
         {
             IJ.log( message + " " + current + "/" + total );
-            System.out.print( message + " " + current + "/" + total + "\n" );
         }
 
         waitSomeTime();
@@ -49,7 +48,6 @@ public class Logger
                 else
                 {
                     IJ.log( message );
-                    System.out.print( message + "\n" );
                 }
             }
         });
@@ -72,15 +70,7 @@ public class Logger
         {
             public void run()
             {
-                if ( logService != null )
-                {
-                    logService.info( message );
-                }
-                else
-                {
-                    IJ.log( message ); // TODO: remove this
-                    System.out.print( message + "\n" );
-                }
+                IJ.log( message );
             }
         });
     }
@@ -93,7 +83,6 @@ public class Logger
 
     public static void doneIn( long startTimeMilliseconds )
     {
-        // TODO: depending on the time, show seconds or minutes
         long timeInSeconds = ( System.currentTimeMillis() - startTimeMilliseconds ) / 1000;
         String message = "...done in " + timeInSeconds + " seconds.";
         info( message );

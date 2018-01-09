@@ -11,15 +11,15 @@ public class OutputInterval
     /*
     public FinalInterval getTransformableDimensionsOutputInterval()
     {
-        if ( outputIntervalType == OutputIntervalType.InputImageSize )
+        if ( outputIntervalSizeType == OutputIntervalSizeType.InputImage )
         {
             return transformableAxesSettings.inputInterval;
         }
-        else if ( outputIntervalType == OutputIntervalType.ReferenceRegionSize )
+        else if ( outputIntervalSizeType == OutputIntervalSizeType.ReferenceRegion )
         {
             return transformableAxesSettings.referenceInterval;
         }
-        else if ( outputIntervalType == OutputIntervalType.UnionSize )
+        else if ( outputIntervalSizeType == OutputIntervalSizeType.Union )
         {
             return getTransformationsUnion( new FinalInterval(input) );
         }

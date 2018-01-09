@@ -7,7 +7,7 @@
 
 	<groupId>embl.cba</groupId>
 	<artifactId>fiji-plugin-imageRegistration</artifactId>
-	<version>0.1.4</version>
+	<version>0.2.01</version>
 
 	<name>Fiji plugin for n-dimensional image sequence registration</name>
 	<description>A plugin for n-dimensional image sequence registration.</description>
@@ -100,6 +100,11 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-common</artifactId>
 		</dependency>
 
 		<dependency>
