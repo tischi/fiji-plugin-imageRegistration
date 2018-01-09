@@ -10,17 +10,18 @@ package de.embl.cba.registration.ui;
 
 
 import de.embl.cba.registration.*;
-import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.util.MetaImage;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.VirtualStack;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
-import net.imglib2.img.Img;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
@@ -49,10 +50,10 @@ public class RegistrationPlugin<T extends RealType<T>>
         implements Interactive
 {
 
-    @Parameter
-    public Dataset dataset;
+    //@Parameter
+    //public Dataset dataset;
 
-    @Parameter (required = false)
+    @Parameter ( required = true )
     public ImagePlus imagePlus;
 
     @Parameter
@@ -134,10 +135,6 @@ public class RegistrationPlugin<T extends RealType<T>>
             + "Min and max values determine a reference range within which an average value will be computed.<br>"
             + "</li>";
 
-    protected Img img;
-    private MetaImage transformed;
-    private MetaImage processedAndTransformedReference;
-
     @SuppressWarnings("unchecked")
     protected MutableModuleItem<Long> varInput(final int d, final String var) {
         return (MutableModuleItem<Long>) getInfo().getInput( varName(d, var) );
@@ -152,34 +149,63 @@ public class RegistrationPlugin<T extends RealType<T>>
             callback = "computeRegistration" )
     private Button computeRegistration;
 
-    @Parameter(label = "View registered image as ImageJ stack",
-            callback = "showTransformedOutputAsIJHyperstack" )
-    private Button showTransformedOutputAsIJHyperstack;
+    //@Parameter(label = "View registered image as ImageJ stack",
+    //        callback = "showTransformedOutputWithImageJFunctions" )
+    //private Button showTransformedOutputWithImageJFunctions;
 
-    @Parameter(label = "View processed and registered reference region as ImageJ stack",
-            callback = "showProcessedAndTransformedReferenceAsIJHyperstack" )
-    private Button showProcessedAndTransformedReferenceAsIJHyperstack;
+    @Parameter(label = "View processed and registered reference region",
+            callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
+    private Button showProcessedAndTransformedReferenceWithImageJFunctions;
 
 
-    // Initialization
+    // input
+    public RandomAccessibleInterval rai;
+    public ArrayList< AxisType > axisTypes;
+
+    // output
+    public MetaImage transformed;
+    public MetaImage processedAndTransformedReference;
+
 
     private void init()
     {
+        setAxisTypes( imagePlus );
+        setRAI( imagePlus );
         Services.setServices( this );
         Logger.setLogger( this );
-        //dealWithVirtualStackInputs();
         configureAxesUI();
+    }
+
+    private void setAxisTypes( ImagePlus imagePlus )
+    {
+        axisTypes = new ArrayList<>(  );
+        if ( imagePlus.getWidth() > 0 ) axisTypes.add( net.imagej.axis.Axes.X );
+        if ( imagePlus.getHeight() > 0 ) axisTypes.add( net.imagej.axis.Axes.Y );
+        if ( imagePlus.getNChannels() > 1 ) axisTypes.add( net.imagej.axis.Axes.CHANNEL );
+        if ( imagePlus.getNSlices() > 1 ) axisTypes.add( net.imagej.axis.Axes.Z );
+        if ( imagePlus.getNFrames() > 1 ) axisTypes.add( net.imagej.axis.Axes.TIME );
+    }
+
+    private void setRAI( ImagePlus imagePlus )
+    {
+        if ( imagePlus.getStack() instanceof VirtualStack )
+        {
+            rai = VirtualStackAdapter.wrap( imagePlus );
+        }
+        else
+        {
+            rai = ImageJFunctions.wrap( imagePlus );
+        }
     }
 
     private void configureAxesUI()
     {
         List< String > registrationAxisTypes = Enums.asStringList( RegistrationAxisType.values() );
-        ArrayList< AxisType > axisTypes = Axes.axisTypesList( dataset );
-        AxisType sequenceDefault = guessSequenceAxis( axisTypes );
+        AxisType sequenceDefault = guessSequenceAxisType( axisTypes );
 
         boolean persist = false;
 
-        for (int d = 0; d < dataset.numDimensions(); d++)
+        for (int d = 0; d < rai.numDimensions(); d++)
         {
             String var;
 
@@ -218,9 +244,9 @@ public class RegistrationPlugin<T extends RealType<T>>
             minItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
             minItem.setPersisted( persist );
             minItem.setLabel( var );
-            minItem.setMinimumValue( dataset.min( d ) );
-            minItem.setMaximumValue( dataset.max( d ) );
-            minItem.setDefaultValue( dataset.min( d ) );
+            minItem.setMinimumValue( rai.min( d ) );
+            minItem.setMaximumValue( rai.max( d ) );
+            minItem.setDefaultValue( rai.min( d ) );
             minItem.setCallback( "intervalChanged" );
 
             // Interval maximum
@@ -231,28 +257,15 @@ public class RegistrationPlugin<T extends RealType<T>>
             maxItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
             maxItem.setPersisted( persist );
             maxItem.setLabel( var );
-            maxItem.setMinimumValue( dataset.min( d ) );
-            maxItem.setMaximumValue( dataset.max( d ) );
-            maxItem.setDefaultValue( dataset.max( d ) );
+            maxItem.setMinimumValue( rai.min( d ) );
+            maxItem.setMaximumValue( rai.max( d ) );
+            maxItem.setDefaultValue( rai.max( d ) );
             maxItem.setCallback( "intervalChanged" );
 
         }
     }
 
-    private void dealWithVirtualStackInputs()
-    {
-        /*
-        if ( imagePlus != null )
-        {
-            if ( imagePlus.getStack() instanceof VirtualStack )
-            {
-                img = ImageJFunctions.wrap( imagePlus );
-            }
-        }
-        */
-    }
-
-    private AxisType guessSequenceAxis( ArrayList< AxisType > axisTypes )
+    private AxisType guessSequenceAxisType( ArrayList< AxisType > axisTypes )
     {
         AxisType sequenceDefault = axisTypes.get( 0 );
         if ( axisTypes.contains( net.imagej.axis.Axes.TIME ) )
@@ -276,7 +289,6 @@ public class RegistrationPlugin<T extends RealType<T>>
         // the plugin is executed via a callback to computeRegistration()
     }
 
-    // Callbacks
     private void intervalChanged()
     {
         Settings settings = new Settings( this  );
@@ -290,31 +302,32 @@ public class RegistrationPlugin<T extends RealType<T>>
         if ( ! settings.check() ) return;
 
         Thread thread = new Thread(new Runnable() {
-
-
             public void run()
             {
-
                 Registration registration = new Registration( settings );
-
                 registration.run();
                 registration.logTransformations();
-                transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
-                processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
-
-                Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
-
-                //show( output.referenceImgPlus, output.referenceNumSpatialDimensions, output.referenceAxisOrder);
-
-                //BDV.show( output.transformedImgPlus, output.transformedNumSpatialDimensions, output.transformedAxisOrder );
-
+                setOutputImages( registration );
+                showTransformedOutputWithBigDataViewer();
+                showTransformedOutputWithImageJFunctions();
             }
         } );
         thread.start();
 
     }
 
-    private void showTransformedOutputAsIJHyperstack() {
+    private void setOutputImages( Registration registration )
+    {
+        transformed = registration.transformedImage( OutputIntervalSizeType.TransformationsEncompassing );
+        processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
+    }
+
+    private void showTransformedOutputWithBigDataViewer()
+    {
+        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
+    }
+
+    private void showTransformedOutputWithImageJFunctions() {
 
         if ( transformed == null )
         {
@@ -322,17 +335,18 @@ public class RegistrationPlugin<T extends RealType<T>>
             return;
         }
 
-        Thread thread2 = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                Viewers.showRAIAsImgPlusWithUIService( transformed.rai, datasetService, transformed.axisTypes, transformed.title, uiService );
+                //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, datasetService, transformed.axisTypes, transformed.title, uiService );
+                Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
             }
         } );
-        thread2.start();
+        thread.start();
 
     }
 
-    private void showProcessedAndTransformedReferenceAsIJHyperstack() {
+    private void showProcessedAndTransformedReferenceWithImageJFunctions() {
 
         if ( processedAndTransformedReference == null )
         {
@@ -350,25 +364,22 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    // Other
-
     private void updateImagePlusOverlay( Settings settings )
     {
         long xMin = 0, xMax = 0, yMin = 0, yMax = 0;
 
-        for (int d = 0; d < dataset.numDimensions(); ++d )
+        for (int d = 0; d < rai.numDimensions(); ++d )
         {
             RegistrationAxisType type = settings.registrationAxisTypes.get( d );
 
             if ( type == RegistrationAxisType.Registration || type == RegistrationAxisType.Other )
             {
-                if ( dataset.axis( d ).type() == net.imagej.axis.Axes.X )
+                if ( settings.axisTypes.get( d ) == net.imagej.axis.Axes.X )
                 {
                     xMin = varInput( d, "min" ).getValue( this );
                     xMax = varInput( d, "max" ).getValue( this );
                 }
-
-                if ( dataset.axis( d ).type() == net.imagej.axis.Axes.Y )
+                else if ( settings.axisTypes.get( d ) == net.imagej.axis.Axes.Y )
                 {
                     yMin = varInput( d, "min" ).getValue( this );
                     yMax = varInput( d, "max" ).getValue( this );
@@ -389,7 +400,8 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    protected String typeName( final int d ) {
+    protected String typeName( final int d )
+    {
         return "type" + d;
     }
 
@@ -403,21 +415,22 @@ public class RegistrationPlugin<T extends RealType<T>>
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        boolean LOAD_IJ1_VS = false;
-        boolean LOAD_IJ2_DATASET = true;
+        boolean LOAD_IJ1 = true;
+        boolean LOAD_IJ2 = true;
 
         String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x90-y94-c2-t3--square--translation.tif";
-        //String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
+        //String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
 
         Dataset dataset = null;
 
         // Load data
-        if ( LOAD_IJ1_VS )
+        if ( LOAD_IJ1 )
         {
             ImagePlus imp = IJ.openImage( PATH );
             imp.show();
         }
-        else if ( LOAD_IJ2_DATASET ) {
+        else if ( LOAD_IJ2 )
+        {
             final File file = new File( PATH );
 
             if (file != null) {

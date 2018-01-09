@@ -12,7 +12,6 @@ import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.util.Intervals;
-import org.scijava.module.Module;
 import org.scijava.ui.DialogPrompt;
 
 import java.util.ArrayList;
@@ -33,8 +32,10 @@ public class Settings
     public Axes axes;
     public RandomAccessibleInterval rai;
 
+    public int inputImageNumDimensions;
+
     private RegistrationPlugin plugin;
-    private Module module; // TODO: what is the difference between plugin and module?
+    //private Module module; // TODO: what is the difference between plugin and module?
 
     private double GAUSS_SMALL = 2.0D;
     private double GAUSS_LARGE = 6.0D;
@@ -46,15 +47,14 @@ public class Settings
     public Settings( RegistrationPlugin plugin )
     {
         this.plugin = plugin;
-        this.module = plugin;
-        this.rai = plugin.dataset;
         updatePluginParameters();
     }
 
     public void updatePluginParameters()
     {
+        this.rai = plugin.rai;
+        this.axisTypes = plugin.axisTypes;
         setRegistrationAxisTypes();
-        setAxisTypes();
         setRegistrationAxesInterval();
         setAxes();
         setImageFilterParameters();
@@ -96,28 +96,23 @@ public class Settings
     {
         registrationAxisTypes = new ArrayList<>();
 
-        for ( int d = 0; d < plugin.dataset.numDimensions(); ++d )
+        for ( int d = 0; d < rai.numDimensions(); ++d )
         {
-            String axisTypeName = ( String ) plugin.typeInput( d ).getValue( module );
+            String axisTypeName = ( String ) plugin.typeInput( d ).getValue( plugin );
             registrationAxisTypes.add( RegistrationAxisType.valueOf( axisTypeName ) );
         }
 
     }
 
-    private void setAxisTypes()
-    {
-        axisTypes = Axes.axisTypesList( plugin.dataset );
-    }
-
     private void setRegistrationAxesInterval()
     {
-        long[] min = Intervals.minAsLongArray( plugin.dataset );
-        long[] max = Intervals.maxAsLongArray( plugin.dataset );
+        long[] min = Intervals.minAsLongArray( rai );
+        long[] max = Intervals.maxAsLongArray( rai );
 
-        for ( int d = 0; d < plugin.dataset.numDimensions(); ++d )
+        for ( int d = 0; d < rai.numDimensions(); ++d )
         {
-            min[ d ] = (long) plugin.varInput( d, "min" ).getValue( module );
-            max[ d ] = (long) plugin.varInput( d, "max" ).getValue( module );
+            min[ d ] = (long) plugin.varInput( d, "min" ).getValue( plugin );
+            max[ d ] = (long) plugin.varInput( d, "max" ).getValue( plugin );
         }
 
         interval = new FinalInterval( min, max );
@@ -219,6 +214,6 @@ public class Settings
     private void setOutputInterval()
     {
         // outputIntervalSizeType = OutputIntervalSizeType.valueOf( plugin.outputViewIntervalSizeTypeInput );
-        outputIntervalSizeType = OutputIntervalSizeType.InputImage; // TODO
+        outputIntervalSizeType = OutputIntervalSizeType.TransformationsEncompassing; // TODO
     }
 }

@@ -88,7 +88,9 @@ public class Registration
     {
         Logger.info( "# Relative transformations between subsequent sequence coordinates" );
 
-        for ( long s : axes.sequenceCoordinates() )
+        ArrayList< Long > sequenceCoordinates = axes.sequenceCoordinates();
+        
+        for ( long s : sequenceCoordinates )
         {
             Logger.info( "Coordinate " + s + ": " + transformationInfos.get( s ) );
         }

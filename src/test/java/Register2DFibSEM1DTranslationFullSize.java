@@ -43,10 +43,11 @@ public class Register2DFibSEM1DTranslationFullSize
         MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
-        Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );
+        //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );
+        Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
 
-        MetaImage reference = registration.processedAndTransformedReferenceImage( );
-        Viewers.showRAIWithUIService( reference.rai, ij.ui() );
+        //MetaImage reference = registration.processedAndTransformedReferenceImage( );
+        //Viewers.showRAIWithUIService( reference.rai, ij.ui() );
 
     }
 
@@ -67,7 +68,7 @@ public class Register2DFibSEM1DTranslationFullSize
 
         min[ 0 ] = 840; max[ 0 ] = min[ 0 ] + 30;
         min[ 1 ] = 210; max[ 1 ] = min[ 1 ] + 80;
-        min[ 2 ] = 0; max[ 2 ] = 50;
+        //min[ 2 ] = 0; max[ 2 ] = 500;
 
         settings.interval = new FinalInterval( min, max );
 

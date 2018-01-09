@@ -422,7 +422,6 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return sequenceCoordinates;
     }
 
-
     public long sequenceMax()
     {
         if ( sequenceMax == null )
@@ -446,7 +445,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
             return transformableAxesInterval();
         }
 
-        if ( outputIntervalSizeType.equals( OutputIntervalSizeType.AllTransformationsEncompassing ) )
+        if ( outputIntervalSizeType.equals( OutputIntervalSizeType.TransformationsEncompassing ) )
         {
             return allTransformationsEncompassingInterval( transformableAxesInterval(), transforms );
         }

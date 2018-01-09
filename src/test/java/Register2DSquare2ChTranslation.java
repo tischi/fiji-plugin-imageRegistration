@@ -40,8 +40,10 @@ public class Register2DSquare2ChTranslation
 
         MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
 
-        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
-        Viewers.showRAIAsImgPlusWithUIService( transformed.rai, Services.datasetService, transformed.axisTypes, transformed.title, Services.uiService );
+        //Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
+
+        Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
+        //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, Services.datasetService, transformed.axisTypes, transformed.title, Services.uiService );
 
 
         //DatasetIOService datasetIOService = new DefaultDatasetIOService();

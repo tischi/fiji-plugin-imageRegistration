@@ -4,6 +4,5 @@ public enum OutputIntervalSizeType
 {
     ReferenceRegion,
     InputImage,
-    Union,
-    AllTransformationsEncompassing
+    TransformationsEncompassing
 }
