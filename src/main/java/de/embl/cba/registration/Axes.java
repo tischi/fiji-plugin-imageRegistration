@@ -1,6 +1,7 @@
 package de.embl.cba.registration;
 
 import bdv.util.AxisOrder;
+import de.embl.cba.registration.util.IntervalUtils;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
@@ -464,9 +465,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
 
     public FinalInterval allTransformationsEncompassingInterval( FinalInterval interval, Map< Long, T > transforms )
     {
-        long[] min = Intervals.minAsLongArray( interval );
-        long[] max = Intervals.maxAsLongArray( interval );
-        FinalInterval union = new FinalInterval( min, max );
+        FinalInterval union = IntervalUtils.copy( interval );
 
         for ( T transform : transforms.values() )
         {
@@ -476,24 +475,25 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
 
         return union;
     }
-    
+
     public FinalInterval boundingIntervalAfterTransformation( FinalInterval interval, T transform )
     {
         List< long[ ] > corners = Corners.corners( interval );
-        long[] min = Intervals.minAsLongArray( interval );
-        long[] max = Intervals.maxAsLongArray( interval );
+
+        long[] boundingMin = Intervals.minAsLongArray( interval );
+        long[] boundingMax = Intervals.maxAsLongArray( interval );
 
         for ( long[] corner : corners )
         {
             double[] transformedCorner = transformedCorner( transform, corner );
 
-            replaceMinMaxByLargerExtends( min, max, transformedCorner );
+            adjustBoundingRange( boundingMin, boundingMax, transformedCorner );
         }
 
-        return new FinalInterval( min, max );
+        return new FinalInterval( boundingMin, boundingMax );
     }
 
-    private void replaceMinMaxByLargerExtends( long[] min, long[] max, double[] transformedCorner )
+    private void adjustBoundingRange( long[] min, long[] max, double[] transformedCorner )
     {
         for ( int d = 0; d < transformedCorner.length; ++d )
         {
@@ -502,7 +502,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
                 max[ d ] = (long) transformedCorner[ d ];
             }
 
-            if ( transformedCorner[ d ] > min[ d ] )
+            if ( transformedCorner[ d ] < min[ d ] )
             {
                 min[ d ] = (long) transformedCorner[ d ];
             }

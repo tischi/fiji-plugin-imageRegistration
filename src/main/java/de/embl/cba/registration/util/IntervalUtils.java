@@ -4,6 +4,7 @@ import net.imglib2.FinalInterval;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.Interval;
 import net.imglib2.realtransform.Translation;
+import net.imglib2.util.Intervals;
 
 public class IntervalUtils {
 
@@ -96,6 +97,13 @@ public class IntervalUtils {
     }
 
 
+    public static FinalInterval copy( FinalInterval interval )
+    {
+        long[] min = Intervals.minAsLongArray( interval );
+        long[] max = Intervals.maxAsLongArray( interval );
+        FinalInterval copy = new FinalInterval( min, max );
+        return copy;
+    }
 
     private static long[] doubleToLong( double[] in )
     {
