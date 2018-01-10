@@ -28,9 +28,10 @@ public class InputViews
 
     final RandomAccessibleInterval input;
     final Axes axes;
-    Map< Long, T > transformations;
-    OutputIntervalSizeType outputIntervalSizeType;
+    Map< Long, T > transforms;
     RandomAccessibleInterval< R > transformed;
+    private Map< Long, T > transformsExpandedToAllTransformableDimensions;
+    private FinalInterval transformedViewInterval;
 
     public InputViews( RandomAccessibleInterval inputImage, Axes axes )
     {
@@ -124,17 +125,39 @@ public class InputViews
         return Views.interval( ra, viewInterval );
     }
 
-    public RandomAccessibleInterval< R > transformed( Map< Long, T > transformations, OutputIntervalSizeType outputIntervalSizeType )
+    public RandomAccessibleInterval< R > transformed( Map< Long, T > transforms, OutputIntervalSizeType outputIntervalSizeType )
     {
-        this.transformations = transformations;
-        this.outputIntervalSizeType = outputIntervalSizeType;
+        setTransforms( transforms );
 
-        long[] nonTransformableCoordinates = new long[ axes.nonTransformableAxes().size() ];
-        transformed = transformedSequences( nonTransformableCoordinates, -1 );
+        setTransformedViewInterval( outputIntervalSizeType );
 
-        rearrangeTransformedAxesIntoSameOrderAsInput();
+        createTransformedViewOfInputImage();
+
+        rearrangeTransformedViewAxesIntoSameOrderAsInputImage();
 
         return transformed;
+    }
+
+    private void createTransformedViewOfInputImage()
+    {
+        long[] nonTransformableCoordinates = new long[ axes.nonTransformableAxes().size() ];
+        transformed = transformedSequences( nonTransformableCoordinates, -1 );
+    }
+
+    private void setTransformedViewInterval( OutputIntervalSizeType outputIntervalSizeType )
+    {
+        transformedViewInterval = axes.transformableAxesInterval( outputIntervalSizeType, transformsExpandedToAllTransformableDimensions );
+    }
+
+    private void setTransforms( Map< Long, T > transforms )
+    {
+        this.transforms = transforms;
+        transformsExpandedToAllTransformableDimensions = new LinkedHashMap<>( transforms );
+        for ( Long s : transforms.keySet() )
+        {
+            T expandedTransform = ( T ) axes.expandTransformToAllSpatialDimensions( transforms.get( s ) );
+            transformsExpandedToAllTransformableDimensions.put( s, expandedTransform );
+        }
     }
 
     private RandomAccessibleInterval< R > transformedSequences( long[] nonTransformableCoordinates, int loopingDimension )
@@ -156,12 +179,10 @@ public class InputViews
             {
                 long s = axes.sequenceCoordinate( nonTransformableCoordinates );
 
-                if ( transformations.containsKey( s ) )
+                if ( transformsExpandedToAllTransformableDimensions.containsKey( s ) )
                 {
-                    InvertibleRealTransform transform = axes.expandTransformToAllSpatialDimensions( transformations.get( s ) );
                     FinalInterval nonTransformableSingletonsInterval = axes.nonTransformableAxesSingletonInterval( nonTransformableCoordinates );
-                    FinalInterval transformedViewInterval = axes.transformableAxesInterval( outputIntervalSizeType, transformations );
-                    transformed = transformedHyperSlice( nonTransformableSingletonsInterval, transform, transformedViewInterval );
+                    transformed = transformedHyperSlice( nonTransformableSingletonsInterval, transformsExpandedToAllTransformableDimensions.get( s ), transformedViewInterval );
                 }
             }
             else
@@ -181,7 +202,7 @@ public class InputViews
         return rai;
     }
 
-    private void rearrangeTransformedAxesIntoSameOrderAsInput( )
+    private void rearrangeTransformedViewAxesIntoSameOrderAsInputImage( )
     {
         // TODO: This code assumes that axistypes within one dataset are unique; is this true?
 

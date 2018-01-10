@@ -2,6 +2,7 @@ package de.embl.cba.registration;
 
 import bdv.util.AxisOrder;
 import de.embl.cba.registration.util.IntervalUtils;
+import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
@@ -50,6 +51,17 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         this.axisTypes = axisTypes;
         this.referenceInterval = referenceInterval;
         this.numDimensions = registrationAxisTypes.size();
+    }
+
+    public static ArrayList< AxisType > getAxisTypes( ImagePlus imagePlus )
+    {
+        ArrayList< AxisType > axisTypes = new ArrayList<>(  );
+        if ( imagePlus.getWidth() > 0 ) axisTypes.add( net.imagej.axis.Axes.X );
+        if ( imagePlus.getHeight() > 0 ) axisTypes.add( net.imagej.axis.Axes.Y );
+        if ( imagePlus.getNChannels() > 1 ) axisTypes.add( net.imagej.axis.Axes.CHANNEL );
+        if ( imagePlus.getNSlices() > 1 ) axisTypes.add( net.imagej.axis.Axes.Z );
+        if ( imagePlus.getNFrames() > 1 ) axisTypes.add( net.imagej.axis.Axes.TIME );
+        return axisTypes;
     }
 
     public FinalInterval fixedSequenceAxisInterval( long s )
@@ -233,7 +245,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
             {
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
                 // However, one could imagine in the future to e.g. average channels or average
-                // average transformations taking information from multiple channels into account...
+                // average transforms taking information from multiple channels into account...
                 fixedReferenceCoordinates[ i++ ] = referenceInterval.min( d );
             }
         }
@@ -281,7 +293,6 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return nonTransformableAxes;
     }
 
-
     public ArrayList< Integer > registrationAxes()
     {
         if ( registrationAxes == null )
@@ -299,7 +310,6 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
 
         return registrationAxes;
     }
-
 
     public ArrayList< Integer > transformableAxes()
     {
@@ -436,9 +446,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return 1;
     }
 
-    public FinalInterval transformableAxesInterval(
-            OutputIntervalSizeType outputIntervalSizeType,
-            Map< Long, T > transforms )
+    public FinalInterval transformableAxesInterval( OutputIntervalSizeType outputIntervalSizeType, Map< Long, T > transforms )
     {
         if ( outputIntervalSizeType.equals( OutputIntervalSizeType.InputImage ) )
         {
@@ -447,22 +455,15 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
 
         if ( outputIntervalSizeType.equals( OutputIntervalSizeType.TransformationsEncompassing ) )
         {
-            return allTransformationsEncompassingInterval( transformableAxesInterval(), transforms );
+            return transformationsEncompassingInterval( transformableAxesInterval(), transforms );
         }
 
-        if ( outputIntervalSizeType.equals( OutputIntervalSizeType.ReferenceRegion ) )
-        {
-            return null; // TODO
-        }
-        else
-        {
-            return null; // TODO
-        }
+        return null;
 
     }
 
 
-    public FinalInterval allTransformationsEncompassingInterval( FinalInterval interval, Map< Long, T > transforms )
+    public FinalInterval transformationsEncompassingInterval( FinalInterval interval, Map< Long, T > transforms )
     {
         FinalInterval union = IntervalUtils.copy( interval );
 
@@ -567,7 +568,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return new FinalInterval( min, max );
     }
 
-    public InvertibleRealTransform expandTransformToAllSpatialDimensions( InvertibleRealTransform transform )
+    public T expandTransformToAllSpatialDimensions( T transform )
     {
         if ( numTransformableDimensions() > numRegistrationDimensions() )
         {
@@ -590,12 +591,12 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
                     }
                 }
 
-                return expandedTransform;
+                return ( T ) expandedTransform;
             }
         }
         else
         {
-            return transform;
+            return ( T ) transform;
         }
 
         return null;

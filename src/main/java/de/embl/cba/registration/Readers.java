@@ -1,17 +1,13 @@
 package de.embl.cba.registration;
 
-import de.embl.cba.registration.Axes;
-import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.util.MetaImage;
-import ij.ImagePlus;
-import ij.io.FileOpener;
+import ij.IJ;
 import ij.io.Opener;
 import io.scif.config.SCIFIOConfig;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.axis.AxisType;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 
@@ -54,17 +50,40 @@ public class Readers
 
     public static MetaImage openUsingImageJ1( String path ) throws IOException
     {
+        return internOpenUsingImageJ1( path, false );
+    }
+
+    public static MetaImage openVirtualUsingImageJ1( String path ) throws IOException
+    {
+        return internOpenUsingImageJ1( path, true );
+    }
+
+    public static MetaImage internOpenUsingImageJ1( String path, boolean openVirtual ) throws IOException
+    {
         long start = Logger.start("# Open image using ImageJ1 Opener...");
 
         MetaImage metaImage = new MetaImage();
 
         Opener opener = new Opener();
-        metaImage.imp = opener.openImage( path );
-        metaImage.img = ImageJFunctions.wrap( metaImage.imp );
+
+        if ( openVirtual )
+        {
+            metaImage.imagePlus = IJ.openVirtual( path );
+            metaImage.img = ImageJFunctions.wrap( metaImage.imagePlus );
+        }
+        else
+        {
+            metaImage.imagePlus = IJ.openImage( path );
+            metaImage.img = VirtualStackAdapter.wrap( metaImage.imagePlus );
+        }
+
         metaImage.rai = metaImage.img;
+        metaImage.title = metaImage.imagePlus.getTitle();
+        metaImage.axisTypes = Axes.getAxisTypes( metaImage.imagePlus );
 
 
         Logger.doneIn( start );
+
         return metaImage;
     }
 

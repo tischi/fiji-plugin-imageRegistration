@@ -35,11 +35,11 @@ public class LearnImglib2 {
         final ImagePlus imp = new Opener().openImage( file.getAbsolutePath() );
 
         // display it via ImageJ
-        //imp.show();
+        //imagePlus.show();
 
         // wrap it into an ImgLib image (no copying)
         final Img< T > img = ImageJFunctions.wrap( imp );
-        //ImagePlusAdapter.wrap( imp );
+        //ImagePlusAdapter.wrap( imagePlus );
 
         // display it via ImgLib using ImageJ
         //ImageJFunctions.show( img );

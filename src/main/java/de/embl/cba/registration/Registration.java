@@ -86,10 +86,10 @@ public class Registration
 
     public void logTransformations()
     {
-        Logger.info( "# Relative transformations between subsequent sequence coordinates" );
+        Logger.info( "# Relative transforms between subsequent sequence coordinates" );
 
         ArrayList< Long > sequenceCoordinates = axes.sequenceCoordinates();
-        
+
         for ( long s : sequenceCoordinates )
         {
             Logger.info( "Coordinate " + s + ": " + transformationInfos.get( s ) );

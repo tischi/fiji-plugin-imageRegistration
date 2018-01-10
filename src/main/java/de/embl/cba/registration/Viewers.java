@@ -13,6 +13,7 @@ import net.imagej.axis.Axes;
 import net.imagej.axis.AxisType;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.view.Views;
 import org.scijava.ui.UIService;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public abstract class Viewers
 
     public static void showImagePlusWithImpShow( ImagePlus imp )
     {
-        long start = Logger.start( "# Showing ImagePlus using imp.show()..." );
+        long start = Logger.start( "# Showing ImagePlus using imagePlus.show()..." );
         imp.show();
         Logger.doneIn( start );
     }
@@ -65,6 +66,7 @@ public abstract class Viewers
     {
         long start = Logger.start( "# Showing RAI using ImageJFunctions.show()..." );
 
+        //RandomAccessibleInterval zeroMin = Views.zeroMin( rai );
         ImageJFunctions.show( rai );
 
         //uiService.show( imgPlus );

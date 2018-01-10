@@ -15,7 +15,7 @@ public class MetaImage
 
     public String title;
 
-    public ImagePlus imp;
+    public ImagePlus imagePlus;
     public Img img;
     public ImgPlus imgPlus;
 

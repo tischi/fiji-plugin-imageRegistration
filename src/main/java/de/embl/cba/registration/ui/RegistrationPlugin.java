@@ -10,6 +10,7 @@ package de.embl.cba.registration.ui;
 
 
 import de.embl.cba.registration.*;
+import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.util.MetaImage;
 import ij.IJ;
@@ -178,12 +179,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void setAxisTypes( ImagePlus imagePlus )
     {
-        axisTypes = new ArrayList<>(  );
-        if ( imagePlus.getWidth() > 0 ) axisTypes.add( net.imagej.axis.Axes.X );
-        if ( imagePlus.getHeight() > 0 ) axisTypes.add( net.imagej.axis.Axes.Y );
-        if ( imagePlus.getNChannels() > 1 ) axisTypes.add( net.imagej.axis.Axes.CHANNEL );
-        if ( imagePlus.getNSlices() > 1 ) axisTypes.add( net.imagej.axis.Axes.Z );
-        if ( imagePlus.getNFrames() > 1 ) axisTypes.add( net.imagej.axis.Axes.TIME );
+        axisTypes = Axes.getAxisTypes( imagePlus );
     }
 
     private void setRAI( ImagePlus imagePlus )

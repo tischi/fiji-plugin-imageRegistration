@@ -31,16 +31,17 @@ public class Register2DFibSEM1DTranslationFullSize
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
+        //MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
+        MetaImage input = Readers.openVirtualUsingImageJ1( path );
 
-        Viewers.showImgPlusUsingUIService( input.imgPlus, ij.ui() );
+        Viewers.showRAIWithImageJFunctions( input.rai, input.axisTypes, input.title );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
         registration.run();
         registration.logTransformations();
 
-        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
+        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.TransformationsEncompassing );
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
         //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );
@@ -68,7 +69,7 @@ public class Register2DFibSEM1DTranslationFullSize
 
         min[ 0 ] = 840; max[ 0 ] = min[ 0 ] + 30;
         min[ 1 ] = 210; max[ 1 ] = min[ 1 ] + 80;
-        //min[ 2 ] = 0; max[ 2 ] = 500;
+        //min[ 2 ] = 0; max[ 2 ] = 50;
 
         settings.interval = new FinalInterval( min, max );
 
@@ -95,4 +96,5 @@ public class Register2DFibSEM1DTranslationFullSize
 
         return settings;
     }
+
 }
