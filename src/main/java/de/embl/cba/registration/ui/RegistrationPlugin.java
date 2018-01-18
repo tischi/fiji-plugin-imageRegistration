@@ -186,7 +186,8 @@ public class RegistrationPlugin<T extends RealType<T>>
     {
         if ( imagePlus.getStack() instanceof VirtualStack )
         {
-            rai = VirtualStackAdapter.wrap( imagePlus );
+            // rai = VirtualStackAdapter.wrap( imagePlus ); // TODO: does not work yet...
+            rai = ImageJFunctions.wrap( imagePlus );
         }
         else
         {
@@ -411,18 +412,25 @@ public class RegistrationPlugin<T extends RealType<T>>
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
-        boolean LOAD_IJ1 = true;
-        boolean LOAD_IJ2 = true;
+        boolean LOAD_IJ1 = false;
+        boolean LOAD_IJ1_VIRTUAL = true;
+        boolean LOAD_IJ2 = false;
 
-        String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x90-y94-c2-t3--square--translation.tif";
-        //String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
+        //String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x90-y94-c2-t3--square--translation.tif";
+        String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
 
         Dataset dataset = null;
 
         // Load data
+
         if ( LOAD_IJ1 )
         {
             ImagePlus imp = IJ.openImage( PATH );
+            imp.show();
+        }
+        else if ( LOAD_IJ1_VIRTUAL )
+        {
+            ImagePlus imp = IJ.openVirtual( PATH );
             imp.show();
         }
         else if ( LOAD_IJ2 )

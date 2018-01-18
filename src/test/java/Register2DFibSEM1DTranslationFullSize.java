@@ -26,13 +26,13 @@ public class Register2DFibSEM1DTranslationFullSize
         Services.executorService = Executors.newFixedThreadPool( 4 );
         Services.datasetService = new DefaultDatasetService();
 
-        String path ="/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
+        String path ="/Users/tischer/Documents/data/paolo-ronchi--em-registration/chemfix_O6_crop.tif";
 
         final ImageJ ij = new ImageJ();
         ij.ui().showUI();
 
         //MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        MetaImage input = Readers.openVirtualUsingImageJ1( path );
+        MetaImage input = Readers.openUsingImageJ1( path );
 
         Viewers.showRAIWithImageJFunctions( input.rai, input.axisTypes, input.title );
 
@@ -69,7 +69,7 @@ public class Register2DFibSEM1DTranslationFullSize
 
         min[ 0 ] = 840; max[ 0 ] = min[ 0 ] + 30;
         min[ 1 ] = 210; max[ 1 ] = min[ 1 ] + 80;
-        //min[ 2 ] = 0; max[ 2 ] = 50;
+        min[ 2 ] = 000; max[ 2 ] = min[ 2 ] + 30;
 
         settings.interval = new FinalInterval( min, max );
 

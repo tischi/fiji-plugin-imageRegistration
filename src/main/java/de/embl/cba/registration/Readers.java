@@ -69,12 +69,12 @@ public class Readers
         if ( openVirtual )
         {
             metaImage.imagePlus = IJ.openVirtual( path );
-            metaImage.img = ImageJFunctions.wrap( metaImage.imagePlus );
+            metaImage.img = VirtualStackAdapter.wrap( metaImage.imagePlus );
         }
         else
         {
             metaImage.imagePlus = IJ.openImage( path );
-            metaImage.img = VirtualStackAdapter.wrap( metaImage.imagePlus );
+            metaImage.img = ImageJFunctions.wrap( metaImage.imagePlus );
         }
 
         metaImage.rai = metaImage.img;

@@ -12,7 +12,9 @@ import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 import net.imagej.axis.AxisType;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.view.TransformedRandomAccessible;
 import net.imglib2.view.Views;
 import org.scijava.ui.UIService;
 
@@ -22,6 +24,18 @@ import static bdv.viewer.DisplayMode.GROUP;
 
 public abstract class Viewers
 {
+
+    public static ArrayList< AxisType > ImageJAxes = new ArrayList< AxisType > ()
+    {
+        {
+            add( Axes.X );
+            add( Axes.Y );
+            add( Axes.CHANNEL );
+            add( Axes.Z );
+            add( Axes.TIME );
+        }
+    };
+
 
     public static void showImagePlusWithImpShow( ImagePlus imp )
     {
@@ -66,12 +80,24 @@ public abstract class Viewers
     {
         long start = Logger.start( "# Showing RAI using ImageJFunctions.show()..." );
 
-        //RandomAccessibleInterval zeroMin = Views.zeroMin( rai );
-        ImageJFunctions.show( rai );
-
-        //uiService.show( imgPlus );
+        rai = addDimensionsToConformWithImageJ1AxesOrder( rai, axisTypes );
+        ImagePlus imp = ImageJFunctions.show( rai );
+        imp.setTitle( title );
 
         Logger.doneIn( start );
+    }
+
+    private static RandomAccessibleInterval addDimensionsToConformWithImageJ1AxesOrder( RandomAccessibleInterval rai, ArrayList< AxisType > axisTypes )
+    {
+        for ( int i = 0; i < ImageJAxes.size(); ++i )
+        {
+            if ( ! axisTypes.contains( ImageJAxes.get( i ) ) )
+            {
+                rai = Views.addDimension( rai, 0, 0 );
+                rai = Views.permute( rai, rai.numDimensions() - 1, i );
+            }
+        }
+        return rai;
     }
 
 
