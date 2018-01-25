@@ -15,6 +15,7 @@ import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.ExtendedRandomAccessibleInterval;
 import net.imglib2.view.Views;
 
 import java.util.*;
@@ -46,22 +47,29 @@ public class InputViews
         return imgPlus;
     }
 
-    public RandomAccessible< R > transform( RandomAccessibleInterval< R > rai, InvertibleRealTransform transform )
+    public RandomAccessible< R > transformExtendingOutOfBoundsPixels( RandomAccessibleInterval< R > rai, InvertibleRealTransform transform )
     {
-        // TODO: make single lines
-        RealRandomAccessible rra
-                = RealViews.transform(
-                        Views.interpolate( Views.extendBorder( rai ), new NLinearInterpolatorFactory() ),
-                                    transform );
+        ExtendedRandomAccessibleInterval erai = Views.extendBorder( rai );
 
-        RandomAccessible transformedRA = Views.raster( rra );
+        RealRandomAccessible rra = Views.interpolate( erai, new NLinearInterpolatorFactory() );
+        RealRandomAccessible realTransformed = RealViews.transform( rra, transform );
+        RandomAccessible transformed = Views.raster( realTransformed );
 
-        return transformedRA;
+        return transformed;
     }
 
-    public static RandomAccessible transform( RandomAccessible input, InvertibleRealTransform transform )
-    {
 
+    public RandomAccessible< R > transformZeroingOutOfBoundsPixels( RandomAccessibleInterval< R > rai, InvertibleRealTransform transform )
+    {
+        ExtendedRandomAccessibleInterval erai = Views.extendZero( rai );
+        RealRandomAccessible rra = Views.interpolate( erai, new NLinearInterpolatorFactory() );
+        RealRandomAccessible realTransformed = RealViews.transform( rra, transform );
+        RandomAccessible transformed = Views.raster( realTransformed );
+        return transformed;
+    }
+
+    public static RandomAccessible transformExtendingOutOfBoundsPixels( RandomAccessible input, InvertibleRealTransform transform )
+    {
         RealRandomAccessible rra = Views.interpolate( input, new NLinearInterpolatorFactory() );
 
         rra = RealViews.transform( rra, transform );
@@ -116,11 +124,11 @@ public class InputViews
         return Views.interval( input, interval );
     }
 
-    private RandomAccessibleInterval transformedHyperSlice( FinalInterval nonTransformableSingletonsInterval, InvertibleRealTransform transform,  FinalInterval viewInterval )
+    private RandomAccessibleInterval transformedHyperSliceZeroingOutOfBoundsPixels( FinalInterval nonTransformableSingletonsInterval, InvertibleRealTransform transform, FinalInterval viewInterval )
     {
         RandomAccessibleInterval rai = applyIntervalAndDropSingletons( nonTransformableSingletonsInterval );
 
-        RandomAccessible ra = transform( rai, transform );
+        RandomAccessible ra = transformZeroingOutOfBoundsPixels( rai, transform );
 
         return Views.interval( ra, viewInterval );
     }
@@ -182,7 +190,7 @@ public class InputViews
                 if ( transformsExpandedToAllTransformableDimensions.containsKey( s ) )
                 {
                     FinalInterval nonTransformableSingletonsInterval = axes.nonTransformableAxesSingletonInterval( nonTransformableCoordinates );
-                    transformed = transformedHyperSlice( nonTransformableSingletonsInterval, transformsExpandedToAllTransformableDimensions.get( s ), transformedViewInterval );
+                    transformed = transformedHyperSliceZeroingOutOfBoundsPixels( nonTransformableSingletonsInterval, transformsExpandedToAllTransformableDimensions.get( s ), transformedViewInterval );
                 }
             }
             else

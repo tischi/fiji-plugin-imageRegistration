@@ -39,8 +39,9 @@ public class Register2DSquareTranslation
         registration.run();
         registration.logTransformations();
 
-        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
-        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
+        MetaImage transformed = registration.getTransformedImage( OutputIntervalSizeType.InputImage );
+        //Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
+        Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
 
     }
 

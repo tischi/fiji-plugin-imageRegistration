@@ -41,7 +41,7 @@ public class Register2DFibSEM1DTranslationFullSize
         registration.run();
         registration.logTransformations();
 
-        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.TransformationsEncompassing );
+        MetaImage transformed = registration.getTransformedImage( OutputIntervalSizeType.TransformationsEncompassing );
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
         //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );

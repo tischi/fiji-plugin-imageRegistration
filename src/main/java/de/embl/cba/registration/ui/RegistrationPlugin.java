@@ -305,7 +305,7 @@ public class RegistrationPlugin<T extends RealType<T>>
                 registration.run();
                 registration.logTransformations();
                 setOutputImages( registration );
-                showTransformedOutputWithBigDataViewer();
+                //showTransformedOutputWithBigDataViewer();
                 showTransformedOutputWithImageJFunctions();
             }
         } );
@@ -315,7 +315,7 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     private void setOutputImages( Registration registration )
     {
-        transformed = registration.transformedImage( OutputIntervalSizeType.TransformationsEncompassing );
+        transformed = registration.getTransformedImage( OutputIntervalSizeType.TransformationsEncompassing );
         processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
     }
 

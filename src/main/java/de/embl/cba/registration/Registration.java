@@ -18,9 +18,7 @@ import java.util.*;
 
 import static de.embl.cba.registration.Logger.*;
 
-public class Registration
-        < R extends RealType< R > & NativeType < R >,
-                T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable < T > > {
+public class Registration< R extends RealType< R > & NativeType < R >, T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable < T > > {
 
     private final RandomAccessibleInterval< R > input;
     private final InputViews inputViews;
@@ -113,7 +111,7 @@ public class Registration
         transformationInfos.put( axes.sequenceMin(), "Reference => no transformation." );
     }
 
-    public MetaImage transformedImage( OutputIntervalSizeType outputIntervalSizeType )
+    public MetaImage getTransformedImage( OutputIntervalSizeType outputIntervalSizeType )
     {
         long start = Logger.start( "# Creating transformed image view..." );
 
@@ -175,7 +173,7 @@ public class Registration
     {
         RandomAccessibleInterval rai = inputViews.transformableReferenceHyperSlice( s );
 
-        return inputViews.transform( rai, transform );
+        return inputViews.transformExtendingOutOfBoundsPixels( rai, transform );
     }
 
 }

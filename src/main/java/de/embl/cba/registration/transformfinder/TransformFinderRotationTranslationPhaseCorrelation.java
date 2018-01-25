@@ -188,7 +188,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
         {
             AffineTransform2D rotation2D = new AffineTransform2D();
             rotation2D.rotate(  asRadian( rotation.get( 0 ) ) );
-            return InputViews.transform( moving, rotation2D );
+            return InputViews.transformExtendingOutOfBoundsPixels( moving, rotation2D );
         }
 
         if ( rotation.size() == 3)
@@ -198,7 +198,7 @@ public class TransformFinderRotationTranslationPhaseCorrelation
             {
                 rotation3D.rotate( d, asRadian( rotation.get( d ) ) );
             }
-            return InputViews.transform( moving, rotation3D );
+            return InputViews.transformExtendingOutOfBoundsPixels( moving, rotation3D );
         }
 
         return null;

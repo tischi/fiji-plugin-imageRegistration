@@ -38,7 +38,7 @@ public class Register2DSquare2ChTranslation
         registration.run();
         registration.logTransformations();
 
-        MetaImage transformed = registration.transformedImage( OutputIntervalSizeType.InputImage );
+        MetaImage transformed = registration.getTransformedImage( OutputIntervalSizeType.InputImage );
 
         //Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
 
