@@ -34,7 +34,7 @@ public class Register2DFibSEM1DTranslationFullSize
         //MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
         MetaImage input = Readers.openUsingImageJ1( path );
 
-        Viewers.showRAIWithImageJFunctions( input.rai, input.axisTypes, input.title );
+        Viewers.showRAIUsingImageJFunctions( input.rai, input.axisTypes, input.title );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
         Registration registration = new Registration( settings );
@@ -45,7 +45,7 @@ public class Register2DFibSEM1DTranslationFullSize
         Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
 
         //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );
-        Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
+        Viewers.showRAIUsingImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
 
         //MetaImage reference = registration.processedAndTransformedReferenceImage( );
         //Viewers.showRAIWithUIService( reference.rai, ij.ui() );

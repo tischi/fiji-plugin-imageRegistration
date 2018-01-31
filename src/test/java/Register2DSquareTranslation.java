@@ -41,7 +41,7 @@ public class Register2DSquareTranslation
 
         MetaImage transformed = registration.getTransformedImage( OutputIntervalSizeType.InputImage );
         //Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions,transformed.axisOrder );
-        Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
+        Viewers.showRAIUsingImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
 
     }
 

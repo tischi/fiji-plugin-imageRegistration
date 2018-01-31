@@ -36,6 +36,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
+import org.scijava.widget.FileWidget;
 import org.scijava.widget.NumberWidget;
 
 import java.awt.*;
@@ -43,12 +44,8 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-@Plugin(type = Command.class,
-        menuPath = "Plugins>Registration>N-D Sequence Registration",
-        initializer = "init")
-public class RegistrationPlugin<T extends RealType<T>>
-        extends DynamicCommand
-        implements Interactive
+@Plugin(type = Command.class, menuPath = "Plugins>Registration>N-D Sequence Registration", initializer = "init")
+public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand implements Interactive
 {
 
     //@Parameter
@@ -75,8 +72,7 @@ public class RegistrationPlugin<T extends RealType<T>>
     @Parameter
     public StatusService statusService;
 
-    @Parameter(label = "Transformation type and finder method",
-            choices = {"Translation__PhaseCorrelation"}, //, "Rotation_Translation__PhaseCorrelation"},
+    @Parameter(label = "Transformation type and finder method", choices = { "Translation__PhaseCorrelation" }, //, "Rotation_Translation__PhaseCorrelation"},
             persist = false )
     public String transformationTypeInput = "Translation__PhaseCorrelation";
 
@@ -146,18 +142,17 @@ public class RegistrationPlugin<T extends RealType<T>>
         return (MutableModuleItem<String>) getInfo().getInput( typeName( d ) );
     }
 
-    @Parameter(label = "Compute registration",
-            callback = "computeRegistration" )
+    @Parameter(label = "Compute registration", callback = "computeRegistration" )
     private Button computeRegistration;
 
-    //@Parameter(label = "View registered image as ImageJ stack",
-    //        callback = "showTransformedOutputWithImageJFunctions" )
-    //private Button showTransformedOutputWithImageJFunctions;
+    @Parameter(label = "Show result using BigDataViewer", callback = "showTransformedOutputWithBigDataViewer" )
+    private Button showTransformedOutputWithBigDataViewer;
 
-    @Parameter(label = "View processed and registered reference region",
-            callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
-    private Button showProcessedAndTransformedReferenceWithImageJFunctions;
+    @Parameter(label = "Save result as ICS using SCIFIO", callback = "saveResultAsICSusingSCIFIO" )
+    private Button saveResultAsICSusingSCIFIO;
 
+    @Parameter(label = "View processed and registered reference region", callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
+    private Button createAndShowProcessedAndTransformedReferenceWithImageJFunctions;
 
     // input
     public RandomAccessibleInterval rai;
@@ -166,6 +161,8 @@ public class RegistrationPlugin<T extends RealType<T>>
     // output
     public MetaImage transformed;
     public MetaImage processedAndTransformedReference;
+
+    private Registration registration;
 
 
     private void init()
@@ -301,11 +298,10 @@ public class RegistrationPlugin<T extends RealType<T>>
         Thread thread = new Thread(new Runnable() {
             public void run()
             {
-                Registration registration = new Registration( settings );
+                registration = new Registration( settings );
                 registration.run();
                 registration.logTransformations();
-                setOutputImages( registration );
-                //showTransformedOutputWithBigDataViewer();
+                transformed = registration.getTransformedImage( OutputIntervalSizeType.TransformationsEncompassing );
                 showTransformedOutputWithImageJFunctions();
             }
         } );
@@ -313,15 +309,20 @@ public class RegistrationPlugin<T extends RealType<T>>
 
     }
 
-    private void setOutputImages( Registration registration )
-    {
-        transformed = registration.getTransformedImage( OutputIntervalSizeType.TransformationsEncompassing );
-        processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
-    }
-
     private void showTransformedOutputWithBigDataViewer()
     {
-        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
+        if ( transformed != null )
+        {
+            Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
+        }
+    }
+
+    private void saveResultAsICSusingSCIFIO()
+    {
+        if ( transformed != null )
+        {
+            Writers.saveMetaImageUsingScifio( transformed, uiService.chooseFile(null, FileWidget.SAVE_STYLE  ) );
+        }
     }
 
     private void showTransformedOutputWithImageJFunctions() {
@@ -336,14 +337,16 @@ public class RegistrationPlugin<T extends RealType<T>>
             public void run()
             {
                 //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, datasetService, transformed.axisTypes, transformed.title, uiService );
-                Viewers.showRAIWithImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
+                Viewers.showRAIUsingImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
             }
         } );
         thread.start();
 
     }
 
-    private void showProcessedAndTransformedReferenceWithImageJFunctions() {
+    private void createAndShowProcessedAndTransformedReferenceWithImageJFunctions() {
+
+        processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
 
         if ( processedAndTransformedReference == null )
         {
@@ -405,49 +408,6 @@ public class RegistrationPlugin<T extends RealType<T>>
     protected String varName( final int d, final String var ) {
         return "var" + d + ":" + var;
     }
-
-    // Main
-    public static void main(final String... args) throws Exception {
-        // toArrayImg the ImageJ application context with all available services
-        final ImageJ ij = new ImageJ();
-        ij.ui().showUI();
-
-        boolean LOAD_IJ1 = false;
-        boolean LOAD_IJ1_VIRTUAL = true;
-        boolean LOAD_IJ2 = false;
-
-        //String PATH = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/x90-y94-c2-t3--square--translation.tif";
-        String PATH = "/Users/tischer/Documents/paolo-ronchi--em-registration/chemfix_O6_crop--z1-5.tif";
-
-        Dataset dataset = null;
-
-        // Load data
-
-        if ( LOAD_IJ1 )
-        {
-            ImagePlus imp = IJ.openImage( PATH );
-            imp.show();
-        }
-        else if ( LOAD_IJ1_VIRTUAL )
-        {
-            ImagePlus imp = IJ.openVirtual( PATH );
-            imp.show();
-        }
-        else if ( LOAD_IJ2 )
-        {
-            final File file = new File( PATH );
-
-            if (file != null) {
-                dataset = ij.scifio().datasetIO().open(file.getPath());
-                ij.ui().show(dataset);
-            }
-        }
-
-        // invoke the plugin
-        ij.command().run( RegistrationPlugin.class, true );
-
-    }
-
 
 
 }

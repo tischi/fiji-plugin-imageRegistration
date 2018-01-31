@@ -522,11 +522,11 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return axisTypes;
     }
 
-    public AxisOrder axisOrderAfterTransformation()
+    public String axisOrderAfterTransformation()
     {
         ArrayList< AxisType > axisTypes = transformedOutputAxisTypes();
 
-        AxisOrder axisOrder = axisOrder( axisTypes );
+        String axisOrder = axisOrder( axisTypes );
 
         return axisOrder;
     }
@@ -536,7 +536,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
      * @param axisTypes
      * @return
      */
-    public static AxisOrder axisOrder( ArrayList< AxisType > axisTypes )
+    public static String axisOrder( ArrayList< AxisType > axisTypes )
     {
         String axisOrderString = "";
         for ( AxisType axisType : axisTypes )
@@ -547,18 +547,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         axisOrderString = axisOrderString.replace( "Time", "T" );
         axisOrderString = axisOrderString.replace( "Channel", "C" );
 
-        AxisOrder axisOrder;
-
-        try
-        {
-            axisOrder = AxisOrder.valueOf(  axisOrderString );
-        }
-        catch ( Exception e ) // BDV does not support all axis orders
-        {
-            axisOrder = AxisOrder.DEFAULT;
-        }
-
-        return axisOrder;
+        return axisOrderString;
     }
 
     public FinalInterval getReferenceIntervalForAxis( int axis )

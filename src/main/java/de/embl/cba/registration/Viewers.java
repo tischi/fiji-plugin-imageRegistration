@@ -19,6 +19,7 @@ import net.imglib2.view.Views;
 import org.scijava.ui.UIService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static bdv.viewer.DisplayMode.GROUP;
 
@@ -74,9 +75,9 @@ public abstract class Viewers
     }
 
 
-    public static void showRAIWithImageJFunctions( RandomAccessibleInterval rai,
-                                                   ArrayList< AxisType > axisTypes,
-                                                   String title )
+    public static void showRAIUsingImageJFunctions( RandomAccessibleInterval rai,
+                                                    ArrayList< AxisType > axisTypes,
+                                                    String title )
     {
         long start = Logger.start( "# Showing RAI using ImageJFunctions.show()..." );
 
@@ -117,11 +118,19 @@ public abstract class Viewers
         return imgPlus;
     }
 
-    public static void showRAIUsingBdv( RandomAccessibleInterval rai, String title, long numSpatialDimensions, AxisOrder axisOrder )
+    public static void showRAIUsingBdv( RandomAccessibleInterval rai, String title, long numSpatialDimensions, String axisOrderString )
     {
         long startTime = Logger.start("# Showing RAI using BigDataViewer...");
 
+        if ( axisOrderString.equals( "XYCZT") )
+        {
+            axisOrderString = "XYZCT";
+            rai = Views.permute( rai, 2, 3 );
+        }
+
+
         Bdv bdv = null;
+        AxisOrder axisOrder = AxisOrder.valueOf( axisOrderString );
 
         if ( numSpatialDimensions == 2 )
         {

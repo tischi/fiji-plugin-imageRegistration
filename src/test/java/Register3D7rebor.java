@@ -5,64 +5,54 @@ import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
 import de.embl.cba.registration.util.MetaImage;
-import net.imagej.*;
+import net.imagej.DefaultDatasetService;
+import net.imagej.ImageJ;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.util.Intervals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
-public class Register2DSquare2ChTranslation
+public class Register3D7rebor
 {
-    public static String LOCAL_FOLDER = "/Users/tischer/Documents/fiji-plugin-imageRegistration";
+
+    public static String LOCAL_FOLDER = "/Users/tischer/Documents/fiji-plugin-imageRegistration--data/7rebor";
 
     public static void main(final String... args) throws Exception
     {
+        String path = LOCAL_FOLDER + "/Registration_Test_GitHub_ND_reg_plugin_240118_RL.tif";
+
         Services.executorService = Executors.newFixedThreadPool( 4 );
         Services.datasetService = new DefaultDatasetService();
 
-        String path = LOCAL_FOLDER + "/src/test/resources/x90-y94-c2-t3--square--translation.tif";
-
         final ImageJ ij = new ImageJ();
-        ij.ui().showUI();
-        Services.uiService = ij.ui();
+        Services.ij = ij;
 
-        MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        Viewers.showImgPlusUsingUIService( input.imgPlus, ij.ui() );
-        Viewers.showRAIUsingBdv( input.imgPlus, "input", 2, input.axisOrder );
+        ij.ui().showUI();
+
+        MetaImage input = Readers.openUsingImageJ1( path );
+
+        Viewers.showRAIUsingImageJFunctions( input.rai, input.axisTypes, input.title );
 
         Settings settings = createSettings( input.rai, input.axisTypes );
+
         Registration registration = new Registration( settings );
+
         registration.run();
+
         registration.logTransformations();
 
         MetaImage transformed = registration.getTransformedImage( OutputIntervalSizeType.InputImage );
 
-        //Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
+        Viewers.showRAIUsingBdv( transformed.rai, transformed.title, transformed.numSpatialDimensions, transformed.axisOrder );
 
-        Viewers.showRAIUsingImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
-        //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, Services.datasetService, transformed.axisTypes, transformed.title, Services.uiService );
+        //Viewers.showRAIUsingImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
 
-
-        //DatasetIOService datasetIOService = new DefaultDatasetIOService();
-        //DatasetService datasetService = new DefaultDatasetService();
-        //datasetIOService.save( datasetService.create( transformed.rai  ),   )
-        //Dataset dataset = Services.datasetService.create( Views.zeroMin( transformed.rai ) );
-
-
-        //AxisType[] axisTypes = transformed.axisTypes.toArray( new AxisType[0]);
-
-        //final ImageJ ij = new ImageJ();
-        //ij.ui().showUI();
-        //UIService uiService = new DefaultUIService();
-
-
-        //Img img = OpService.run( net.imagej.ops.create.img.CreateImgFromRAI.class, transformed.rai );
-        //ops.run(net.imagej.ops.copy.CopyRAI.class, img, rai);
-        //Viewers.showImgPlusWithIJUI( imgPlus, ij );
-
+        //Writers.saveMetaImageUsingScifio( transformed, path + "--reg.ics" );
+        Writers.saveMetaImageUsingScifio( transformed,  new File(path + "--reg.tif") );
 
     }
 
@@ -78,10 +68,16 @@ public class Register2DSquare2ChTranslation
         settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Other );
+        settings.registrationAxisTypes.add( RegistrationAxisType.Registration );
         settings.registrationAxisTypes.add( RegistrationAxisType.Sequence );
 
         long[] min = Intervals.minAsLongArray( rai );
         long[] max = Intervals.maxAsLongArray( rai );
+
+        min[ 0 ] = 840; max[ 0 ] = min[ 0 ] + 30;
+        min[ 1 ] = 210; max[ 1 ] = min[ 1 ] + 80;
+        min[ 2 ] = 0; max[ 2 ] = 0;
+        min[ 4 ] = 0; max[ 4 ] = 1;
 
         settings.interval = new FinalInterval( min, max );
 
@@ -91,16 +87,18 @@ public class Register2DSquare2ChTranslation
         settings.filterSettings = new FilterSettings();
         settings.filterSettings.filterTypes = new ArrayList<>(  );
         settings.filterSettings.filterTypes.add( FilterType.SubSample );
+        settings.filterSettings.subSampling = new long[]{ 10L, 10L, 1L  };
         settings.filterSettings.filterTypes.add( FilterType.Threshold );
-        settings.filterSettings.thresholdMin = 100;
-        settings.filterSettings.thresholdMax = 300;
-
-        settings.filterSettings.subSampling = new long[]{ 1L, 1L };
+        //settings.filterSettings.filterTypes.add( FilterType.DifferenceOfGaussian );
+        settings.filterSettings.thresholdMin = 33000.0D;
+        settings.filterSettings.thresholdMax = 50000.0D;
+        //settings.filterSettings.gaussSigmaSmaller = new double[]{ 2.0D };
+        //settings.filterSettings.gaussSigmaLarger = new double[]{ 6.0D };
 
         settings.setAxes();
 
         settings.transformSettings = new TransformSettings();
-        settings.transformSettings.maximalTranslations = new double[] { 5000, 5000.0D };
+        //settings.transformSettings.maximalTranslations = new double[] { 3000.0D };
         settings.transformSettings.transformFinderType = TransformFinderType.Translation__PhaseCorrelation;
         settings.transformSettings.maximalRotations = new double[] { 0.0D };
 

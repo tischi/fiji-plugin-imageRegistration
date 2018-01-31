@@ -20,7 +20,7 @@ public class MetaImage
     public ImgPlus imgPlus;
 
     public RandomAccessibleInterval rai;
-    public AxisOrder axisOrder;
+    public String axisOrder;
     public ArrayList< AxisType > axisTypes;
 
     public long numSpatialDimensions;
