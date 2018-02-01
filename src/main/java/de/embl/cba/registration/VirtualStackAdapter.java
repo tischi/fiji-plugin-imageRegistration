@@ -35,11 +35,11 @@ import java.util.function.Function;
 
 public class VirtualStackAdapter {
 
-    public static Img<UnsignedByteType > wrapByte( ImagePlus image) {
+    public static Img<UnsignedByteType > wrapByte( ImagePlus image ) {
         return internWrap(image, ImagePlus.GRAY8, new UnsignedByteType(), array -> new ByteArray((byte[]) array));
     }
 
-    public static Img<UnsignedShortType > wrapShort( ImagePlus image) {
+    public static Img<UnsignedShortType > wrapShort( ImagePlus image ) {
         return internWrap(image, ImagePlus.GRAY16, new UnsignedShortType(), array -> new ShortArray((short[]) array));
     }
 
@@ -112,9 +112,9 @@ public class VirtualStackAdapter {
             final int[] cellDims = new int[ 5 ];
             grid.getCellDimensions(key, cellMin, cellDims );
 
-            int channel = (int) (cellMin[4] + 1);
-            int slice = (int) (cellMin[2] + 1);
-            int frame = (int) (cellMin[3] + 1);
+            int channel = (int) (cellMin[2] + 1);
+            int slice = (int) (cellMin[3] + 1);
+            int frame = (int) (cellMin[4] + 1);
             int stackIndex = image.getStackIndex(channel, slice, frame);
             ImageProcessor processor = image.getStack().getProcessor(stackIndex);
             final A array = arrayFactory.apply(processor.getPixels());

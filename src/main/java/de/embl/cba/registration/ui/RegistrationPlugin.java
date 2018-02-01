@@ -145,13 +145,13 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     @Parameter(label = "Compute registration", callback = "computeRegistration" )
     private Button computeRegistration;
 
-    @Parameter(label = "Show result using BigDataViewer", callback = "showTransformedOutputWithBigDataViewer" )
+    @Parameter(label = "Show result with BigDataViewer", callback = "showTransformedOutputWithBigDataViewer" )
     private Button showTransformedOutputWithBigDataViewer;
 
-    @Parameter(label = "Save result as ICS using SCIFIO", callback = "saveResultAsICSusingSCIFIO" )
+    @Parameter(label = "Save result with SCIFIO", callback = "saveResultAsICSusingSCIFIO" )
     private Button saveResultAsICSusingSCIFIO;
 
-    @Parameter(label = "View processed and registered reference region", callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
+    @Parameter(label = "Show reference region", callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
     private Button createAndShowProcessedAndTransformedReferenceWithImageJFunctions;
 
     // input
