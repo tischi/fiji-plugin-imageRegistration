@@ -183,8 +183,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     {
         if ( imagePlus.getStack() instanceof VirtualStack )
         {
-            // rai = VirtualStackAdapter.wrap( imagePlus ); // TODO: does not work yet...
-            rai = ImageJFunctions.wrap( imagePlus );
+            rai = VirtualStackAdapter.wrap( imagePlus );
         }
         else
         {

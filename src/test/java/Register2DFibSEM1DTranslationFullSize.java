@@ -32,7 +32,7 @@ public class Register2DFibSEM1DTranslationFullSize
         ij.ui().showUI();
 
         //MetaImage input = Readers.openUsingDefaultSCIFIO( path, ij );
-        MetaImage input = Readers.openUsingImageJ1( path );
+        MetaImage input = Readers.openVirtualUsingImageJ1( path );
 
         Viewers.showRAIUsingImageJFunctions( input.rai, input.axisTypes, input.title );
 
