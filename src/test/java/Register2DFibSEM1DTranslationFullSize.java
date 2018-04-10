@@ -47,7 +47,7 @@ public class Register2DFibSEM1DTranslationFullSize
         //Viewers.showRAIAsImgPlusWithUIService( transformed.rai, ij.dataset(), transformed.axisTypes, transformed.title, ij.ui() );
         Viewers.showRAIUsingImageJFunctions( transformed.rai, transformed.axisTypes, transformed.title );
 
-        //MetaImage reference = registration.processedAndTransformedReferenceImage( );
+        //MetaImage reference = registration.getProcessedAndTransformedReferenceImage( );
         //Viewers.showRAIWithUIService( reference.rai, ij.ui() );
 
     }

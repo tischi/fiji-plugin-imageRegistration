@@ -126,16 +126,16 @@ public class Registration< R extends RealType< R > & NativeType < R >, T extends
         return metaImage;
     }
 
-    public MetaImage processedAndTransformedReferenceImage( )
+    public MetaImage getProcessedAndTransformedReferenceImage( )
     {
         long start = Logger.start( "# Creating transformed reference image view..." );
 
         MetaImage metaImage = new MetaImage();
         metaImage.title = "transformed";
         metaImage.rai = processedAndTransformedReferenceRegionSequence();
-        //metaImage.axisTypes = axes.inputAxisTypes();
-        //metaImage.axisOrder = axes.axisOrder( metaImage.axisTypes );
-        //metaImage.numSpatialDimensions = axes.numSpatialDimensions( metaImage.axisTypes );
+        metaImage.axisTypes = axes.referenceAxisTypes();
+        metaImage.axisOrder = axes.axisOrder( metaImage.axisTypes );
+        metaImage.numSpatialDimensions = axes.numSpatialDimensions( metaImage.axisTypes );
 
         Logger.doneIn( start );
         return metaImage;

@@ -113,6 +113,10 @@ public class Settings
         {
             min[ d ] = (long) plugin.varInput( d, "min" ).getValue( plugin );
             max[ d ] = (long) plugin.varInput( d, "max" ).getValue( plugin );
+
+            min[ d ] -= (long) plugin.offsetForZeroOrOneBasedAxes.get( d );
+            max[ d ] -= (long) plugin.offsetForZeroOrOneBasedAxes.get( d );
+
         }
 
         interval = new FinalInterval( min, max );

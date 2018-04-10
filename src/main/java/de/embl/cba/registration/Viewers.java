@@ -4,6 +4,7 @@ import bdv.util.AxisOrder;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import de.embl.cba.registration.Logger;
+import de.embl.cba.registration.util.ViewsUtils;
 import ij.ImagePlus;
 import net.imagej.DatasetService;
 import net.imagej.DefaultDatasetService;
@@ -90,15 +91,17 @@ public abstract class Viewers
 
     private static RandomAccessibleInterval addDimensionsToConformWithImageJ1AxesOrder( RandomAccessibleInterval rai, ArrayList< AxisType > axisTypes )
     {
+        RandomAccessibleInterval raiConformingImageJ = rai;
+
         for ( int i = 0; i < ImageJAxes.size(); ++i )
         {
             if ( ! axisTypes.contains( ImageJAxes.get( i ) ) )
             {
-                rai = Views.addDimension( rai, 0, 0 );
-                rai = Views.permute( rai, rai.numDimensions() - 1, i );
+                raiConformingImageJ = ViewsUtils.insertDimension( raiConformingImageJ, i );
             }
         }
-        return rai;
+
+        return raiConformingImageJ;
     }
 
 

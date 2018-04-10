@@ -10,6 +10,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2Util;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.RealTransform;
 
 import net.imglib2.type.NativeType;
@@ -71,12 +72,12 @@ public class TransformFinderTranslationPhaseCorrelation
 
     private void determineTranslationFromPCM( RandomAccessibleInterval img1, RandomAccessibleInterval img2 )
     {
-        List< PhaseCorrelationPeak2 > peaks = PhaseCorrelations.pcmMaximum( pcm ); //  peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, nHighestPeaks, subpixelAccuracy );
+        List< PhaseCorrelationPeak2 > peaks = PhaseCorrelations.pcmMaximum( pcm ); //peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, nHighestPeaks, subpixelAccuracy );
         PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
         List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm, img1, img2 );
         Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelations.ComparatorByPhaseCorrelation() ) );
         PhaseCorrelationPeak2 peak = sensiblePeaks.get( 0 );
-        //PhaseCorrelationPeak2 peak = getFirstShiftWithinAllowedRange( pcm, sensiblePeaks );
+        peak.calculateSubpixelLocalization( pcm );
         setTranslationFromShiftPeak( peak );
     }
 
@@ -91,10 +92,14 @@ public class TransformFinderTranslationPhaseCorrelation
 
         if ( shiftPeak != null )
         {
-            if ( shiftPeak.getSubpixelShift() == null )
+            if ( shiftPeak.getSubpixelPcmLocation() == null )
+            {
                 shiftPeak.getShift().localize( translation );
+            }
             else
-                shiftPeak.getSubpixelShift().localize( translation );
+            {
+                shiftPeak.getSubpixelPcmLocation().localize( translation );
+            }
 
             correctTranslationForSubSampling();
 

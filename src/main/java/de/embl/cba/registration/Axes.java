@@ -96,9 +96,14 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
 
     public ArrayList< AxisType > referenceAxisTypes()
     {
-        ArrayList< AxisType > axisTypes = transformableDimensionsAxisTypes();
-        axisTypes.add( sequenceDimensionAxisType() );
-        return axisTypes;
+        ArrayList< AxisType > referenceAxisTypes;
+
+        ArrayList< AxisType > registrationAxisTypes = getAxisTypes( RegistrationAxisType.Registration );
+
+        referenceAxisTypes = new ArrayList<>( registrationAxisTypes );
+        referenceAxisTypes.add( sequenceDimensionAxisType() );
+
+        return referenceAxisTypes;
     }
 
     public ArrayList< AxisType > transformedOutputAxisTypes()

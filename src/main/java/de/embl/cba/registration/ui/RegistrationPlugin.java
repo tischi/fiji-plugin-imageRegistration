@@ -13,7 +13,6 @@ import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.util.MetaImage;
-import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
 import ij.gui.Overlay;
@@ -22,6 +21,7 @@ import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.View;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemVisibility;
@@ -40,7 +40,6 @@ import org.scijava.widget.FileWidget;
 import org.scijava.widget.NumberWidget;
 
 import java.awt.*;
-import java.io.File;
 import java.util.*;
 import java.util.List;
 
@@ -152,11 +151,12 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     private Button saveResultAsICSusingSCIFIO;
 
     @Parameter(label = "Show reference region", callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
-    private Button createAndShowProcessedAndTransformedReferenceWithImageJFunctions;
+    private Button showProcessedAndTransformedReferenceWithImageJFunctions;
 
     // input
     public RandomAccessibleInterval rai;
     public ArrayList< AxisType > axisTypes;
+    public ArrayList< Long > offsetForZeroOrOneBasedAxes;
 
     // output
     public MetaImage transformed;
@@ -169,6 +169,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     {
         setAxisTypes( imagePlus );
         setRAI( imagePlus );
+        setZeroOrOneBasedAxisOffsets( rai );
         Services.setServices( this );
         Logger.setLogger( this );
         configureAxesUI();
@@ -191,6 +192,26 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
         }
     }
 
+    private void setZeroOrOneBasedAxisOffsets( RandomAccessibleInterval rai )
+    {
+        offsetForZeroOrOneBasedAxes = new ArrayList<>( );
+
+        for (int d = 0; d < rai.numDimensions(); d++)
+        {
+            if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Z )
+                    || axisTypes.get( d ).equals( net.imagej.axis.Axes.TIME )
+                    || axisTypes.get( d ).equals( net.imagej.axis.Axes.CHANNEL )
+                    )
+            {
+                offsetForZeroOrOneBasedAxes.add( 1L );
+            }
+            else
+            {
+                offsetForZeroOrOneBasedAxes.add( 0L );
+            }
+        }
+    }
+
     private void configureAxesUI()
     {
         List< String > registrationAxisTypes = Enums.asStringList( RegistrationAxisType.values() );
@@ -204,55 +225,61 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
 
             // Message
             //
-            final MutableModuleItem<String> axisItem =
-                    addInput( axisTypes.get( d ).toString(), String.class);
+            final MutableModuleItem<String> axisItem = addInput( axisTypes.get( d ).toString(), String.class);
             axisItem.setPersisted( persist );
             axisItem.setVisibility( ItemVisibility.MESSAGE );
             axisItem.setValue(this, axisTypes.get( d ).toString() );
 
             // Axis type selection
             //
-            final MutableModuleItem<String> typeItem =
-                    addInput( typeName( d ), String.class);
+            final MutableModuleItem<String> typeItem = addInput( typeName( d ), String.class);
             typeItem.setPersisted( persist );
             typeItem.setLabel( "Type" );
             typeItem.setChoices( registrationAxisTypes );
 
             if ( axisTypes.get( d ).equals( sequenceDefault ) )
+            {
                 typeItem.setValue( this, "" + RegistrationAxisType.Sequence );
-            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.X ))
+            }
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.X ) )
+            {
                 typeItem.setValue( this, "" + RegistrationAxisType.Registration );
-            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Y ))
+            }
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Y ) )
+            {
                 typeItem.setValue( this, "" + RegistrationAxisType.Registration );
-            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Z ))
+            }
+            else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.Z ) )
+            {
                 typeItem.setValue( this, "" + RegistrationAxisType.Registration );
+            }
             else if ( axisTypes.get( d ).equals( net.imagej.axis.Axes.CHANNEL ))
+            {
                 typeItem.setValue( this, "" + RegistrationAxisType.Other );
+            }
 
             // Interval minimum
             //
             var = "min";
-            final MutableModuleItem<Long> minItem =
-                    addInput( varName(d, var), Long.class);
+            final MutableModuleItem<Long> minItem = addInput( varName(d, var), Long.class);
             minItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
             minItem.setPersisted( persist );
             minItem.setLabel( var );
-            minItem.setMinimumValue( rai.min( d ) );
-            minItem.setMaximumValue( rai.max( d ) );
-            minItem.setDefaultValue( rai.min( d ) );
+            minItem.setMinimumValue( rai.min( d ) + offsetForZeroOrOneBasedAxes.get( d ) );
+            minItem.setMaximumValue( rai.max( d ) + offsetForZeroOrOneBasedAxes.get( d ) );
+            minItem.setDefaultValue( rai.min( d ) + offsetForZeroOrOneBasedAxes.get( d ) );
             minItem.setCallback( "intervalChanged" );
 
             // Interval maximum
             //
             var = "max";
-            final MutableModuleItem<Long> maxItem =
-                    addInput( varName(d, var), Long.class);
+            final MutableModuleItem<Long> maxItem = addInput( varName(d, var), Long.class);
             maxItem.setWidgetStyle( NumberWidget.SLIDER_STYLE );
             maxItem.setPersisted( persist );
             maxItem.setLabel( var );
-            maxItem.setMinimumValue( rai.min( d ) );
-            maxItem.setMaximumValue( rai.max( d ) );
-            maxItem.setDefaultValue( rai.max( d ) );
+            maxItem.setMinimumValue( rai.min( d ) + offsetForZeroOrOneBasedAxes.get( d ) );
+            maxItem.setMaximumValue( rai.max( d ) + offsetForZeroOrOneBasedAxes.get( d ) );
+            maxItem.setDefaultValue( rai.max( d ) + offsetForZeroOrOneBasedAxes.get( d ) );
             maxItem.setCallback( "intervalChanged" );
 
         }
@@ -316,6 +343,12 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
         }
     }
 
+    private void showProcessedAndTransformedReferenceWithImageJFunctions()
+    {
+         MetaImage referenceRegion = registration.getProcessedAndTransformedReferenceImage();
+         Viewers.showRAIUsingImageJFunctions( referenceRegion.rai, referenceRegion.axisTypes, "reference region" );
+    }
+
     private void saveResultAsICSusingSCIFIO()
     {
         if ( transformed != null )
@@ -345,7 +378,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
 
     private void createAndShowProcessedAndTransformedReferenceWithImageJFunctions() {
 
-        processedAndTransformedReference = registration.processedAndTransformedReferenceImage();
+        processedAndTransformedReference = registration.getProcessedAndTransformedReferenceImage();
 
         if ( processedAndTransformedReference == null )
         {
