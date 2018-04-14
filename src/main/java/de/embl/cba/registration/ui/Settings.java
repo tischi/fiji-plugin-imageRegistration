@@ -6,6 +6,7 @@ import de.embl.cba.registration.RegistrationAxisType;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSettings;
 import de.embl.cba.registration.filter.FilterType;
+import de.embl.cba.registration.projection.ProjectionType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import net.imagej.axis.AxisType;
@@ -32,13 +33,13 @@ public class Settings
     public Axes axes;
     public RandomAccessibleInterval rai;
 
+    public ProjectionType projectionType;
+
     public int inputImageNumDimensions;
 
     private RegistrationPlugin plugin;
     //private Module module; // TODO: what is the difference between plugin and module?
 
-    private double GAUSS_SMALL = 2.0D;
-    private double GAUSS_LARGE = 6.0D;
 
     public Settings( )
     {
@@ -56,11 +57,17 @@ public class Settings
         this.axisTypes = plugin.axisTypes;
         setRegistrationAxisTypes();
         setRegistrationAxesInterval();
+        setProjectionMode();
         setAxes();
         setImageFilterParameters();
         setTransformSettings();
         setOutputInterval();
         setNumThreads();
+    }
+
+    private void setProjectionMode()
+    {
+        this.projectionType = plugin.getOtherAxesProjectionType();
     }
 
     public void setAxes()
@@ -77,14 +84,15 @@ public class Settings
             return false;
         }
 
-
         if ( transformSettings.maximalTranslations != null && transformSettings.maximalTranslations.length != axes.numRegistrationDimensions() )
         {
             Services.uiService.showDialog( "Maximal translation dimensions does not equal number " +
                     "of registration dimensions.", DialogPrompt.MessageType.ERROR_MESSAGE );
             return false;
         }
+
         return true;
+
     }
 
     private void setNumThreads()
@@ -129,10 +137,12 @@ public class Settings
         setSubSampling();
         setThreshold();
         setGauss();
+        setGradient();
     }
 
     private void setFilters()
     {
+
         filterSettings.filterTypes  = new ArrayList<>(  );
 
         filterSettings.filterTypes.add( FilterType.SubSample );
@@ -144,9 +154,14 @@ public class Settings
             filterSettings.filterTypes.add( FilterType.Threshold );
             filterSettings.filterTypes.add( FilterType.DifferenceOfGaussian );
         }
+        else if ( filterType.equals( FilterType.ThresholdAndGradient ) )
+        {
+            filterSettings.filterTypes.add( FilterType.Threshold );
+            filterSettings.filterTypes.add( FilterType.Gradient );
+        }
         else
         {
-            filterSettings.filterTypes.add( FilterType.valueOf( plugin.imageFilterType ) );
+            filterSettings.filterTypes.add( filterType );
         }
 
         //filterSettings.filterTypes.add( FilterType.AsArrayImg );
@@ -155,9 +170,20 @@ public class Settings
 
     private void setSubSampling()
     {
-        String[] tmp = plugin.imageFilterSubSampling.split( "," );
-        long[] subSampling = Arrays.stream( tmp ).mapToLong( i -> Long.parseLong( i ) ).toArray();
-        filterSettings.subSampling = subSampling;
+        //setSubSamplingFromUI();
+        setNoSubSampling();
+    }
+
+    private void setNoSubSampling()
+    {
+        filterSettings.subSampling = new long[ axes.numRegistrationDimensions() ];
+        Arrays.fill( filterSettings.subSampling, 1L );
+    }
+
+    private void setSubSamplingFromUI()
+    {
+        //String[] tmp = plugin.imageFilterSubSampling.split( "," );
+        //filterSettings.subSampling = Arrays.stream( tmp ).mapToLong( i -> Long.parseLong( i ) ).toArray();
     }
 
     private void setGauss()
@@ -165,13 +191,33 @@ public class Settings
         int n = axes.numRegistrationDimensions();
 
         filterSettings.gaussSigma = new double[ n ];
-        Arrays.fill( filterSettings.gaussSigma, GAUSS_SMALL );
+        Arrays.fill( filterSettings.gaussSigma, plugin.gaussianFilterSize );
+    }
 
-        filterSettings.gaussSigmaSmaller = new double[ n ];
-        Arrays.fill( filterSettings.gaussSigmaSmaller, GAUSS_SMALL );
+    private void setGradient()
+    {
+        filterSettings.gradientAxis = getGradientAxisIndexWithinRegistrationAxes();
+    }
 
-        filterSettings.gaussSigmaLarger = new double[ n ];
-        Arrays.fill( filterSettings.gaussSigmaLarger, GAUSS_LARGE );
+    private int getGradientAxisIndexWithinRegistrationAxes()
+    {
+        String gradientAxisName = plugin.getGradientAxisName();
+
+        ArrayList< Integer > registrationAxesIds = axes.registrationAxes();
+        ArrayList< AxisType > axisTypes = axes.inputAxisTypes();
+
+        for ( int i = 0; i < registrationAxesIds.size(); ++i )
+        {
+            String registrationAxisName = axisTypes.get( registrationAxesIds.get( i ) ).toString();
+
+            if ( registrationAxisName.equals( gradientAxisName ) )
+            {
+                return( i );
+            }
+        }
+
+        return -1;
+
     }
 
     private void setThreshold()

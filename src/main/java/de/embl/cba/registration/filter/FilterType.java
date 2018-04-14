@@ -8,6 +8,8 @@ public enum FilterType
     DifferenceOfGaussian,
     DifferenceOfGaussianAndThreshold,
     ThresholdAndDifferenceOfGaussian,
+    ThresholdAndGradient,
     SubSample,
-    AsArrayImg
+    AsArrayImg,
+    Gradient
 }

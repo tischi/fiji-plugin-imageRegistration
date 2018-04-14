@@ -130,7 +130,11 @@ public abstract class Viewers
             axisOrderString = "XYZCT";
             rai = Views.permute( rai, 2, 3 );
         }
-
+        else if (  axisOrderString.equals( "XYCZ") )
+        {
+            axisOrderString = "XYZC";
+            rai = Views.permute( rai, 2, 3 );
+        }
 
         Bdv bdv = null;
         AxisOrder axisOrder = AxisOrder.valueOf( axisOrderString );

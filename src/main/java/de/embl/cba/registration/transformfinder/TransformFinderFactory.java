@@ -17,6 +17,11 @@ public abstract class TransformFinderFactory< R extends RealType< R > & NativeTy
             return new TransformFinderRotationTranslationPhaseCorrelation( settings );
         }
 
+        if ( type.equals( TransformFinderType.Translation__Maximum ) )
+        {
+            return new TransformFinderTranslationMaximum( settings );
+        }
+
         return null;
     }
 

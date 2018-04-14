@@ -21,7 +21,7 @@ public class ImageFilterThreshold
     }
 
     @Override
-    public RandomAccessibleInterval< BitType > apply( RandomAccessibleInterval< R > input )
+    public RandomAccessibleInterval< BitType > filter( RandomAccessibleInterval< R > input )
     {
 
         RandomAccessibleInterval< BitType > converted =

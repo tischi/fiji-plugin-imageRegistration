@@ -1,6 +1,8 @@
 package de.embl.cba.registration;
 
-import de.embl.cba.registration.util.Projection;
+import de.embl.cba.registration.projection.ProjectionType;
+import de.embl.cba.registration.ui.Settings;
+import de.embl.cba.registration.projection.Projection;
 import net.imagej.Dataset;
 import net.imagej.ImgPlus;
 import net.imagej.axis.AxisType;
@@ -33,11 +35,13 @@ public class InputViews
     RandomAccessibleInterval< R > transformed;
     private Map< Long, T > transformsExpandedToAllTransformableDimensions;
     private FinalInterval transformedViewInterval;
+    private ProjectionType projectionType;
 
-    public InputViews( RandomAccessibleInterval inputImage, Axes axes )
+    public InputViews( RandomAccessibleInterval inputImage, Axes axes, Settings settings )
     {
         this.input = inputImage;
         this.axes = axes;
+        this.projectionType = settings.projectionType;
     }
 
     public ImgPlus< R > asImgPlus( RandomAccessibleInterval< R > rai, ArrayList< AxisType> axisTypes, String title )
@@ -102,7 +106,16 @@ public class InputViews
         {
             FinalInterval interval = axes.getReferenceIntervalForAxis( axis );
             Projection< R > projection = new Projection< R >( projected, axis, interval );
-            projected = projection.average();
+
+            switch( projectionType )
+            {
+                case Average: projected = projection.average(); break;
+                case Median: projected = projection.median(); break;
+                case Maximum: projected = projection.maximum(); break;
+                case Minimum: projected = projection.minimum(); break;
+                default: throw new IllegalArgumentException("Invalid projection: " + projectionType);
+            }
+
         }
 
         return projected;

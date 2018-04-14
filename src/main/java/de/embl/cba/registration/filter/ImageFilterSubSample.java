@@ -16,7 +16,7 @@ public class ImageFilterSubSample< R extends RealType< R > & NativeType< R > > i
     }
 
     @Override
-    public RandomAccessibleInterval< R > apply( RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< R > filter( RandomAccessibleInterval< R > source )
     {
         RandomAccessibleInterval< R > output = Views.subsample( source, subSampling );
 

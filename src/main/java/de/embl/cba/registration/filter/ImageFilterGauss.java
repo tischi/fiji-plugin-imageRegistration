@@ -15,9 +15,7 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
-public class ImageFilterGauss
-        < R extends RealType< R > & NativeType < R > >
-        implements ImageFilter< R, FloatType > {
+public class ImageFilterGauss< R extends RealType< R > & NativeType < R > > implements ImageFilter< R, FloatType > {
 
     private Map< String, Object > parameters;
     double[] sigma;
@@ -28,7 +26,7 @@ public class ImageFilterGauss
     }
 
     @Override
-    public RandomAccessibleInterval< FloatType > apply( RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< FloatType > filter( RandomAccessibleInterval< R > source )
     {
 
         // toArrayImg target image with same offset as source image

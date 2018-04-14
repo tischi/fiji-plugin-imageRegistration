@@ -21,7 +21,7 @@ public class ImageFilterNone< R extends RealType< R > & NativeType< R > >
     }
 
     @Override
-    public RandomAccessibleInterval< R > apply( RandomAccessibleInterval< R > source )
+    public RandomAccessibleInterval< R > filter( RandomAccessibleInterval< R > source )
     {
         return source;
     }

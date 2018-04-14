@@ -11,6 +11,7 @@ package de.embl.cba.registration.ui;
 
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
+import de.embl.cba.registration.projection.ProjectionType;
 import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.util.MetaImage;
 import ij.ImagePlus;
@@ -21,7 +22,6 @@ import net.imagej.*;
 import net.imagej.axis.*;
 import net.imagej.ops.OpService;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.View;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemVisibility;
@@ -71,8 +71,35 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     @Parameter
     public StatusService statusService;
 
-    @Parameter(label = "Transformation type and finder method", choices = { "Translation__PhaseCorrelation" }, //, "Rotation_Translation__PhaseCorrelation"},
-            persist = false )
+    /*
+    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
+    private String message02
+            = "<html>"
+            + "<br>AXES SET-UP<br>"
+            + "<li>"
+            + "Sequence axis: <b>One</b> axis along which you want to register your data, typically the time or z-axis.<br>"
+            + "Min and max values chose a subset of the full dataset.<br>"
+            + "</li>"
+            + "<li>"
+            + "Registration axes: <b>Multiple</b> axes to be transformed, e.g. the x- and y-axis.<br>"
+            + "Min and max values determine the reference region that should be stabilized."
+            + "</li>"
+            + "<li>"
+            + "Other axes: <b>Multiple</b> axes, for example the channel axis.<br>"
+            + "Min and max values determine a reference range within which an average value will be computed.<br>"
+            + "</li>";
+
+    @Parameter( visibility = ItemVisibility.MESSAGE )
+    private String message03
+            = "<html>"  +
+            "<br>IMAGE PRE-PROCESSING<br>" +
+            "For finding the transformations it can help to pre-process the images.<br>" +
+            "For example, the phase-correlation algorithm is very noise sensitive.<br>" +
+            "Typically, it for instance helps to threshold above the noise level.<br>";
+            */
+
+    @Parameter(label = "Transformation type and finder method",
+            choices = { "Translation__PhaseCorrelation", "Translation__Maximum" } )
     public String transformationTypeInput = "Translation__PhaseCorrelation";
 
     //@Parameter(label = "Output size",
@@ -95,41 +122,26 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     //protected String transformationParameterMaximalRotationsInput = "2";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )
-    private String message02
-            = "<html>"  +
-            "<br>IMAGE PRE-PROCESSING<br>" +
-            "For finding the transformations it can help to pre-process the images.<br>" +
-            "For example, the phase-correlation algorithm is very noise sensitive.<br>" +
-            "Typically it helps to threshold above the noise level.<br>";
+    public String space = " ";
 
-    @Parameter( label = "Image pre-processing",
-            choices = {"None", "Threshold", "ThresholdAndDifferenceOfGaussian"},
-            persist = false )
+    @Parameter( label = "Pre-processing pipeline", choices = {
+            "None",
+            "Threshold",
+            "DifferenceOfGaussian",
+            "ThresholdAndDifferenceOfGaussian",
+            "ThresholdAndGradient"
+    } )
     protected String imageFilterType = "None";
 
-    @Parameter(label = "Threshold values [min,max]"
-            , persist = false  )
+    @Parameter(label = "Threshold values [min,max]"  )
     protected String imageFilterThreshold = "10,230";
 
-    @Parameter(label = "Sub-sampling [pixels]", persist = false)
-    protected String imageFilterSubSampling = "1,1";
+    //@Parameter(label = "Sub-sampling [pixels]", persist = false)
+    //protected String imageFilterSubSampling = "1,1";
 
-    @Parameter( visibility = ItemVisibility.MESSAGE, persist = false )
-    private String message03
-            = "<html>"
-            + "<br>AXES SET-UP<br>"
-            + "<li>"
-            + "Sequence axis: <b>One</b> axis along which you want to register your data, typically the time or z-axis.<br>"
-            + "Min and max values chose a subset of the full dataset.<br>"
-            + "</li>"
-            + "<li>"
-            + "Registration axes: <b>Multiple</b> axes to be transformed, e.g. the x- and y-axis.<br>"
-            + "Min and max values determine the reference region that should be stabilized."
-            + "</li>"
-            + "<li>"
-            + "Other axes: <b>Multiple</b> axes, for example the channel axis.<br>"
-            + "Min and max values determine a reference range within which an average value will be computed.<br>"
-            + "</li>";
+    @Parameter(label = "Gaussian filter size [pixels]")
+    protected double gaussianFilterSize = 3.0D;
+
 
     @SuppressWarnings("unchecked")
     protected MutableModuleItem<Long> varInput(final int d, final String var) {
@@ -140,18 +152,6 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     protected MutableModuleItem<String> typeInput( final int d ) {
         return (MutableModuleItem<String>) getInfo().getInput( typeName( d ) );
     }
-
-    @Parameter(label = "Compute registration", callback = "computeRegistration" )
-    private Button computeRegistration;
-
-    @Parameter(label = "Show result with BigDataViewer", callback = "showTransformedOutputWithBigDataViewer" )
-    private Button showTransformedOutputWithBigDataViewer;
-
-    @Parameter(label = "Save result with SCIFIO", callback = "saveResultAsICSusingSCIFIO" )
-    private Button saveResultAsICSusingSCIFIO;
-
-    @Parameter(label = "Show reference region", callback = "showProcessedAndTransformedReferenceWithImageJFunctions" )
-    private Button showProcessedAndTransformedReferenceWithImageJFunctions;
 
     // input
     public RandomAccessibleInterval rai;
@@ -164,7 +164,6 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
 
     private Registration registration;
 
-
     private void init()
     {
         setAxisTypes( imagePlus );
@@ -172,7 +171,11 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
         setZeroOrOneBasedAxisOffsets( rai );
         Services.setServices( this );
         Logger.setLogger( this );
-        configureAxesUI();
+
+        addPreProcessingUI();
+        addOtherAxesProjectionTypeUI();
+        addAxesSelectionUI();
+        addActionButtonsUI();
     }
 
     private void setAxisTypes( ImagePlus imagePlus )
@@ -212,30 +215,32 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
         }
     }
 
-    private void configureAxesUI()
+    private String getHeader( String title )
     {
-        List< String > registrationAxisTypes = Enums.asStringList( RegistrationAxisType.values() );
+        String separation = "-------------------------";
+        String header = separation + " " + title + " " + separation;
+        return header;
+    }
+
+    private void addAxesSelectionUI()
+    {
+
+        addSpace();
+
         AxisType sequenceDefault = guessSequenceAxisType( axisTypes );
 
-        boolean persist = false;
+        boolean persist = true;
 
         for (int d = 0; d < rai.numDimensions(); d++)
         {
             String var;
 
-            // Message
-            //
-            final MutableModuleItem<String> axisItem = addInput( axisTypes.get( d ).toString(), String.class);
-            axisItem.setPersisted( persist );
-            axisItem.setVisibility( ItemVisibility.MESSAGE );
-            axisItem.setValue(this, axisTypes.get( d ).toString() );
-
             // Axis type selection
             //
-            final MutableModuleItem<String> typeItem = addInput( typeName( d ), String.class);
+            final MutableModuleItem< String > typeItem = addInput( typeName( d ), String.class );
             typeItem.setPersisted( persist );
-            typeItem.setLabel( "Type" );
-            typeItem.setChoices( registrationAxisTypes );
+            typeItem.setLabel( axisTypes.get( d ).toString() + " axis type" );
+            typeItem.setChoices( RegistrationAxisType.asStringList() );
 
             if ( axisTypes.get( d ).equals( sequenceDefault ) )
             {
@@ -285,6 +290,72 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
         }
     }
 
+    private void addHeaderUI( String header )
+    {
+        final MutableModuleItem< String > axisSelection = addInput( "Axis selection message", String.class );
+        axisSelection.setVisibility( ItemVisibility.MESSAGE );
+        axisSelection.setPersisted( false );
+        axisSelection.setValue(this, getHeader( header ) );
+    }
+
+    private void addSpace()
+    {
+        final MutableModuleItem< String > axisSelection = addInput( " ", String.class );
+        axisSelection.setVisibility( ItemVisibility.MESSAGE );
+        axisSelection.setLabel( " " );
+        axisSelection.setPersisted( false );
+        axisSelection.setValue(this, " ");
+    }
+
+    private void addActionButtonsUI()
+    {
+        addSpace();
+
+        final MutableModuleItem< Button > button01 = addInput( "Compute transformations", Button.class );
+        button01.setCallback( "computeTransformations" );
+        button01.setRequired( false );
+
+        final MutableModuleItem< Button > button02 = addInput( "Show transformed input with BigDataViewer", Button.class );
+        button02.setCallback( "showTransformedOutputWithBigDataViewer" );
+        button02.setRequired( false );
+
+        //final MutableModuleItem< Button > button = addInput( "Save result with SCIFIO", Button.class );
+        //button.setCallback( "saveResultAsICSusingSCIFIO" );
+        //button.setRequired( false );
+
+        final MutableModuleItem< Button > button03 = addInput( "Show reference region", Button.class );
+        button03.setCallback( "showProcessedAndTransformedReferenceWithImageJFunctions" );
+        button03.setRequired( false );
+    }
+
+    private static final String GRADIENT_AXIS_INPUT = "Gradient axis";
+
+    private void addPreProcessingUI()
+    {
+        final MutableModuleItem< String > axisItem = addInput( GRADIENT_AXIS_INPUT, String.class );
+        axisItem.setChoices( Axes.asStringList( axisTypes ) );
+        axisItem.setValue(this, axisTypes.get( 0 ).toString() );
+    }
+
+    private static final String OTHER_AXES_PROJECTION_TYPE = "Other axes projection type";
+
+    private void addOtherAxesProjectionTypeUI()
+    {
+        addSpace();
+
+        final MutableModuleItem< String > axisItem = addInput( OTHER_AXES_PROJECTION_TYPE, String.class );
+        axisItem.setChoices( ProjectionType.asStringList() );
+        axisItem.setValue(this, ProjectionType.asStringList().get( 0 ) );
+        axisItem.setPersisted( true );
+    }
+
+    public ProjectionType getOtherAxesProjectionType()
+    {
+        String name = ( String ) this.getInput( OTHER_AXES_PROJECTION_TYPE );
+        ProjectionType type = ProjectionType.valueOf( name );
+        return type;
+    }
+
     private AxisType guessSequenceAxisType( ArrayList< AxisType > axisTypes )
     {
         AxisType sequenceDefault = axisTypes.get( 0 );
@@ -315,7 +386,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
         updateImagePlusOverlay( settings );
     }
 
-    private void computeRegistration()
+    private void computeTransformations()
     {
         Settings settings = new Settings( this  );
 
@@ -439,6 +510,13 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
 
     protected String varName( final int d, final String var ) {
         return "var" + d + ":" + var;
+    }
+
+    public String getGradientAxisName()
+    {
+        String gradientAxisName = ( String ) this.getInput( GRADIENT_AXIS_INPUT );
+
+        return gradientAxisName;
     }
 
 

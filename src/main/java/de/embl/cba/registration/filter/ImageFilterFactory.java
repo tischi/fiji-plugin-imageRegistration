@@ -7,6 +7,20 @@ public abstract class ImageFilterFactory < R extends RealType< R > & NativeType<
 
     public static ImageFilter create( FilterType filterType, FilterSettings settings )
     {
+
+        switch ( filterType )
+        {
+            case None: return new ImageFilterNone( settings );
+            case Gauss: return new ImageFilterGauss( settings );
+            case Threshold: return new ImageFilterThreshold( settings );
+            case DifferenceOfGaussian: return new ImageFilterDog( settings );
+            case SubSample: return new ImageFilterSubSample( settings );
+            case AsArrayImg: return new ImageFilterAsArrayImg( settings );
+            case Gradient: return new ImageFilterGradient( settings );
+            default: return new ImageFilterNone( settings );
+        }
+
+        /*
         if ( filterType.equals( FilterType.Gauss ) )
         {
             return new ImageFilterGauss( settings );
@@ -38,6 +52,7 @@ public abstract class ImageFilterFactory < R extends RealType< R > & NativeType<
         }
 
         return new ImageFilterNone( settings );
+        */
 
     }
 

@@ -39,7 +39,7 @@ public class Registration< R extends RealType< R > & NativeType < R >, T extends
 
         this.axes = settings.axes;
 
-        this.inputViews = new InputViews( input, axes );
+        this.inputViews = new InputViews( input, axes, settings );
 
         this.outputIntervalType = settings.outputIntervalSizeType;
 

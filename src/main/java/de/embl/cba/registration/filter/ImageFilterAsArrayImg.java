@@ -19,7 +19,7 @@ public class ImageFilterAsArrayImg  < R extends RealType< R > & NativeType < R >
     { }
 
     @Override
-    public RandomAccessibleInterval< R > apply( RandomAccessibleInterval < R > input )
+    public RandomAccessibleInterval< R > filter( RandomAccessibleInterval < R > input )
     {
         ImgFactory< R > imgFactory = new ArrayImgFactory< R >();
 

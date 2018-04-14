@@ -6,7 +6,7 @@ public class TransformSettings
     public final static String MAXIMAL_ROTATIONS = "Maximal rotation";
     public final static String TRANSFORMATION_FINDER_TYPE = "Transformation finder type";
 
-    public double[] maximalTranslations;
+    public double[] maximalTranslations; // TODO: remove this?
     public double[] maximalRotations;
     public TransformFinderType transformFinderType;
 }

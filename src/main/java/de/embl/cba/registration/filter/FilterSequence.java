@@ -27,7 +27,7 @@ public class FilterSequence
 
         for ( ImageFilter imageFilter : imageFilters )
         {
-            output = imageFilter.apply( output );
+            output = imageFilter.filter( output );
         }
 
         return output;

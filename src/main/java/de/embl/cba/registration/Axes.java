@@ -1,6 +1,7 @@
 package de.embl.cba.registration;
 
 import bdv.util.AxisOrder;
+import de.embl.cba.registration.util.Enums;
 import de.embl.cba.registration.util.IntervalUtils;
 import ij.ImagePlus;
 import net.imagej.Dataset;
@@ -92,6 +93,18 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         }
 
         return axisTypes;
+    }
+
+    public static ArrayList< String > asStringList( ArrayList< AxisType > axisTypes )
+    {
+        ArrayList< String > axisStrings = new ArrayList<>(  );
+
+        for (int d = 0; d < axisTypes.size(); d++)
+        {
+            axisStrings.add( axisTypes.get( d ).toString() );
+        }
+
+        return axisStrings;
     }
 
     public ArrayList< AxisType > referenceAxisTypes()
@@ -521,6 +534,12 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         transform.apply( cornerAsDouble, transformedCorner );
         return transformedCorner;
     }
+
+
+    //public static List< String > registrationAxesTypes()
+    //{
+    //    return Enums.asStringList( RegistrationAxisType.values() );
+    //}
 
     public ArrayList< AxisType > inputAxisTypes()
     {

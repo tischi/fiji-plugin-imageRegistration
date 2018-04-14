@@ -1,6 +1,7 @@
 package de.embl.cba.registration.tests;
 
-import de.embl.cba.registration.util.PhaseCorrelations;
+import de.embl.cba.registration.util.PhaseCorrelationUtils;
+import de.embl.cba.registration.util.RandomAccessibleIntervalUtils;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
@@ -55,18 +56,17 @@ public class PhaseCorrelation1D
 
         final RandomAccessibleInterval< FloatType > pcm = PhaseCorrelation2.calculatePCM( im1, im2, extension, new ArrayImgFactory<>(), new FloatType(), new ArrayImgFactory<>(), new ComplexFloatType(), service );
 
-        ArrayList< PhaseCorrelationPeak2 > peaks = PhaseCorrelations.pcmMaximum( pcm );
-
-        PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, im1, im2);
+        PhaseCorrelationPeak2 peak = RandomAccessibleIntervalUtils.getMaximum( pcm );
+        PhaseCorrelation2Util.expandPeakListToPossibleShifts( PhaseCorrelationUtils.asPeakList( peak ), pcm, im1, im2);
 
         // below function does not return:
         //List<PhaseCorrelationPeak2> peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, Services.executorService, 2, true);
 
 
 
-        //peaks = PhaseCorrelations.sensiblePeaks( peaks, pcm );
+        //peaks = PhaseCorrelationUtils.sensiblePeaks( peaks, pcm );
 
-        //Collections.sort(peaks, Collections.reverseOrder(new PhaseCorrelations.ComparatorByPhaseCorrelation()));
+        //Collections.sort(peaks, Collections.reverseOrder(new PhaseCorrelationUtils.ComparatorByPhaseCorrelation()));
 
         int a = 1;
 

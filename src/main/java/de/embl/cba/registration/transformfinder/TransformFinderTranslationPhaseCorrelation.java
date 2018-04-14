@@ -3,14 +3,14 @@ package de.embl.cba.registration.transformfinder;
 import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.Services;
 import de.embl.cba.registration.filter.FilterSequence;
-import de.embl.cba.registration.util.PhaseCorrelations;
+import de.embl.cba.registration.util.PhaseCorrelationUtils;
+import de.embl.cba.registration.util.RandomAccessibleIntervalUtils;
 import de.embl.cba.registration.util.Transforms;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2Util;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;
 import net.imglib2.img.array.ArrayImgFactory;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.RealTransform;
 
 import net.imglib2.type.NativeType;
@@ -52,7 +52,6 @@ public class TransformFinderTranslationPhaseCorrelation
     private double phaseCorrelation;
     private RandomAccessibleInterval< FloatType > pcm;
 
-
     TransformFinderTranslationPhaseCorrelation( TransformSettings settings ) {}
 
     public RealTransform findTransform( RandomAccessibleInterval fixedRAI, RandomAccessible movingRA, FilterSequence filterSequence )
@@ -72,13 +71,15 @@ public class TransformFinderTranslationPhaseCorrelation
 
     private void determineTranslationFromPCM( RandomAccessibleInterval img1, RandomAccessibleInterval img2 )
     {
-        List< PhaseCorrelationPeak2 > peaks = PhaseCorrelations.pcmMaximum( pcm ); //peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, nHighestPeaks, subpixelAccuracy );
-        PhaseCorrelation2Util.expandPeakListToPossibleShifts(peaks, pcm, img1, img2);
-        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelations.sensiblePeaks( peaks, pcm, img1, img2 );
-        Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelations.ComparatorByPhaseCorrelation() ) );
-        PhaseCorrelationPeak2 peak = sensiblePeaks.get( 0 );
-        peak.calculateSubpixelLocalization( pcm );
-        setTranslationFromShiftPeak( peak );
+        PhaseCorrelationPeak2 peak = RandomAccessibleIntervalUtils.getMaximum( pcm ); //peaks = PhaseCorrelation2Util.getPCMMaxima( pcm, nHighestPeaks, subpixelAccuracy );
+        ArrayList< PhaseCorrelationPeak2 > peaks = PhaseCorrelationUtils.asPeakList( peak );
+        PhaseCorrelation2Util.expandPeakListToPossibleShifts( peaks, pcm, img1, img2);
+        List<PhaseCorrelationPeak2> sensiblePeaks = PhaseCorrelationUtils.sensiblePeaks( peaks, pcm, img1, img2 );
+        Collections.sort( sensiblePeaks, Collections.reverseOrder( new PhaseCorrelationUtils.ComparatorByPhaseCorrelation() ) );
+        PhaseCorrelationPeak2 sensiblePeak = sensiblePeaks.get( 0 );
+        //peak.calculateSubpixelLocalization( pcm ); // TODO: issue is that also the subpixel-shift needs to be set afterwards, including the fft periodic issues
+        //ImageJFunctions.show( pcm );
+        setTranslationFromShiftPeak( sensiblePeak );
     }
 
     private void setTranslationTransform()
@@ -92,13 +93,13 @@ public class TransformFinderTranslationPhaseCorrelation
 
         if ( shiftPeak != null )
         {
-            if ( shiftPeak.getSubpixelPcmLocation() == null )
+            if ( shiftPeak.getSubpixelShift() == null )
             {
                 shiftPeak.getShift().localize( translation );
             }
             else
             {
-                shiftPeak.getSubpixelPcmLocation().localize( translation );
+                shiftPeak.getSubpixelShift().localize( translation );
             }
 
             correctTranslationForSubSampling();

@@ -84,8 +84,7 @@ public class Register2DFibSEM1DTranslationFullSize
         settings.filterSettings.filterTypes.add( FilterType.DifferenceOfGaussian );
         settings.filterSettings.thresholdMin = 5.0D;
         settings.filterSettings.thresholdMax = 150.0D;
-        settings.filterSettings.gaussSigmaSmaller = new double[]{ 2.0D };
-        settings.filterSettings.gaussSigmaLarger = new double[]{ 6.0D };
+        settings.filterSettings.gaussSigma = new double[]{ 2.0D };
 
         settings.setAxes();
 

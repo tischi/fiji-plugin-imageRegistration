@@ -1,6 +1,6 @@
 package de.embl.cba.registration.tests;
 
-import de.embl.cba.registration.util.Projection;
+import de.embl.cba.registration.projection.Projection;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
