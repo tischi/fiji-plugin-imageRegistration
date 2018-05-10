@@ -1,6 +1,7 @@
 package de.embl.cba.registration;
 
 import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ public class Corners
     public static int[] MIN_MAX = new int[] { MIN, MAX };
 
 
-    public static long[] corner( int[] minMax, FinalInterval interval )
+    public static long[] corner( int[] minMax, Interval interval )
     {
         assert minMax.length == interval.numDimensions();
 
@@ -34,7 +35,7 @@ public class Corners
     }
 
 
-    public static List< long[] > corners( FinalInterval interval )
+    public static List< long[] > corners( Interval interval )
     {
         int[] minMaxArray = new int[ interval.numDimensions() ];
         ArrayList< long[] > corners = new ArrayList<>(  );
@@ -42,7 +43,7 @@ public class Corners
         return corners;
     }
 
-    public static void setCorners( ArrayList< long[] > corners, FinalInterval interval, int[] minMaxArray, int d )
+    public static void setCorners( ArrayList< long[] > corners, Interval interval, int[] minMaxArray, int d )
     {
         ++d;
 

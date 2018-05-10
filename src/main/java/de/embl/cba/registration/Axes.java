@@ -7,6 +7,7 @@ import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;
 import net.imglib2.FinalInterval;
+import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
@@ -494,7 +495,8 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return union;
     }
 
-    public FinalInterval boundingIntervalAfterTransformation( FinalInterval interval, T transform )
+    public static < T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > >
+            FinalInterval boundingIntervalAfterTransformation( Interval interval, T transform )
     {
         List< long[ ] > corners = Corners.corners( interval );
 
@@ -511,7 +513,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         return new FinalInterval( boundingMin, boundingMax );
     }
 
-    private void adjustBoundingRange( long[] min, long[] max, double[] transformedCorner )
+    private static void adjustBoundingRange( long[] min, long[] max, double[] transformedCorner )
     {
         for ( int d = 0; d < transformedCorner.length; ++d )
         {
@@ -527,7 +529,7 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         }
     }
 
-    private double[] transformedCorner( T transform, long[] corner )
+    private static < T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > > double[] transformedCorner( T transform, long[] corner )
     {
         double[] cornerAsDouble = Arrays.stream( corner ).mapToDouble( x -> x ).toArray();
         double[] transformedCorner = new double[ corner.length ];

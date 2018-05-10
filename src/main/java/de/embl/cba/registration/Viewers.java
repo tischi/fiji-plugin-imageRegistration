@@ -3,6 +3,7 @@ package de.embl.cba.registration;
 import bdv.util.AxisOrder;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
+import bdv.viewer.SourceAndConverter;
 import de.embl.cba.registration.Logger;
 import de.embl.cba.registration.util.ViewsUtils;
 import ij.ImagePlus;

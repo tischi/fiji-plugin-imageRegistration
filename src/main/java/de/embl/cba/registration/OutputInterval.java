@@ -38,15 +38,18 @@ public class OutputInterval
 
     private ArrayList< long[] > getCorners( FinalInterval interval )
     {
-        // initUI input for recursive corner determination
+        // init for recursive corner determination
         //
         ArrayList< long [] > corners = new ArrayList<>(  );
-        LinkedHashMap< Integer, String > dimensionMinMaxMap = new LinkedHashMap<>();
-        for ( int d = 0; d < interval.numDimensions(); ++d )
-            dimensionMinMaxMap.put( d, null );
 
-        setCorners( dimensionMinMaxMap,
-                corners, interval );
+        LinkedHashMap< Integer, String > dimensionMinMaxMap = new LinkedHashMap<>();
+
+        for ( int d = 0; d < interval.numDimensions(); ++d )
+        {
+            dimensionMinMaxMap.put( d, null );
+        }
+
+        setCorners( dimensionMinMaxMap, corners, interval );
 
         return corners;
 
