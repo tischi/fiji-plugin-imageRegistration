@@ -1,35 +1,36 @@
-import bdv.spimdata.SpimDataMinimal;
-import bdv.spimdata.XmlIoSpimDataMinimal;
-import bdv.util.Bdv;
-import bdv.util.BdvFunctions;
-import bdv.util.BdvOptions;
-import bdv.util.BdvStackSource;
-import bdv.viewer.SourceAndConverter;
-import bdv.viewer.ViewerPanel;
+import bdv.util.*;
 import de.embl.cba.registration.Axes;
-import de.embl.cba.registration.util.IntervalUtils;
+import ij.IJ;
 import ij.ImageJ;
+import ij.ImagePlus;
 import io.scif.img.ImgIOException;
+import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import mpicbg.spim.data.XmlIoSpimData;
+import mpicbg.spim.data.registration.ViewRegistration;
+import mpicbg.spim.data.registration.ViewTransform;
+import mpicbg.spim.data.registration.ViewTransformAffine;
 import net.imglib2.FinalInterval;
-import net.imglib2.Interval;
+import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.concatenate.Concatenable;
 import net.imglib2.concatenate.PreConcatenable;
+import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.InvertibleRealTransform;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.img.basictypeaccess.array.IntArray;
 
-import java.util.List;
+
 import java.util.Random;
 
-public class RegisterDetlevUsingBigDataViewer < T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > >
+public class ShowProSPrUsingBigDataViewer< T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > >
 {
 
-    public RegisterDetlevUsingBigDataViewer() throws SpimDataException
+    public ShowProSPrUsingBigDataViewer() throws SpimDataException
     {
         test2();
     }
@@ -59,23 +60,17 @@ public class RegisterDetlevUsingBigDataViewer < T extends InvertibleRealTransfor
         System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 
         final String xmlFilename = "/Users/tischer/Documents/detlev-arendt-clem-registration/data/em-raw-500nm.xml";
-        final SpimDataMinimal spimData = new XmlIoSpimDataMinimal().load( xmlFilename );
-
+        final SpimData spimData = new XmlIoSpimData().load( xmlFilename );
 
         RandomAccessibleInterval< ? > image = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( 0 ).getImage( 0 );
 
+        /*
         List< BdvStackSource< ? > > bdvStackSources = BdvFunctions.show( spimData );
         BdvStackSource bdvStackSource = bdvStackSources.get( 0 );
         List< SourceAndConverter > sourceAndConverters = bdvStackSource.getSources();
         SourceAndConverter< ? > sourceAndConverter = sourceAndConverters.get( 0 );
         RandomAccessibleInterval rai = sourceAndConverter.getSpimSource().getSource( 0 ,0 );
-
-        AffineTransform3D elastixSimilarityTransform = new AffineTransform3D(  );
-
-        elastixSimilarityTransform.set(
-                0.8581196 ,  0.03852475,  0.00039899, 0.0,
-                -0.03440228,  0.77021616, -0.37873092, 0.0,
-                -0.01734354,  0.37833381,  0.77098398, 0.0 );
+        */
 
 
         AffineTransform3D transformJTransform = new AffineTransform3D(  );
@@ -85,8 +80,9 @@ public class RegisterDetlevUsingBigDataViewer < T extends InvertibleRealTransfor
                 0.0, 0.0, 1.0, 0.0,
                 0.7660444431,  0.6427876097,  0.0, 0.0 );
 
-
         FinalInterval boundingIntervalAfterTransformation = Axes.boundingIntervalAfterTransformation( image, ( T ) transformJTransform );
+
+        FinalRealInterval boundingIntervalAfterTransformation2 = transformJTransform.estimateBounds( image );
 
         double[] transformJTranslation = new double[]{
                 - boundingIntervalAfterTransformation.min( 0 ),
@@ -95,37 +91,44 @@ public class RegisterDetlevUsingBigDataViewer < T extends InvertibleRealTransfor
 
         transformJTransform.translate( transformJTranslation );
 
-        //AffineTransform3D combined = transformJTransform.preConcatenate( elastixSimilarityTransform );
 
-        //combined.translate( new double[]{ 550/ 2.0, 0.0, 0.0 } );
+        AffineTransform3D elastixFixedToMoving = new AffineTransform3D();
+        elastixFixedToMoving.set(
+                1.16299445, -0.04662481, -0.02350539, 0.0,
+                0.05221191,  1.04386046,  0.51274918, 0.0,
+                0.00054074, -0.51328738,  1.04490107, 0.0 );
+
+        elastixFixedToMoving.translate( new double[]{ 152.92726078, -157.76850918,  466.72468048 } );
 
 
-        Bdv bdv2 = BdvFunctions.show( rai, "aaa", BdvOptions.options().sourceTransform( transformJTransform ) );
+        AffineTransform3D combined = transformJTransform.copy();
 
+        combined.preConcatenate( elastixFixedToMoving.inverse() );
 
-        ViewerPanel viewerPanel = bdv2.getBdvHandle().getViewerPanel();
-        viewerPanel.setCurrentViewerTransform( new AffineTransform3D() );
+        ViewRegistration viewRegistration = spimData.getViewRegistrations().getViewRegistration( 0, 0 );
+        viewRegistration.identity();
+        ViewTransform viewTransform = new ViewTransformAffine( "transform",  combined );
+        viewRegistration.preconcatenateTransform( viewTransform );
 
+        Bdv bdv = BdvFunctions.show( spimData ).get( 0 );
+        bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
+
+        //Bdv bdv3 = BdvFunctions.show( rai, "aaa", BdvOptions.options().sourceTransform( combined ) );
+        //bdv3.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
 
         // RandomAccessibleIntervalSource(RandomAccessibleInterval<T> img, T type, AffineTransform3D sourceTransform, String name);
         // static <T> BdvStackSource<T> 	show(Source<T> source, BdvOptions options)
         // BdvOptions 	sourceTransform(AffineTransform3D t)
 
-        /*
+
         ImagePlus imp = IJ.openImage( "/Users/tischer/Documents/detlev-arendt-clem-registration/data/prospr-aligned/C2-Mitf-aligned.tif");
         Img img = ImageJFunctions.wrap( imp );
 
         AffineTransform3D halfMicrometerScaling = new AffineTransform3D(  );
-
         halfMicrometerScaling.scale( 1.0 );
-
-        BdvFunctions.show( img, "Mitf", Bdv.options().addTo( bdv2 ).sourceTransform( halfMicrometerScaling ) );
-
-        ViewerPanel viewerPanel = bdv.getBdvHandle().getViewerPanel();
-
-        viewerPanel.setCurrentViewerTransform( affineTransform3D );
-        */
-
+        final BdvSource source = BdvFunctions.show( img, "Mitf", Bdv.options().addTo( bdv ).sourceTransform( halfMicrometerScaling ) );
+        ARGBType magenta = new ARGBType( ARGBType.rgba( 255, 0, 255, 255 ) );
+        source.setColor( magenta );
 
         // open mitf-aligned from tiff and add as a second source
         //
@@ -138,6 +141,6 @@ public class RegisterDetlevUsingBigDataViewer < T extends InvertibleRealTransfor
         new ImageJ();
 
         // run the example
-        new RegisterDetlevUsingBigDataViewer();
+        new ShowProSPrUsingBigDataViewer();
     }
 }
