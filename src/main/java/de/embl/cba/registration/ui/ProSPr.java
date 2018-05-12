@@ -1,8 +1,9 @@
 package de.embl.cba.registration.ui;
 
-import bdv.util.Bdv;
-import bdv.util.BdvFunctions;
-import bdv.util.BdvSource;
+import bdv.util.*;
+import bdv.viewer.Interpolation;
+import bdv.viewer.Source;
+import bdv.viewer.SourceAndConverter;
 import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.SpimData;
@@ -27,6 +28,8 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.widget.Button;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +39,10 @@ import java.util.TreeMap;
 @Plugin(type = Command.class, menuPath = "Plugins>Registration>EMBL>ProSPr", initializer = "init")
 public class ProSPr extends DynamicCommand implements Interactive
 {
-    public static final String GENE_FILE_SUFFIX = ".tif";
+    public static final String GENE_FILE_SUFFIX = ".xml";
     public static final double PROSPR_SCALING_IN_MICROMETER = 0.5;
+    public static final String EM_FILE_ID = "em";
+
     @Parameter
     public LogService logService;
 
@@ -65,8 +70,16 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         initEM( directory );
 
+        initBdv();
+
         addActionButtons();
 
+    }
+
+    private void initBdv()
+    {
+        bdv.getBdvHandle().getViewerPanel().setInterpolation( Interpolation.NLINEAR );
+        //bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
     }
 
     private void addActionButtons()
@@ -74,6 +87,8 @@ public class ProSPr extends DynamicCommand implements Interactive
         addShowGeneButton();
 
         addHideGeneButton();
+
+        addChangeColorButton();
     }
 
     private void initEM( File directory ) throws SpimDataException
@@ -83,6 +98,8 @@ public class ProSPr extends DynamicCommand implements Interactive
         setEmDataSimilarityTransform( );
 
         bdv = showWithBdv( emData );
+
+
     }
 
     private void initGenes( File directory )
@@ -101,9 +118,13 @@ public class ProSPr extends DynamicCommand implements Interactive
         button.setRequired( false );
     }
 
-    private void showGene()
+    private void showGene() throws SpimDataException
     {
-        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+        showGene( ( String ) this.getInput( GENE_SELECTION_UI ) );
+    }
+
+    private void showGene( String gene ) throws SpimDataException
+    {
 
         if ( geneSourceMap.keySet().contains( gene ) )
         {
@@ -111,25 +132,52 @@ public class ProSPr extends DynamicCommand implements Interactive
         }
         else
         {
-            if ( GENE_FILE_SUFFIX.equals( ".tif" ) )
+            switch ( GENE_FILE_SUFFIX )
             {
-                ImagePlus imp = IJ.openImage( geneFileMap.get( gene ).toString() );
-                Img img = ImageJFunctions.wrap( imp );
-
-                AffineTransform3D prosprScaling = new AffineTransform3D();
-                prosprScaling.scale( PROSPR_SCALING_IN_MICROMETER );
-
-                final BdvSource source = BdvFunctions.show( img, gene,
-                        Bdv.options()
-                                .addTo( bdv )
-                                .sourceTransform( prosprScaling ) );
-
-                source.setColor( defaultGeneColor );
-                source.setActive( true );
-                geneSourceMap.put( gene, source );
+                case ".tif": addSourceFromTiffFile( gene ); break;
+                case ".xml": addSourceFromBdvFile( gene ); break;
+                default: logService.error( "Unsupported format: " + GENE_FILE_SUFFIX );
             }
         }
 
+    }
+
+    private void addSourceFromBdvFile( String gene ) throws SpimDataException
+    {
+        SpimData geneData = new XmlIoSpimData().load( geneFileMap.get( gene ).toString() );
+
+        geneData.getSequenceDescription()
+                .getViewDescription( 0,0  )
+                .getViewSetup().getChannel().setName( "AAA" );
+
+        geneData.getSequenceDescription()
+                .getViewSetups().get(  0  )
+                .getChannel().setName( "AAA" );
+
+        BdvSource source = BdvFunctions.show( geneData, BdvOptions.options().addTo( bdv ) ).get( 0 );
+        source.setColor( defaultGeneColor );
+        source.setActive( true );
+
+
+        geneSourceMap.put( gene, source );
+    }
+
+    private void addSourceFromTiffFile( String gene )
+    {
+        ImagePlus imp = IJ.openImage( geneFileMap.get( gene ).toString() );
+        Img img = ImageJFunctions.wrap( imp );
+
+        AffineTransform3D prosprScaling = new AffineTransform3D();
+        prosprScaling.scale( PROSPR_SCALING_IN_MICROMETER );
+
+        final BdvSource source = BdvFunctions.show( img, gene,
+                Bdv.options()
+                        .addTo( bdv )
+                        .sourceTransform( prosprScaling ) );
+
+        source.setColor( defaultGeneColor );
+        source.setActive( true );
+        geneSourceMap.put( gene, source );
     }
 
     private void addHideGeneButton()
@@ -147,7 +195,34 @@ public class ProSPr extends DynamicCommand implements Interactive
         {
             geneSourceMap.get( gene ).setActive( false );
         }
+    }
 
+
+    private void setGeneColor( ) throws SpimDataException
+    {
+        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+
+        showGene( gene );
+
+        Color color = JColorChooser.showDialog( null,
+                "Select color for " + gene, null );
+
+        geneSourceMap.get( gene ).setColor( getArgbType( color ) );
+
+    }
+
+    private ARGBType getArgbType( Color color )
+    {
+        return new ARGBType(
+                    ARGBType.rgba( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
+    }
+
+
+    private void addChangeColorButton()
+    {
+        final MutableModuleItem< Button > button = addInput( "Set color", Button.class );
+        button.setCallback( "setGeneColor" );
+        button.setRequired( false );
     }
 
     private Bdv showWithBdv( SpimData emData )
@@ -258,7 +333,8 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         for ( File file : files )
         {
-            if ( file.toString().endsWith( GENE_FILE_SUFFIX ) )
+            if ( file.getName().endsWith( GENE_FILE_SUFFIX )
+                    && ! file.getName().contains( EM_FILE_ID ))
             {
                 String geneName = file.getName().replaceAll( GENE_FILE_SUFFIX, "" );
 
@@ -275,7 +351,8 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         for ( File file : files )
         {
-            if ( file.toString().endsWith( ".xml" ) )
+            if ( file.getName().endsWith( ".xml" )
+                    && file.getName().toLowerCase().contains( EM_FILE_ID )  )
             {
                 emFiles.add( file );
             }
@@ -283,13 +360,13 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         if ( emFiles.size() < 1 )
         {
-            logService.error( "No .xml file (representing the EM data ) found." );
+            logService.error( "No *em*.xml file found." );
             return null;
         }
         else if ( emFiles.size() > 1 )
         {
             logService.warn(
-                    "Multiple .xml file (representing the EM data ) found.\n" +
+                    "Multiple *em*.xml files found.\n" +
                     "Using this one: " + emFiles.get( 0 ).getName() );
 
             return emFiles.get( 0 );
