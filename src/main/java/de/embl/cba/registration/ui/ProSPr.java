@@ -2,6 +2,9 @@ package de.embl.cba.registration.ui;
 
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
+import bdv.util.BdvSource;
+import ij.IJ;
+import ij.ImagePlus;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.XmlIoSpimData;
@@ -11,7 +14,10 @@ import mpicbg.spim.data.registration.ViewTransformAffine;
 import net.imagej.ImageJ;
 import net.imglib2.FinalRealInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.type.numeric.ARGBType;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.Interactive;
@@ -19,13 +25,19 @@ import org.scijava.log.LogService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.widget.Button;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Plugin(type = Command.class, menuPath = "Plugins>Registration>EMBL>ProSPr", initializer = "init")
 public class ProSPr extends DynamicCommand implements Interactive
 {
+    public static final String GENE_FILE_SUFFIX = ".tif";
+    public static final double PROSPR_SCALING_IN_MICROMETER = 0.5;
     @Parameter
     public LogService logService;
 
@@ -35,32 +47,117 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     Bdv bdv;
 
+    Map< String, BdvSource > geneSourceMap;
+    Map< String, File > geneFileMap;
+
+    public static String GENE_SELECTION_UI = "Genes";
+
+    private static ARGBType defaultGeneColor = new ARGBType( ARGBType.rgba( 255, 0, 255, 255 ) );
+
+
     private void init() throws SpimDataException
     {
         //File directory = new File( IJ.getDirectory( "Select ProSPr directory" ) );
 
         File directory = new File( "/Users/tischer/Documents/detlev-arendt-clem-registration--data" );
 
-        genes = getGeneList( directory );
+        initGenes( directory );
 
-        createGeneSelectionUI( genes );
+        initEM( directory );
 
-        emData = openEmData( directory );
+        addActionButtons();
 
-        setSimilarityTransform( emData );
+    }
+
+    private void addActionButtons()
+    {
+        addShowGeneButton();
+
+        addHideGeneButton();
+    }
+
+    private void initEM( File directory ) throws SpimDataException
+    {
+        openEmData( directory );
+
+        setEmDataSimilarityTransform( );
 
         bdv = showWithBdv( emData );
+    }
+
+    private void initGenes( File directory )
+    {
+        geneSourceMap = new TreeMap<>(  );
+
+        setGeneFileMap( directory );
+
+        createGeneSelectionUI( );
+    }
+
+    private void addShowGeneButton()
+    {
+        final MutableModuleItem< Button > button = addInput( "Show", Button.class );
+        button.setCallback( "showGene" );
+        button.setRequired( false );
+    }
+
+    private void showGene()
+    {
+        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+
+        if ( geneSourceMap.keySet().contains( gene ) )
+        {
+            geneSourceMap.get( gene ).setActive( true );
+        }
+        else
+        {
+            if ( GENE_FILE_SUFFIX.equals( ".tif" ) )
+            {
+                ImagePlus imp = IJ.openImage( geneFileMap.get( gene ).toString() );
+                Img img = ImageJFunctions.wrap( imp );
+
+                AffineTransform3D prosprScaling = new AffineTransform3D();
+                prosprScaling.scale( PROSPR_SCALING_IN_MICROMETER );
+
+                final BdvSource source = BdvFunctions.show( img, gene,
+                        Bdv.options()
+                                .addTo( bdv )
+                                .sourceTransform( prosprScaling ) );
+
+                source.setColor( defaultGeneColor );
+                source.setActive( true );
+                geneSourceMap.put( gene, source );
+            }
+        }
+
+    }
+
+    private void addHideGeneButton()
+    {
+        final MutableModuleItem< Button > button = addInput( "Hide", Button.class );
+        button.setCallback( "hideGene" );
+        button.setRequired( false );
+    }
+
+    private void hideGene( )
+    {
+        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+
+        if ( geneSourceMap.keySet().contains( gene ) )
+        {
+            geneSourceMap.get( gene ).setActive( false );
+        }
 
     }
 
     private Bdv showWithBdv( SpimData emData )
     {
         Bdv bdv = BdvFunctions.show( emData ).get( 0 );
-        bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
+        //bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
         return bdv;
     }
 
-    private void setSimilarityTransform( SpimData emData )
+    private void setEmDataSimilarityTransform( )
     {
 
         AffineTransform3D transformJRotation = getTransformJRotation( emData );
@@ -78,7 +175,7 @@ public class ProSPr extends DynamicCommand implements Interactive
         // the ViewRegistration in the file contains the scaling relative to 1 micrometer
         ViewRegistration viewRegistration = emData.getViewRegistrations().getViewRegistration( 0, 0 );
         ViewTransform viewTransform = new ViewTransformAffine( "transform",  transform );
-        viewRegistration.preconcatenateTransform( viewTransform );
+        viewRegistration.concatenateTransform( viewTransform );
     }
 
     private static AffineTransform3D getCombinedTransform( AffineTransform3D firstTransform, AffineTransform3D secondTransform )
@@ -131,18 +228,20 @@ public class ProSPr extends DynamicCommand implements Interactive
         return transformJTransform.estimateBounds( image );
     }
 
-    private SpimData openEmData( File directory ) throws SpimDataException
+    private void openEmData( File directory ) throws SpimDataException
     {
         final File emFile = getEmFile( directory );
-        final String xmlFilename = "/Users/tischer/Documents/detlev-arendt-clem-registration/data/em-raw-500nm.xml";
-        return new XmlIoSpimData().load( emFile.toString() );
+        emData = new XmlIoSpimData().load( emFile.toString() );
     }
 
-    private void createGeneSelectionUI( ArrayList< String > genes )
+    private void createGeneSelectionUI( )
     {
-        final MutableModuleItem< String > typeItem = addInput( "Genes", String.class );
+        final MutableModuleItem< String > typeItem = addInput( GENE_SELECTION_UI, String.class );
         typeItem.setPersisted( false );
-        typeItem.setLabel( "Genes" );
+        typeItem.setLabel( GENE_SELECTION_UI );
+
+        List< String > genes = new ArrayList<>(  );
+        genes.addAll( geneFileMap.keySet() );
         typeItem.setChoices( genes );
     }
 
@@ -151,20 +250,22 @@ public class ProSPr extends DynamicCommand implements Interactive
         // ...
     }
 
-    public static ArrayList< String > getGeneList( File directory )
+    private void setGeneFileMap( File directory )
     {
         File[] files = directory.listFiles();
-        ArrayList< String > genes = new ArrayList<>(  );
+
+        geneFileMap = new TreeMap<>( );
 
         for ( File file : files )
         {
-            if ( file.toString().endsWith( ".tif" ) )
+            if ( file.toString().endsWith( GENE_FILE_SUFFIX ) )
             {
-                genes.add( file.getName().replaceAll( ".tif", "" ) );
+                String geneName = file.getName().replaceAll( GENE_FILE_SUFFIX, "" );
+
+                geneFileMap.put( geneName, file );
             }
         }
 
-        return genes;
     }
 
     private File getEmFile( File directory )

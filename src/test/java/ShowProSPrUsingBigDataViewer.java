@@ -129,6 +129,7 @@ public class ShowProSPrUsingBigDataViewer< T extends InvertibleRealTransform & C
         final BdvSource source = BdvFunctions.show( img, "Mitf", Bdv.options().addTo( bdv ).sourceTransform( halfMicrometerScaling ) );
         ARGBType magenta = new ARGBType( ARGBType.rgba( 255, 0, 255, 255 ) );
         source.setColor( magenta );
+        source.removeFromBdv();
 
         // open mitf-aligned from tiff and add as a second source
         //

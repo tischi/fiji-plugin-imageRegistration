@@ -124,7 +124,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     @Parameter( visibility = ItemVisibility.MESSAGE )
     public String space = " ";
 
-    @Parameter( label = "Pre-processing pipeline", choices = {
+    @Parameter( label = "Pre-processing", choices = {
             "None",
             "Threshold",
             "DifferenceOfGaussian",
