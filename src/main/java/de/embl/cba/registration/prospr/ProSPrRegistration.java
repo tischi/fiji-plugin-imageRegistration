@@ -21,7 +21,6 @@ public class ProSPrRegistration
                 0.0, 0.0, 1.0, 0.0,
                 0.7660444431,  0.6427876097,  0.0, 0.0 );
 
-
         FinalRealInterval boundingIntervalAfterTransformation = getBoundsAfterRotation( emData, transformJTransform );
 
         double[] transformJTranslation = new double[]{
@@ -67,25 +66,31 @@ public class ProSPrRegistration
         return voxelDimensions;
     }
 
-    public static void setEmSimilarityTransform( SpimData spimData )
+    public static AffineTransform3D setEmSimilarityTransform( SpimData spimData )
     {
 
         AffineTransform3D transformJRotation = getTransformJRotation( spimData );
 
         AffineTransform3D elastixSimilarityTransform = getEmElastixSimilarityTransform( spimData );
 
-        AffineTransform3D combinedTransform = getCombinedTransform( transformJRotation, elastixSimilarityTransform );
+        //AffineTransform3D combinedTransform = getCombinedTransform( transformJRotation, elastixSimilarityTransform );
 
-        adaptViewRegistration( spimData, combinedTransform );
+        AffineTransform3D combinedTransform = transformJRotation;
+
+        AffineTransform3D finalTransform = adaptViewRegistration( spimData, combinedTransform );
+
+        return finalTransform;
 
     }
 
-    public static void adaptViewRegistration( SpimData emData, AffineTransform3D transform )
+    public static AffineTransform3D adaptViewRegistration( SpimData emData, AffineTransform3D transform )
     {
         // the ViewRegistration in the file contains the scaling relative to 1 micrometer
         ViewRegistration viewRegistration = emData.getViewRegistrations().getViewRegistration( 0, 0 );
         ViewTransform viewTransform = new ViewTransformAffine( "transform",  transform );
         viewRegistration.concatenateTransform( viewTransform );
+
+        return viewRegistration.getModel();
     }
 
     public static AffineTransform3D getEmElastixSimilarityTransform( SpimData data )

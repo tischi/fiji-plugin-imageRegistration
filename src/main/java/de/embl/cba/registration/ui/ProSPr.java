@@ -9,12 +9,13 @@ import ij.gui.GenericDialog;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.XmlIoSpimData;
-import net.imagej.Dataset;
 import net.imagej.ImageJ;
+import net.imglib2.RealPoint;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.util.Util;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.Interactive;
@@ -22,6 +23,10 @@ import org.scijava.log.LogService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.ClickBehaviour;
+import org.scijava.ui.behaviour.io.InputTriggerConfig;
+import org.scijava.ui.behaviour.util.Behaviours;
+import org.scijava.ui.behaviour.util.TriggerBehaviourBindings;
 import org.scijava.widget.Button;
 
 import javax.swing.*;
@@ -37,8 +42,12 @@ public class ProSPr extends DynamicCommand implements Interactive
     private static final double PROSPR_SCALING_IN_MICROMETER = 0.5;
     private static final String EM_RAW_FILE_ID = "em-raw";
     private static final String EM_SEGMENTED_FILE_ID = "em-segmented";
-    private static final String GENE_SELECTION_UI = "Genes";
+    private static final String SELECTION_UI = "Genes";
     private static final ARGBType defaultGeneColor = new ARGBType( ARGBType.rgba( 255, 0, 255, 255 ) );
+    private static final ARGBType defaultEmColor = new ARGBType( ARGBType.rgba( 255, 255, 255, 255 ) );
+
+
+    private TriggerBehaviourBindings triggerbindings;
 
     @Parameter
     public LogService logService;
@@ -48,6 +57,7 @@ public class ProSPr extends DynamicCommand implements Interactive
     Map< String, DataSource > dataSourcesMap;
 
     String emRawDataID;
+    AffineTransform3D emRawDataTransform;
 
     private class DataSource
     {
@@ -76,13 +86,53 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         initDataSources( directory );
 
-        createSourceSelectionUI( );
-
-        //initEm( directory );
-
         initBdvWithEmRawData( );
 
+        createSourceSelectionUI( );
+
         addActionButtons();
+
+        addBehaviors();
+
+    }
+
+    private void addOverlay()
+    {
+        //bdv.getViewer().addTransformListener( lo );
+        //bdv.getViewer().getDisplay().addOverlayRenderer( lo );
+        //bdv.getViewerFrame().setVisible( true );
+        //bdv.getViewer().requestRepaint();
+        //https://github.com/PreibischLab/BigStitcher/blob/master/src/main/java/net/preibisch/stitcher/gui/overlay/LinkOverlay.java
+    }
+
+    private void addBehaviors()
+    {
+        Behaviours behaviours = new Behaviours( new InputTriggerConfig() );
+        behaviours.install( bdv.getBdvHandle().getTriggerbindings(), "my-new-behaviours" );
+
+        behaviours.behaviour( ( ClickBehaviour ) ( x, y ) -> {
+            printCoordinates( );
+        }, "print global pos", "P" );
+
+    }
+
+    private void printCoordinates( )
+    {
+
+        // global coordinates: (68.18255, 64.08652, 43.013805)
+
+        final RealPoint posInMicrometer = new RealPoint( 3 );
+        bdv.getBdvHandle().getViewerPanel().getGlobalMouseCoordinates( posInMicrometer );
+
+        IJ.log("global coordinates (in micrometer): " + Util.printCoordinates( posInMicrometer ) );
+
+        final RealPoint posInverse = new RealPoint( 3 );
+        emRawDataTransform.inverse().apply( posInMicrometer, posInverse  );
+
+        IJ.log("transformed coordinates (in pixels) : " + Util.printCoordinates( posInverse ) );
+
+        //IJ.log("global em-raw coordinates: " + Util.printCoordinates(pos2) );
+        //IJ.log("global em-raw coordinates: " + Util.printCoordinates(pos3) );
 
     }
 
@@ -91,14 +141,12 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     }
 
-
-
     private void addActionButtons()
     {
-        addActionButton( "Show", "showGene" );
+        addActionButton( "Show", "showDataSourceInBdv" );
         addActionButton( "Hide", "hideGene" );
-        addActionButton( "Color", "setGeneColor" );
-        addActionButton( "Brightness", "setGeneBrightness" );
+        addActionButton( "Color", "setDataSourceColorUI" );
+        addActionButton( "Brightness", "setBrightness" );
         addActionButton( "Show legend", "showLegend" );
 
     }
@@ -111,9 +159,9 @@ public class ProSPr extends DynamicCommand implements Interactive
         button.setRequired( false );
     }
 
-    private void showGene() throws SpimDataException
+    private void showDataSourceInBdv() throws SpimDataException
     {
-        showGene( ( String ) this.getInput( GENE_SELECTION_UI ) );
+        showDataSourceInBdv( ( String ) this.getInput( SELECTION_UI ) );
     }
 
     private void print( String text )
@@ -137,32 +185,34 @@ public class ProSPr extends DynamicCommand implements Interactive
         }
     }
 
-    private void showGene( String gene ) throws SpimDataException
+    private void showDataSourceInBdv( String dataSourceName ) throws SpimDataException
     {
+        DataSource dataSource = dataSourcesMap.get( dataSourceName );
 
-        if ( dataSourcesMap.get( gene ).bdvSource == null )
+        if ( dataSource.bdvSource == null )
         {
             switch ( DATA_SOURCE_SUFFIX )
             {
                 case ".tif":
-                    addSourceFromTiffFile( gene );
+                    addSourceFromTiffFile( dataSourceName );
                     break;
                 case ".xml":
-                    setSourceFromBdvFile( gene );
+                    loadAndShowSourceInBdv( dataSourceName );
                     break;
                 default:
                     logService.error( "Unsupported format: " + DATA_SOURCE_SUFFIX );
             }
         }
 
-        dataSourcesMap.get( gene ).bdvSource.setActive( true );
-        dataSourcesMap.get( gene ).isActive =  true ;
+        dataSource.bdvSource.setActive( true );
+        dataSource.isActive =  true ;
+        dataSource.bdvSource.setColor( dataSource.color );
 
     }
 
     private void hideGene( )
     {
-        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+        final String gene = ( String ) this.getInput( SELECTION_UI );
 
         if ( dataSourcesMap.get( gene ).bdvSource != null  )
         {
@@ -171,65 +221,77 @@ public class ProSPr extends DynamicCommand implements Interactive
         }
     }
 
-    private void setGeneColor( ) throws SpimDataException
+    private void setDataSourceColorUI( ) throws SpimDataException
     {
-        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+        final String source = ( String ) this.getInput( SELECTION_UI );
 
-        showGene( gene );
+        showDataSourceInBdv( source );
 
-        Color color = JColorChooser.showDialog( null, "Select color for " + gene, null );
+        Color color = JColorChooser.showDialog( null, "Select color for " + source, null );
 
         if ( color != null )
         {
-            dataSourcesMap.get( gene ).bdvSource.setColor( getArgbType( color ) );
-            dataSourcesMap.get( gene ).color = getArgbType( color );
-
+            setDataSourceColor( source, getArgbType( color )  );
         }
 
     }
 
-    private void setGeneBrightness( ) throws SpimDataException
+    private void setDataSourceColor( String sourceName, ARGBType color )
     {
-        final String gene = ( String ) this.getInput( GENE_SELECTION_UI );
+        dataSourcesMap.get( sourceName ).bdvSource.setColor( color );
+        dataSourcesMap.get( sourceName ).color = color;
+    }
 
-        showGene( gene );
+
+    private void setBrightness( ) throws SpimDataException
+    {
+        final String sourceName = ( String ) this.getInput( SELECTION_UI );
+
+        showDataSourceInBdv( sourceName );
 
         GenericDialog gd = new GenericDialog("LUT max value");
-        gd.addNumericField("LUT max value: ", dataSourcesMap.get( gene ).maxLutValue, 0 );
+        gd.addNumericField("LUT max value: ", dataSourcesMap.get( sourceName ).maxLutValue, 0 );
         gd.showDialog();
         if (gd.wasCanceled()) return;
 
         int max  = (int) gd.getNextNumber();
 
-        dataSourcesMap.get( gene ).bdvSource.setDisplayRange( 0.0, max  );
-        dataSourcesMap.get( gene ).maxLutValue = max;
+        dataSourcesMap.get( sourceName ).bdvSource.setDisplayRange( 0.0, max  );
+        dataSourcesMap.get( sourceName ).maxLutValue = max;
 
     }
 
 
-    private void setSourceFromBdvFile( String dataSourceName )
+    private void loadAndShowSourceInBdv( String dataSourceName )
     {
 
         DataSource dataSource = dataSourcesMap.get( dataSourceName );
 
-        SpimData geneData = openSpimData( dataSource.file  ) ;
+        if ( dataSource.spimData == null )
+        {
+            dataSource.spimData = openSpimData( dataSource.file );
+        }
 
-        geneData.getSequenceDescription()
+        setNames( dataSourceName, dataSource );
+
+        dataSource.bdvSource = BdvFunctions.show( dataSource.spimData, BdvOptions.options().addTo( bdv ) ).get( 0 );
+
+        dataSource.bdvSource.setColor( dataSource.color );
+        dataSource.bdvSource.setDisplayRange( 0.0, dataSource.maxLutValue );
+
+        bdv = dataSource.bdvSource.getBdvHandle();
+
+    }
+
+    private void setNames( String dataSourceName, DataSource dataSource )
+    {
+        dataSource.spimData.getSequenceDescription()
                 .getViewDescription( 0,0  )
-                .getViewSetup().getChannel().setName( "AAA" );
+                .getViewSetup().getChannel().setName( dataSourceName );
 
-        geneData.getSequenceDescription()
+        dataSource.spimData.getSequenceDescription()
                 .getViewSetups().get(  0  )
-                .getChannel().setName( "AAA" );
-
-        BdvSource source = BdvFunctions.show( geneData, BdvOptions.options().addTo( bdv ) ).get( 0 );
-
-        source.setColor( defaultGeneColor );
-        source.setDisplayRange( 0.0, dataSource.maxLutValue );
-
-        dataSource.color = defaultGeneColor;
-        dataSource.bdvSource = source;
-
+                .getChannel().setName( dataSourceName );
     }
 
 
@@ -250,7 +312,6 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     }
 
-
     private ARGBType getArgbType( Color color )
     {
         return new ARGBType( ARGBType.rgba( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
@@ -258,14 +319,13 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     private void initBdvWithEmRawData(  )
     {
+        System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 
-        setSourceFromBdvFile( emRawDataID );
-
-        bdv = BdvFunctions.show( dataSourcesMap.get( emRawDataID ).spimData ).get( 0 ).getBdvHandle();
+        loadAndShowSourceInBdv( emRawDataID );
 
         bdv.getBdvHandle().getViewerPanel().setInterpolation( Interpolation.NLINEAR );
 
-        //bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
+        bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
     }
 
     private SpimData openSpimData( File file )
@@ -284,9 +344,9 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     private void createSourceSelectionUI( )
     {
-        final MutableModuleItem< String > typeItem = addInput( GENE_SELECTION_UI, String.class );
+        final MutableModuleItem< String > typeItem = addInput( SELECTION_UI, String.class );
         typeItem.setPersisted( false );
-        typeItem.setLabel( GENE_SELECTION_UI );
+        typeItem.setLabel( SELECTION_UI );
 
         List< String > genes = new ArrayList<>(  );
         genes.addAll( dataSourcesMap.keySet() );
@@ -297,7 +357,6 @@ public class ProSPr extends DynamicCommand implements Interactive
     {
 
         dataSourcesMap = new TreeMap<>(  );
-
 
         File[] files = directory.listFiles();
 
@@ -316,21 +375,23 @@ public class ProSPr extends DynamicCommand implements Interactive
                 if ( file.getName().contains( EM_RAW_FILE_ID ) || file.getName().contains( EM_SEGMENTED_FILE_ID ) )
                 {
                     dataSource.spimData = openSpimData( file );
-                    ProSPrRegistration.setEmSimilarityTransform( dataSource.spimData );
+
+                    AffineTransform3D affineTransform3D = ProSPrRegistration.setEmSimilarityTransform( dataSource.spimData );
 
                     if ( file.getName().contains( EM_RAW_FILE_ID ) )
                     {
                         emRawDataID = dataSourceName;
+                        emRawDataTransform = affineTransform3D;
                     }
+
+                    dataSource.color = defaultEmColor;
                 }
                 else // prospr gene
                 {
-                    dataSource.bdvSource = null;
-                    dataSource.spimData = null;
+                    dataSource.color = defaultGeneColor;
                 }
 
                 dataSourcesMap.put( dataSourceName, dataSource );
-
 
             }
         }
