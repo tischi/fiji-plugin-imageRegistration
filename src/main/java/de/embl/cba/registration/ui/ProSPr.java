@@ -43,8 +43,8 @@ public class ProSPr extends DynamicCommand implements Interactive
     private static final String EM_RAW_FILE_ID = "em-raw";
     private static final String EM_SEGMENTED_FILE_ID = "em-segmented";
     private static final String SELECTION_UI = "Genes";
-    private static final ARGBType defaultGeneColor = new ARGBType( ARGBType.rgba( 255, 0, 255, 255 ) );
-    private static final ARGBType defaultEmColor = new ARGBType( ARGBType.rgba( 255, 255, 255, 255 ) );
+    private static final Color DEFAULT_GENE_COLOR = new Color( 255, 0, 255, 255 );
+    private static final Color defaultEmColor = new Color(255, 255, 255, 255 );
 
 
     private TriggerBehaviourBindings triggerbindings;
@@ -54,20 +54,13 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     Bdv bdv;
 
-    Map< String, DataSource > dataSourcesMap;
+    Map< String, ProSPrDataSource > dataSourcesMap;
 
     String emRawDataID;
     AffineTransform3D emRawDataTransform;
+    ProSPrLegend legend;
 
-    private class DataSource
-    {
-        public SpimData spimData;
-        public BdvSource bdvSource;
-        public File file;
-        public Integer maxLutValue;
-        public boolean isActive;
-        public ARGBType color;
-    }
+
 
 
     public void init()
@@ -94,6 +87,13 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         addBehaviors();
 
+        createLegend();
+
+    }
+
+    private void createLegend()
+    {
+        legend = new ProSPrLegend( this );
     }
 
     private void addOverlay()
@@ -119,20 +119,18 @@ public class ProSPr extends DynamicCommand implements Interactive
     private void printCoordinates( )
     {
 
-        // global coordinates: (68.18255, 64.08652, 43.013805)
-
-        final RealPoint posInMicrometer = new RealPoint( 3 );
-        bdv.getBdvHandle().getViewerPanel().getGlobalMouseCoordinates( posInMicrometer );
-
-        IJ.log("global coordinates (in micrometer): " + Util.printCoordinates( posInMicrometer ) );
+        final RealPoint posInBdvInMicrometer = new RealPoint( 3 );
+        bdv.getBdvHandle().getViewerPanel().getGlobalMouseCoordinates( posInBdvInMicrometer );
 
         final RealPoint posInverse = new RealPoint( 3 );
-        emRawDataTransform.inverse().apply( posInMicrometer, posInverse  );
+        emRawDataTransform.inverse().apply( posInBdvInMicrometer, posInverse  );
 
-        IJ.log("transformed coordinates (in pixels) : " + Util.printCoordinates( posInverse ) );
+        double[] posInRawDataInMicrometer = new double[ 3 ];
+        posInRawDataInMicrometer[ 0 ] = posInverse.getDoublePosition( 0) / 10.0;  // from 100 nm to 1 um
+        posInRawDataInMicrometer[ 1 ] = posInverse.getDoublePosition( 1) / 10.0;  // from 100 nm to 1 um
+        posInRawDataInMicrometer[ 2 ] = posInverse.getDoublePosition( 2) / 10.0;  // from 100 nm to 1 um
 
-        //IJ.log("global em-raw coordinates: " + Util.printCoordinates(pos2) );
-        //IJ.log("global em-raw coordinates: " + Util.printCoordinates(pos3) );
+        IJ.log("coordinates in raw em data set [micrometer] : " + Util.printCoordinates( new RealPoint( posInRawDataInMicrometer ) ) );
 
     }
 
@@ -144,11 +142,6 @@ public class ProSPr extends DynamicCommand implements Interactive
     private void addActionButtons()
     {
         addActionButton( "Show", "showDataSourceInBdv" );
-        addActionButton( "Hide", "hideGene" );
-        addActionButton( "Color", "setDataSourceColorUI" );
-        addActionButton( "Brightness", "setBrightness" );
-        addActionButton( "Show legend", "showLegend" );
-
     }
 
 
@@ -170,8 +163,7 @@ public class ProSPr extends DynamicCommand implements Interactive
         IJ.log( text );
     }
 
-
-    private void showLegend()
+    private void printLegend()
     {
         print( "Currently shown genes: " );
 
@@ -187,7 +179,7 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     private void showDataSourceInBdv( String dataSourceName ) throws SpimDataException
     {
-        DataSource dataSource = dataSourcesMap.get( dataSourceName );
+        ProSPrDataSource dataSource = dataSourcesMap.get( dataSourceName );
 
         if ( dataSource.bdvSource == null )
         {
@@ -206,49 +198,33 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         dataSource.bdvSource.setActive( true );
         dataSource.isActive =  true ;
-        dataSource.bdvSource.setColor( dataSource.color );
+        dataSource.bdvSource.setColor( asArgbType( dataSource.color ) );
+        dataSource.name = dataSourceName;
+
+        legend.add( dataSource );
+
 
     }
 
-    private void hideGene( )
+    public void hideDataSource( String dataSourceName )
     {
-        final String gene = ( String ) this.getInput( SELECTION_UI );
-
-        if ( dataSourcesMap.get( gene ).bdvSource != null  )
+        if ( dataSourcesMap.get( dataSourceName ).bdvSource != null  )
         {
-            dataSourcesMap.get( gene ).bdvSource.setActive( false );
-            dataSourcesMap.get( gene ).isActive = false;
+            dataSourcesMap.get( dataSourceName ).bdvSource.setActive( false );
+            dataSourcesMap.get( dataSourceName ).isActive = false;
         }
     }
 
-    private void setDataSourceColorUI( ) throws SpimDataException
+
+    public void setDataSourceColor( String sourceName, Color color )
     {
-        final String source = ( String ) this.getInput( SELECTION_UI );
-
-        showDataSourceInBdv( source );
-
-        Color color = JColorChooser.showDialog( null, "Select color for " + source, null );
-
-        if ( color != null )
-        {
-            setDataSourceColor( source, getArgbType( color )  );
-        }
-
-    }
-
-    private void setDataSourceColor( String sourceName, ARGBType color )
-    {
-        dataSourcesMap.get( sourceName ).bdvSource.setColor( color );
+        dataSourcesMap.get( sourceName ).bdvSource.setColor( asArgbType( color ) );
         dataSourcesMap.get( sourceName ).color = color;
     }
 
 
-    private void setBrightness( ) throws SpimDataException
+    public void setBrightness( String sourceName )
     {
-        final String sourceName = ( String ) this.getInput( SELECTION_UI );
-
-        showDataSourceInBdv( sourceName );
-
         GenericDialog gd = new GenericDialog("LUT max value");
         gd.addNumericField("LUT max value: ", dataSourcesMap.get( sourceName ).maxLutValue, 0 );
         gd.showDialog();
@@ -258,14 +234,13 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         dataSourcesMap.get( sourceName ).bdvSource.setDisplayRange( 0.0, max  );
         dataSourcesMap.get( sourceName ).maxLutValue = max;
-
     }
 
 
     private void loadAndShowSourceInBdv( String dataSourceName )
     {
 
-        DataSource dataSource = dataSourcesMap.get( dataSourceName );
+        ProSPrDataSource dataSource = dataSourcesMap.get( dataSourceName );
 
         if ( dataSource.spimData == null )
         {
@@ -276,14 +251,14 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         dataSource.bdvSource = BdvFunctions.show( dataSource.spimData, BdvOptions.options().addTo( bdv ) ).get( 0 );
 
-        dataSource.bdvSource.setColor( dataSource.color );
+        dataSource.bdvSource.setColor( asArgbType( dataSource.color ) );
         dataSource.bdvSource.setDisplayRange( 0.0, dataSource.maxLutValue );
 
         bdv = dataSource.bdvSource.getBdvHandle();
 
     }
 
-    private void setNames( String dataSourceName, DataSource dataSource )
+    private void setNames( String dataSourceName, ProSPrDataSource dataSource )
     {
         dataSource.spimData.getSequenceDescription()
                 .getViewDescription( 0,0  )
@@ -305,14 +280,15 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         final BdvSource source = BdvFunctions.show( img, gene, Bdv.options().addTo( bdv ).sourceTransform( prosprScaling ) );
 
-        source.setColor( defaultGeneColor );
+        source.setColor( asArgbType( DEFAULT_GENE_COLOR ) );
 
-        dataSourcesMap.get( gene ).color = defaultGeneColor;
+        dataSourcesMap.get( gene ).color = DEFAULT_GENE_COLOR;
+
         dataSourcesMap.get( gene ).bdvSource = source;
 
     }
 
-    private ARGBType getArgbType( Color color )
+    private ARGBType asArgbType( Color color )
     {
         return new ARGBType( ARGBType.rgba( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
     }
@@ -325,7 +301,7 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         bdv.getBdvHandle().getViewerPanel().setInterpolation( Interpolation.NLINEAR );
 
-        bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
+        //bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
     }
 
     private SpimData openSpimData( File file )
@@ -368,7 +344,7 @@ public class ProSPr extends DynamicCommand implements Interactive
 
                 String dataSourceName = file.getName().replaceAll( DATA_SOURCE_SUFFIX, "" );;
 
-                DataSource dataSource = new DataSource();
+                ProSPrDataSource dataSource = new ProSPrDataSource();
                 dataSource.file = file;
                 dataSource.maxLutValue = 255;
 
@@ -388,7 +364,7 @@ public class ProSPr extends DynamicCommand implements Interactive
                 }
                 else // prospr gene
                 {
-                    dataSource.color = defaultGeneColor;
+                    dataSource.color = DEFAULT_GENE_COLOR;
                 }
 
                 dataSourcesMap.put( dataSourceName, dataSource );

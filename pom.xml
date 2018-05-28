@@ -7,7 +7,7 @@
 
 	<groupId>embl.cba</groupId>
 	<artifactId>fiji-plugin-imageRegistration</artifactId>
-	<version>0.4</version>
+	<version>0.45</version>
 
 	<name>Fiji plugin for n-dimensional image sequence registration</name>
 	<description>A plugin for n-dimensional image sequence registration.</description>

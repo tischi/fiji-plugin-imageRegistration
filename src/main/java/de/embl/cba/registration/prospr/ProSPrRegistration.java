@@ -73,9 +73,7 @@ public class ProSPrRegistration
 
         AffineTransform3D elastixSimilarityTransform = getEmElastixSimilarityTransform( spimData );
 
-        //AffineTransform3D combinedTransform = getCombinedTransform( transformJRotation, elastixSimilarityTransform );
-
-        AffineTransform3D combinedTransform = transformJRotation;
+        AffineTransform3D combinedTransform = getCombinedTransform( transformJRotation, elastixSimilarityTransform );
 
         AffineTransform3D finalTransform = adaptViewRegistration( spimData, combinedTransform );
 
