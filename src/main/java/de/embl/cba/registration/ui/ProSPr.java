@@ -201,7 +201,7 @@ public class ProSPr extends DynamicCommand implements Interactive
         dataSource.bdvSource.setColor( asArgbType( dataSource.color ) );
         dataSource.name = dataSourceName;
 
-        legend.add( dataSource );
+        legend.addButton( dataSource );
 
 
     }

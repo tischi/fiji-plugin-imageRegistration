@@ -6,8 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ProSPrLegend extends JPanel implements ActionListener
 {
@@ -15,46 +15,40 @@ public class ProSPrLegend extends JPanel implements ActionListener
     public static final String ADAPT_BRIGHTNESS = "Adapt brightness";
     public static final String REMOVE = "Remove";
     public static final String CANCELLED = "Cancelled";
-    protected ArrayList< JButton > buttons;
+    protected Map< String, JButton > buttons;
     JFrame frame;
     final ProSPr prospr;
 
     public ProSPrLegend( ProSPr prospr )
     {
         this.prospr = prospr;
-        buttons = new ArrayList<>(  );
+        buttons = new LinkedHashMap<>(  );
         createGUI();
     }
 
 
-    public void add( ProSPrDataSource dataSource )
-    {
-        if ( getButton( dataSource.name ) != null ) return;
-
-        JButton button = createButton( dataSource );
-
-        buttons.add( button );
-
-        refreshGui();
-
-    }
-
-
-
-    private JButton createButton( ProSPrDataSource dataSource )
+    public void addButton( ProSPrDataSource dataSource )
     {
 
-        JButton button = new JButton( padded( dataSource.name ) );
-        button.setOpaque( true );
-        button.setBackground( dataSource.color );
-        button.addActionListener( this );
-        button.setAlignmentX( Component.CENTER_ALIGNMENT );
-        //Font font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("font.ttf"));
-        //button.setFont( new Font.createFont( Font.TRUETYPE_FONT ) );
+        if( ! buttons.containsKey( dataSource.name ) )
+        {
 
-        add( button );
+            JButton button = new JButton( padded( dataSource.name ) );
+            button.setOpaque( true );
+            button.setBackground( dataSource.color );
+            button.addActionListener( this );
+            button.setAlignmentX( Component.CENTER_ALIGNMENT );
 
-        return ( button );
+            //Font font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("font.ttf"));
+            //button.setFont( new Font.createFont( Font.TRUETYPE_FONT ) );
+
+            add( button );
+            buttons.put( dataSource.name, button );
+
+            refreshGui();
+
+        }
+
     }
 
 
@@ -67,7 +61,8 @@ public class ProSPrLegend extends JPanel implements ActionListener
 
     private void removeButton( String name )
     {
-        remove( getButton( name ) );
+        remove( buttons.get( name ) );
+        buttons.remove( name );
         refreshGui();
     }
 
@@ -82,17 +77,20 @@ public class ProSPrLegend extends JPanel implements ActionListener
     public void actionPerformed( ActionEvent e )
     {
 
-        for ( int i = 0; i < buttons.size(); ++i )
+        for ( JButton button : buttons.values() )
         {
-            if ( e.getSource() == buttons.get( i ) )
+            if ( e.getSource() == button )
             {
-                showActionUI( buttons.get( i ).getText().trim() );
+                String name = button.getText().trim();
+                showActionUI( name );
+                return;
             }
         }
 
+
     }
 
-    public void showActionUI( String dataSourceName )
+    public void  showActionUI( String dataSourceName )
     {
         String action = getActionFromUI();
 
@@ -140,29 +138,11 @@ public class ProSPrLegend extends JPanel implements ActionListener
         if ( color != null )
         {
             prospr.setDataSourceColor( name, color );
-            getButton( name ).setBackground( color );
+            buttons.get( name ).setBackground( color );
         }
 
     }
 
-    private void changeButtonColor( String name )
-    {
-
-    }
-
-
-    private JButton getButton( String name )
-    {
-        for ( JButton button : buttons )
-        {
-            if ( button.getText().trim().equals( name ) )
-            {
-                return  button ;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Create the GUI and show it.  For thread safety,
