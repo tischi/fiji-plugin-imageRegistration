@@ -1,5 +1,3 @@
-package de.embl.cba.registration.tests;
-
 import ij.ImageJ;
 
 import ij.ImagePlus;
