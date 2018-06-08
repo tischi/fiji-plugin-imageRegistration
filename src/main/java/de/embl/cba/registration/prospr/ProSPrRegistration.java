@@ -85,7 +85,7 @@ public class ProSPrRegistration
     {
         // the ViewRegistration in the file contains the scaling relative to 1 micrometer
         ViewRegistration viewRegistration = emData.getViewRegistrations().getViewRegistration( 0, 0 );
-        ViewTransform viewTransform = new ViewTransformAffine( "transform",  transform );
+        ViewTransform viewTransform = new ViewTransformAffine( "align",  transform );
         viewRegistration.concatenateTransform( viewTransform );
 
         return viewRegistration.getModel();

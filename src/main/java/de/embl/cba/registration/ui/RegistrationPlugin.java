@@ -86,7 +86,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
             + "</li>"
             + "<li>"
             + "Other axes: <b>Multiple</b> axes, for example the channel axis.<br>"
-            + "Min and max values determine a reference range within which an average value will be computed.<br>"
+            + "Min and max values determine a reference range within which an computeAverage value will be computed.<br>"
             + "</li>";
 
     @Parameter( visibility = ItemVisibility.MESSAGE )

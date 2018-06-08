@@ -263,8 +263,8 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
             if ( registrationAxisTypes.get( d ).equals( RegistrationAxisType.Other ) )
             {
                 // Stored as interval in input, although the code currently only supports one fixed coordinate.
-                // However, one could imagine in the future to e.g. average channels or average
-                // average transforms taking information from multiple channels into account...
+                // However, one could imagine in the future to e.g. computeAverage channels or computeAverage
+                // computeAverage transforms taking information from multiple channels into account...
                 fixedReferenceCoordinates[ i++ ] = referenceInterval.min( d );
             }
         }

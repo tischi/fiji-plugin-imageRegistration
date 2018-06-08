@@ -107,7 +107,7 @@ public class ShowProSPrUsingBigDataViewer< T extends InvertibleRealTransform & C
 
         ViewRegistration viewRegistration = spimData.getViewRegistrations().getViewRegistration( 0, 0 );
         viewRegistration.identity();
-        ViewTransform viewTransform = new ViewTransformAffine( "transform",  combined );
+        ViewTransform viewTransform = new ViewTransformAffine( "align",  combined );
         viewRegistration.preconcatenateTransform( viewTransform );
 
         Bdv bdv = BdvFunctions.show( spimData ).get( 0 );
