@@ -117,7 +117,7 @@
 			<artifactId>imglib2</artifactId>
 		</dependency>
 
-		<!-- Jama (Java Matrix package) is used for computing inertia ellipsoid -->
+		<!-- Jama (Java Matrix package) is used for computing inertia compute -->
 		<dependency>
 			<groupId>gov.nist.math</groupId>
 			<artifactId>jama</artifactId>

@@ -4,105 +4,74 @@ package de.embl.cba.registration.commands;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
 import bdv.util.BdvStackSource;
+import de.embl.cba.registration.geometry.EllipsoidParameterComputer;
+import de.embl.cba.registration.geometry.EllipsoidParameters;
 import de.embl.cba.registration.plotting.Plots;
 import io.scif.services.DatasetIOService;
 import net.imagej.Dataset;
-import net.imagej.DatasetService;
 import net.imagej.ImageJ;
 import net.imagej.ImgPlus;
 import net.imagej.axis.*;
 import net.imglib2.Cursor;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.algorithm.binary.Thresholder;
-import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.img.basictypeaccess.array.ByteArray;
-import net.imglib2.img.display.imagej.ImgPlusViews;
-import net.imglib2.img.planar.PlanarImg;
-import net.imglib2.img.planar.PlanarImgFactory;
+import net.imglib2.img.basictypeaccess.array.LongArray;
 import net.imglib2.loops.LoopBuilder;
-import net.imglib2.type.NativeType;
+import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Intervals;
-import net.imglib2.util.Util;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
-import net.preibisch.mvrecon.fiji.plugin.Specify_Calibration;
-import org.scijava.ui.UIService;
-
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static de.embl.cba.registration.util.Constants.X;
+import static de.embl.cba.registration.util.Constants.XYZ;
+import static de.embl.cba.registration.util.Constants.Z;
+
 public class DrosophilaRegistration
 {
-	static final int X = 0, Y = 1, Z = 2;
 
 
 	// https://github.com/ijpb/MorphoLibJ/blob/master/src/main/java/inra/ijpb/measure/GeometricMeasures3D.java#L41
 	// Jama
 
+//
+//		DatasetService datasetService = imagej.dataset();
+//		UIService uiService = imagej.ui();
+
 
 	public  < T extends RealType< T > > void sandbox() throws IOException
 	{
+
+		String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/crocker-7-2-scale0.25-rot_z_45.zip";
+		double threshold = 10.0D;
+
 		ImageJ imagej = new ImageJ();
 		imagej.ui().showUI();
 		DatasetIOService datasetIOService = imagej.scifio().datasetIO();
-		DatasetService datasetService = imagej.dataset();
-		UIService uiService = imagej.ui();
 
-		// Open
-//		Dataset dataset = datasetIOService.open( "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif" );
-//		Dataset dataset = datasetIOService.open( "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 6-3 Dapi iso1um.tif" );
-//		Dataset dataset = datasetIOService.open( "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-1 Dapi iso1um.tif" );
-		Dataset dataset = datasetIOService.open( "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-1.tif" );
+		Dataset dataset = datasetIOService.open( path );
 
-		// TODO: convert whole dataset to floating point?
+		double[] scalingsInMicrometer = getScalingsInMicrometer( dataset );
 
-		// Correct intensity (in DAPI) decrease along z-axis
+		RandomAccessibleInterval< T > rai = getDapiChannel( dataset );
 
-		final int channelDim = 2;
-		final int dapiChannel = 1;
-		final ImgPlus< T > singleChannelImg = ImgPlusViews.hyperSlice( (ImgPlus< T >) dataset.getImgPlus(), channelDim, dapiChannel );
+		correctIntensityAlongZ( rai, scalingsInMicrometer[ Z ] );
 
-		for ( long z = 0; z < singleChannelImg.dimension( Z ); ++z )
-		{
-			final ImgPlus< T > slice = ImgPlusViews.hyperSlice( singleChannelImg, Z, z );
-			double intensityCorrectionFactor = getFactor( z );
-			// System.out.println( "" + z + ": " + factor );
-			slice.forEach( t -> t.mul( intensityCorrectionFactor ) );
-		}
+		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( rai, threshold );
+
+		show( binaryImage );
+
+		final EllipsoidParameters compute = EllipsoidParameterComputer.compute( binaryImage );
 
 
-		ArrayList< Double > averages = new ArrayList<>(  );
-		for ( long x = 0; x < singleChannelImg.dimension( X ); ++x )
-		{
-			final ImgPlus< T > slice = ImgPlusViews.hyperSlice( singleChannelImg, X, x );
-			averages.add( average( (IterableInterval) slice ) );
-			//System.out.println( "average(" + x + ") = " + average );
-			//slice.forEach( t -> t.mul( factor ) );
-		}
+		// / registerLongAxisOrientation( rai );
 
-		T threshold = singleChannelImg.firstElement().copy();
-		threshold.setReal( 10.0 );
-		final Img< BitType > binaryImg = Thresholder.threshold( singleChannelImg, threshold, true, 4 );
-
-
-		//jama: singluar value decomposition
-
-
-		Plots.plot( averages );
 		//plot( averages );
 
 
@@ -119,10 +88,75 @@ public class DrosophilaRegistration
 		//uiService.show( copy );
 
 
-		((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
-		final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
+		//((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
+		//final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
 
 
+	}
+
+	public < T extends RealType< T > > RandomAccessibleInterval< BitType > createBinaryImage(
+			RandomAccessibleInterval< T > input, double doubleThreshold )
+	{
+		final ArrayImg< BitType, LongArray > binaryImage = ArrayImgs.bits( Intervals.dimensionsAsLongArray( input ) );
+
+		T threshold = input.randomAccess().get().copy();
+		threshold.setReal( doubleThreshold );
+
+		final BitType one = new BitType( true );
+		final BitType zero = new BitType( false );
+
+		LoopBuilder.setImages( input, binaryImage ).forEachPixel( ( i, b ) ->
+				{
+					b.set( i.compareTo( threshold ) > 0 ?  one : zero );
+				}
+		);
+
+		return binaryImage;
+
+	}
+
+	public < T extends RealType< T > > void registerLongAxisOrientation( RandomAccessibleInterval< T > rai )
+	{
+		ArrayList< Double > averages = new ArrayList<>(  );
+
+		for ( long x = 0; x < rai.dimension( X ); ++x )
+		{
+			final IntervalView< T > slice = Views.hyperSlice( rai, X, x );
+			averages.add( average( slice ) );
+		}
+
+		Plots.plot( averages );
+
+
+	}
+
+	public < T extends RealType< T > > RandomAccessibleInterval< T > getDapiChannel( Dataset dataset )
+	{
+		return (RandomAccessibleInterval< T >) dataset.getImgPlus();
+	}
+
+	public double[] getScalingsInMicrometer( Dataset dataset )
+	{
+		double[] scalings = new double[ 3 ];
+
+		for ( int d : XYZ )
+		{
+			scalings[ d ] = ( ( LinearAxis ) dataset.getImgPlus().axis( d ) ).scale();
+		}
+
+		return scalings;
+	}
+
+	public < T extends RealType< T > > void correctIntensityAlongZ( RandomAccessibleInterval< T > rai, double zScalingInMicrometer )
+	{
+		for ( long z = 0; z < rai.dimension( Z ); ++z )
+		{
+			final RandomAccessibleInterval< T > slice = Views.hyperSlice( rai, Z, z );
+
+			final double intensityCorrectionFactor = getIntensityCorrectionFactorAlongZ( z, zScalingInMicrometer );
+
+			Views.iterable( slice ).forEach( t -> t.mul( intensityCorrectionFactor )  );
+		}
 	}
 
 
@@ -144,6 +178,20 @@ public class DrosophilaRegistration
 		return average;
 	}
 
+	private static void show( RandomAccessibleInterval rai )
+	{
+		final Bdv bdv = BdvFunctions.show( rai, "" );
+
+		resetViewTransform( bdv );
+
+	}
+
+	private static void resetViewTransform( Bdv bdv )
+	{
+		bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( new AffineTransform3D() );
+	}
+
+
 	private static BdvStackSource show3DImgPlusInBdv( ImgPlus imgPlus )
 	{
 
@@ -159,7 +207,7 @@ public class DrosophilaRegistration
 		return bdvStackSource;
 	}
 
-	public double getFactor( long z )
+	public double getIntensityCorrectionFactorAlongZ( long z, double zScalingInMicrometer )
 	{
 
 		/*
@@ -182,10 +230,14 @@ public class DrosophilaRegistration
 		 */
 
 		double z0 = 10.0D;
-		double decayLengthInPixels = 64.0D;
+		double decayLengthInMicrometer = 64.0D;
 		double generalIntensityScaling = 0.3; // TODO: what to use here?
-		double correction = generalIntensityScaling / Math.exp( - ( z - z0 ) / decayLengthInPixels );
-		return correction;
+
+		double scaledZ = z * zScalingInMicrometer;
+
+		double correctionFactor = generalIntensityScaling / Math.exp( - ( scaledZ - z0 ) / decayLengthInMicrometer );
+
+		return correctionFactor;
 	}
 
 
