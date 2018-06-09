@@ -133,8 +133,8 @@ public class Projection< T extends RealType< T > & NativeType< T > >
     private void initializeOutputArrayImg()
     {
         setOutputDimensions();
-        final ImgFactory< T > factory = new ArrayImgFactory< T >();
-        output = factory.create( outputDimensions, Views.iterable( input ).firstElement() );
+        final ImgFactory< T > factory = new ArrayImgFactory< >( input.randomAccess().get().createVariable() );
+        output = factory.create( outputDimensions );
         output = Views.translate( output,  outputOffset() );
     }
 
@@ -175,9 +175,9 @@ public class Projection< T extends RealType< T > & NativeType< T > >
         double average = 0;
         long count = 0;
 
-        for ( long d = projectionInterval.min(0); d <= projectionInterval.max(0 ); ++d )
+        for ( long position = projectionInterval.min(0 ); position <= projectionInterval.max(0 ); ++position )
         {
-            inputAccess.setPosition( d, projectionDimension );
+            inputAccess.setPosition( position, projectionDimension );
             average += inputAccess.get().getRealDouble();
             count++;
         }

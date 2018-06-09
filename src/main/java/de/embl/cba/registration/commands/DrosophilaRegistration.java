@@ -1,38 +1,52 @@
 package de.embl.cba.registration.commands;
 
 
-import bdv.util.Bdv;
-import bdv.util.BdvFunctions;
-import bdv.util.BdvStackSource;
+import bdv.util.*;
+import de.embl.cba.registration.algorithm.Algorithms;
+import de.embl.cba.registration.bdv.BdvImageViewer;
 import de.embl.cba.registration.geometry.EllipsoidParameterComputer;
 import de.embl.cba.registration.geometry.EllipsoidParameters;
 import de.embl.cba.registration.plotting.Plots;
+import de.embl.cba.registration.projection.Projection;
 import io.scif.services.DatasetIOService;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import net.imagej.ImgPlus;
 import net.imagej.axis.*;
 import net.imglib2.*;
+import net.imglib2.algorithm.gauss3.Gauss3;
+import net.imglib2.algorithm.neighborhood.HyperSphereShape;
+import net.imglib2.algorithm.neighborhood.Shape;
+import net.imglib2.img.Img;
+import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImg;
+import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.basictypeaccess.array.LongArray;
 import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.realtransform.RealViews;
+import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import static de.embl.cba.registration.bdv.BdvImageViewer.show;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.PHI;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.PSI;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.THETA;
 import static de.embl.cba.registration.util.Constants.*;
 import static java.lang.Math.abs;
+import static java.lang.Math.max;
 import static java.lang.Math.toRadians;
 
 public class DrosophilaRegistration
@@ -47,15 +61,22 @@ public class DrosophilaRegistration
 //		UIService uiService = imagej.ui();
 
 
-	public  < T extends RealType< T > > void sandbox() throws IOException
+	public  < T extends RealType< T >  & NativeType < T > > void sandbox() throws IOException
 	{
 
 //		String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/crocker-7-2-scale0.25-rot_z_60.zip";
-//		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-1 Dapi iso1um.tif";
-		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 6-3 Dapi iso1um.tif";
+		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-1 Dapi iso1um.tif";
+//		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 6-3 Dapi iso1um.tif";
 //		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif";
 
 		double threshold = 10.0D;
+		int subSampling = 1;
+		boolean showPlots = true;
+
+		int derivativeDelta = 20 / subSampling;
+		long projectionRangeMin = +20 / subSampling ;
+		long projectionRangeMax = +80 / subSampling;
+		int sigmaForBlurringAverageProjection = 10 / subSampling ;
 
 		ImageJ imagej = new ImageJ();
 		imagej.ui().showUI();
@@ -67,26 +88,39 @@ public class DrosophilaRegistration
 
 		RandomAccessibleInterval< T > rai = getDapiChannel( dataset );
 
-		show( rai, false );
+		rai = Views.subsample( rai, subSampling );
+
+//		show( rai, false );
 
 		correctIntensityAlongZ( rai, scalingsInMicrometer[ Z ] );
 
 		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( rai, threshold );
 
-		show( binaryImage, false );
+//		show( binaryImage, false );
 
 		final EllipsoidParameters ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
 
 		final RandomAccessibleInterval< T > longAxisAlongX = align( rai, ellipsoidParameters );
 
-		show( longAxisAlongX, false );
+//		show( longAxisAlongX, false );
 
-		boolean showPlots = true;
-		int derivativeDelta = 20;
+		final RandomAccessibleInterval< T > longAxisOriented = registerLongAxisOrientation( longAxisAlongX, X, derivativeDelta, showPlots );
 
-		final RandomAccessibleInterval< T > longAxisInXOriented = registerLongAxisOrientation( longAxisAlongX, X, derivativeDelta, showPlots );
+		show( longAxisOriented );
 
-		show( longAxisInXOriented, false );
+		final RandomAccessibleInterval< T > averageProjectionAlongX = computeAverageProjection(
+				longAxisOriented, X, projectionRangeMin, projectionRangeMax  );
+
+		show( averageProjectionAlongX );
+
+		final RandomAccessibleInterval< T > blurred = blur( averageProjectionAlongX, sigmaForBlurringAverageProjection );
+
+//		final List< RealPoint > maxima = computeMaximumLocation( blurred, sigmaForBlurringAverageProjection );
+
+		final Point maximum = Algorithms.findMaximum( blurred );
+
+		show( blurred, asRealPointList( maximum ), false );
+
 
 		//((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
 		//final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
@@ -94,8 +128,50 @@ public class DrosophilaRegistration
 
 	}
 
-	public < T extends RealType< T > > RandomAccessibleInterval< T > align(
-			RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters )
+	public List< RealPoint > asRealPointList( Point maximum )
+	{
+		List< RealPoint > realPoints = new ArrayList<>();
+		final double[] doubles = new double[ maximum.numDimensions() ];
+		maximum.localize( doubles );
+		realPoints.add( new RealPoint( doubles) );
+
+		return realPoints;
+	}
+
+
+	public  < T extends RealType< T > & NativeType< T > >
+	List< RealPoint > computeMaximumLocation( RandomAccessibleInterval< T > blurred, int sigmaForBlurringAverageProjection )
+	{
+		Shape shape = new HyperSphereShape( sigmaForBlurringAverageProjection );
+
+		List< RealPoint > points = Algorithms.findMaxima( blurred, shape );
+
+		return points;
+	}
+
+	public < T extends RealType< T > & NativeType< T > >
+	RandomAccessibleInterval< T > blur( RandomAccessibleInterval< T > rai, double sigma )
+	{
+		ImgFactory< T > imgFactory = new ArrayImgFactory( rai.randomAccess().get()  );
+
+		RandomAccessibleInterval< T > blurred = imgFactory.create( Intervals.dimensionsAsLongArray( rai ) );
+
+		blurred = Views.translate( blurred, Intervals.minAsLongArray( rai ) );
+
+		Gauss3.gauss( sigma, Views.extendBorder( rai ), blurred ) ;
+
+		return blurred;
+	}
+
+	public < T extends RealType< T > & NativeType< T > >
+	RandomAccessibleInterval< T > computeAverageProjection( RandomAccessibleInterval< T > rai, int d, long min, long max )
+	{
+		Projection< T > projection = new Projection< T >(  rai, d,  new FinalInterval( new long[]{ min },  new long[]{ max } ) );
+		return projection.average();
+	}
+
+	public < T extends RealType< T > & NativeType< T > >
+	RandomAccessibleInterval< T > align( RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters )
 	{
 
 		AffineTransform3D translation = new AffineTransform3D();
@@ -117,7 +193,8 @@ public class DrosophilaRegistration
 
 	}
 
-	public < T extends RealType< T > > RandomAccessible createTransformedRandomAccessible( RandomAccessibleInterval< T > rai, AffineTransform3D combinedTransform )
+	public < T extends RealType< T > >
+	RandomAccessible createTransformedRandomAccessible( RandomAccessibleInterval< T > rai, AffineTransform3D combinedTransform )
 	{
 		RealRandomAccessible rra = Views.interpolate( Views.extendZero( rai ), new NLinearInterpolatorFactory() );
 		rra = RealViews.transform( rra, combinedTransform );
@@ -214,6 +291,8 @@ public class DrosophilaRegistration
 		}
 	}
 
+
+
 	public double[] computeAbsoluteDerivatives( double[] values, int di )
 	{
 		double[ ] derivatives = new double[ values.length ];
@@ -275,7 +354,8 @@ public class DrosophilaRegistration
 	}
 
 
-	public static < T extends RealType< T > > double computeAverage( final RandomAccessibleInterval< T > rai )
+	public static < T extends RealType< T > >
+	double computeAverage( final RandomAccessibleInterval< T > rai )
 	{
 		final Cursor< T > cursor = Views.iterable( rai ).cursor();
 
@@ -291,39 +371,6 @@ public class DrosophilaRegistration
 		return average;
 	}
 
-	private static void show( RandomAccessibleInterval rai, boolean resetViewTransform )
-	{
-		final Bdv bdv = BdvFunctions.show( rai, "" );
-
-		if ( resetViewTransform ) resetViewTransform( bdv );
-
-	}
-
-
-	private static void resetViewTransform( Bdv bdv )
-	{
-		final AffineTransform3D affineTransform3D = new AffineTransform3D();
-
-		affineTransform3D.scale( 2.5D );
-
-		bdv.getBdvHandle().getViewerPanel().setCurrentViewerTransform( affineTransform3D );
-	}
-
-
-	private static BdvStackSource show3DImgPlusInBdv( ImgPlus imgPlus )
-	{
-
-		BdvStackSource bdvStackSource = BdvFunctions.show(
-				imgPlus,
-				imgPlus.getName(),
-				Bdv.options().sourceTransform(
-						((LinearAxis)imgPlus.axis( 0 )).scale(),
-						((LinearAxis)imgPlus.axis( 1 )).scale(),
-						((LinearAxis)imgPlus.axis( 2 )).scale() )
-		);
-
-		return bdvStackSource;
-	}
 
 	public double getIntensityCorrectionFactorAlongZ( long z, double zScalingInMicrometer )
 	{
