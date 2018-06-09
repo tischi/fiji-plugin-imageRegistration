@@ -1,7 +1,7 @@
 package de.embl.cba.registration.tests;
 
-import de.embl.cba.registration.util.PhaseCorrelationUtils;
-import de.embl.cba.registration.util.RandomAccessibleIntervalUtils;
+import de.embl.cba.registration.utils.PhaseCorrelationUtils;
+import de.embl.cba.registration.utils.RandomAccessibleIntervalUtils;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelation2;
@@ -12,7 +12,6 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.numeric.complex.ComplexFloatType;
 import net.imglib2.type.numeric.real.FloatType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

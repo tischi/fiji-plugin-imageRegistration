@@ -1,37 +1,30 @@
 package de.embl.cba.registration.commands;
 
 
-import bdv.util.*;
 import de.embl.cba.registration.algorithm.Algorithms;
-import de.embl.cba.registration.bdv.BdvImageViewer;
 import de.embl.cba.registration.geometry.EllipsoidParameterComputer;
 import de.embl.cba.registration.geometry.EllipsoidParameters;
 import de.embl.cba.registration.plotting.Plots;
 import de.embl.cba.registration.projection.Projection;
+import de.embl.cba.registration.utils.Transforms;
 import io.scif.services.DatasetIOService;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
-import net.imagej.ImgPlus;
 import net.imagej.axis.*;
 import net.imglib2.*;
 import net.imglib2.algorithm.gauss3.Gauss3;
 import net.imglib2.algorithm.neighborhood.HyperSphereShape;
 import net.imglib2.algorithm.neighborhood.Shape;
-import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.basictypeaccess.array.LongArray;
-import net.imglib2.interpolation.randomaccess.NLinearInterpolatorFactory;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.realtransform.RealViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
@@ -44,10 +37,8 @@ import static de.embl.cba.registration.bdv.BdvImageViewer.show;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.PHI;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.PSI;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.THETA;
-import static de.embl.cba.registration.util.Constants.*;
-import static java.lang.Math.abs;
-import static java.lang.Math.max;
-import static java.lang.Math.toRadians;
+import static de.embl.cba.registration.utils.Constants.*;
+import static java.lang.Math.*;
 
 public class DrosophilaRegistration
 {
@@ -65,7 +56,7 @@ public class DrosophilaRegistration
 	{
 
 //		String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/crocker-7-2-scale0.25-rot_z_60.zip";
-		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-1 Dapi iso1um.tif";
+		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-2 rotated.tif";
 //		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 6-3 Dapi iso1um.tif";
 //		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif";
 
@@ -84,48 +75,89 @@ public class DrosophilaRegistration
 
 		Dataset dataset = datasetIOService.open( path );
 
-		double[] scalingsInMicrometer = getScalingsInMicrometer( dataset );
+		double[] calibration = getCalibration( dataset );
 
 		RandomAccessibleInterval< T > rai = getDapiChannel( dataset );
 
 		rai = Views.subsample( rai, subSampling );
 
-//		show( rai, false );
+		show( rai, calibration );
 
-		correctIntensityAlongZ( rai, scalingsInMicrometer[ Z ] );
+		correctIntensityAlongZ( rai, calibration[ Z ] );
 
-		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( rai, threshold );
+		final RandomAccessibleInterval< BitType >
+				binaryImage = createBinaryImage( rai, threshold );
 
-//		show( binaryImage, false );
+		show( binaryImage, calibration );
 
-		final EllipsoidParameters ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
+		final EllipsoidParameters
+				ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
 
-		final RandomAccessibleInterval< T > longAxisAlongX = align( rai, ellipsoidParameters );
+		final RandomAccessibleInterval< T >
+				longAxisAligned = alignToEllipsoid( rai, ellipsoidParameters, calibration );
 
 //		show( longAxisAlongX, false );
 
-		final RandomAccessibleInterval< T > longAxisOriented = registerLongAxisOrientation( longAxisAlongX, X, derivativeDelta, showPlots );
+		final RandomAccessibleInterval< T >
+				longAxisOriented = registerLongAxisOrientation( longAxisAligned, X, derivativeDelta, showPlots );
 
-		show( longAxisOriented );
+		show( longAxisOriented, calibration );
 
-		final RandomAccessibleInterval< T > averageProjectionAlongX = computeAverageProjection(
-				longAxisOriented, X, projectionRangeMin, projectionRangeMax  );
+		final RandomAccessibleInterval< T >
+				averageProjectionAlongX = computeAverageProjection( longAxisOriented, X, projectionRangeMin, projectionRangeMax  );
 
-		show( averageProjectionAlongX );
+		show( averageProjectionAlongX, new double[]{ calibration[ Y ], calibration[ Z ] });
 
-		final RandomAccessibleInterval< T > blurred = blur( averageProjectionAlongX, sigmaForBlurringAverageProjection );
+		final RandomAccessibleInterval< T > blurred
+				= blur( averageProjectionAlongX, sigmaForBlurringAverageProjection );
+		final Point maximum
+				= Algorithms.findMaximum( blurred );
 
-//		final List< RealPoint > maxima = computeMaximumLocation( blurred, sigmaForBlurringAverageProjection );
+		// show
+		final List< RealPoint > realPoints = asRealPointList( maximum );
+		realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
+		show( blurred, realPoints, false );
 
-		final Point maximum = Algorithms.findMaximum( blurred );
+		final RandomAccessibleInterval< T >
+				registered = registerRotationAroundLongAxis( longAxisOriented, maximum, calibration );
 
-		show( blurred, asRealPointList( maximum ), false );
-
+		show( registered, calibration );
 
 		//((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
 		//final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
 
 
+	}
+
+	public < T extends RealType< T > & NativeType< T > >
+	RandomAccessibleInterval< T > registerRotationAroundLongAxis( RandomAccessibleInterval< T > rai, Point maximum, double[] calibration )
+	{
+		double angleToZAxisInDegrees = getAngleToYAxis( maximum );
+		AffineTransform3D rotationAroundLongAxis = new AffineTransform3D();
+		rotationAroundLongAxis.rotate( X, toRadians( angleToZAxisInDegrees ) );
+
+		rotationAroundLongAxis.apply( calibration, calibration );
+
+		final RandomAccessibleInterval< T > transformed =
+				Transforms.createTransformedRAIWithAdjustedBounds( rai, rotationAroundLongAxis );
+
+		return Views.interval( transformed, rai );
+	}
+
+	public double getAngleToYAxis( Point maximum )
+	{
+		final double angleToYAxis;
+
+		if ( maximum.getIntPosition( Y ) == 0 )
+		{
+			angleToYAxis = 90;
+		}
+		else
+		{
+			angleToYAxis = atan( maximum.getDoublePosition( X ) / maximum.getDoublePosition( Y ) );
+		}
+
+		return angleToYAxis;
 	}
 
 	public List< RealPoint > asRealPointList( Point maximum )
@@ -171,7 +203,7 @@ public class DrosophilaRegistration
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > align( RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters )
+	RandomAccessibleInterval< T > alignToEllipsoid( RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters, double[] calibration )
 	{
 
 		AffineTransform3D translation = new AffineTransform3D();
@@ -185,41 +217,12 @@ public class DrosophilaRegistration
 
 		AffineTransform3D combinedTransform = translation.preConcatenate( rotation );
 
-		final RandomAccessible transformedRA = createTransformedRandomAccessible( rai, combinedTransform );
-		final FinalInterval transformedBounds = computeTransformedBounds( rai, combinedTransform );
-		final RandomAccessibleInterval transformedRAI = Views.interval( transformedRA, transformedBounds );
+		rotation.apply( calibration, calibration );
+
+		final RandomAccessibleInterval transformedRAI = Transforms.createTransformedRAIWithAdjustedBounds( rai, combinedTransform );
 
 		return transformedRAI;
 
-	}
-
-	public < T extends RealType< T > >
-	RandomAccessible createTransformedRandomAccessible( RandomAccessibleInterval< T > rai, AffineTransform3D combinedTransform )
-	{
-		RealRandomAccessible rra = Views.interpolate( Views.extendZero( rai ), new NLinearInterpolatorFactory() );
-		rra = RealViews.transform( rra, combinedTransform );
-		return Views.raster( rra );
-	}
-
-	public < T extends RealType< T > > FinalInterval computeTransformedBounds( RandomAccessibleInterval< T > rai, AffineTransform3D transform )
-	{
-		final FinalRealInterval realInterval = transform.estimateBounds( rai );
-
-		double[] realMin = new double[ 3 ];
-		double[] realMax = new double[ 3 ];
-		realInterval.realMin( realMin );
-		realInterval.realMax( realMax );
-
-		long[] min = new long[ 3 ];
-		long[] max = new long[ 3 ];
-
-		for ( int d : XYZ )
-		{
-			min[ d ] = (long) realMin[ d ];
-			max[ d ] = (long) realMax[ d ];
-		}
-
-		return new FinalInterval( min, max );
 	}
 
 	public < T extends RealType< T > > RandomAccessibleInterval< BitType > createBinaryImage(
@@ -269,7 +272,7 @@ public class DrosophilaRegistration
 			AffineTransform3D affineTransform3D = new AffineTransform3D();
 			affineTransform3D.rotate( Z, toRadians( 180.0D ) );
 
-			final RandomAccessible transformedRA = createTransformedRandomAccessible( rai, affineTransform3D );
+			final RandomAccessible transformedRA = Transforms.createTransformedRA( rai, affineTransform3D );
 
 			return Views.interval( transformedRA, rai );
 		}
@@ -329,7 +332,7 @@ public class DrosophilaRegistration
 		return (RandomAccessibleInterval< T >) dataset.getImgPlus();
 	}
 
-	public double[] getScalingsInMicrometer( Dataset dataset )
+	public double[] getCalibration( Dataset dataset )
 	{
 		double[] scalings = new double[ 3 ];
 
@@ -400,7 +403,7 @@ public class DrosophilaRegistration
 
 		double scaledZ = z * zScalingInMicrometer;
 
-		double correctionFactor = generalIntensityScaling / Math.exp( - ( scaledZ - z0 ) / decayLengthInMicrometer );
+		double correctionFactor = generalIntensityScaling / exp( - ( scaledZ - z0 ) / decayLengthInMicrometer );
 
 		return correctionFactor;
 	}

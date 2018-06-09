@@ -3,27 +3,18 @@ package de.embl.cba.registration;
 import bdv.util.AxisOrder;
 import bdv.util.Bdv;
 import bdv.util.BdvFunctions;
-import bdv.viewer.SourceAndConverter;
-import de.embl.cba.registration.Logger;
-import de.embl.cba.registration.util.ViewsUtils;
+import de.embl.cba.registration.utils.ViewsUtils;
 import ij.ImagePlus;
 import net.imagej.DatasetService;
-import net.imagej.DefaultDatasetService;
-import net.imagej.ImageJ;
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 import net.imagej.axis.AxisType;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
-import net.imglib2.view.TransformedRandomAccessible;
 import net.imglib2.view.Views;
 import org.scijava.ui.UIService;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
-import static bdv.viewer.DisplayMode.GROUP;
 
 public abstract class Viewers
 {

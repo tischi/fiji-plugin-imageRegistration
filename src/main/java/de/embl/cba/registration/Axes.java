@@ -1,8 +1,6 @@
 package de.embl.cba.registration;
 
-import bdv.util.AxisOrder;
-import de.embl.cba.registration.util.Enums;
-import de.embl.cba.registration.util.IntervalUtils;
+import de.embl.cba.registration.utils.IntervalUtils;
 import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.axis.AxisType;

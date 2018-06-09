@@ -4,7 +4,7 @@ import de.embl.cba.registration.filter.FilterType;
 import de.embl.cba.registration.transformfinder.TransformFinderType;
 import de.embl.cba.registration.transformfinder.TransformSettings;
 import de.embl.cba.registration.ui.Settings;
-import de.embl.cba.registration.util.MetaImage;
+import de.embl.cba.registration.utils.MetaImage;
 import de.embl.cba.registration.Readers;
 import de.embl.cba.registration.Viewers;
 import net.imagej.DefaultDatasetService;

@@ -12,8 +12,7 @@ package de.embl.cba.registration.ui;
 import de.embl.cba.registration.*;
 import de.embl.cba.registration.Axes;
 import de.embl.cba.registration.projection.ProjectionType;
-import de.embl.cba.registration.util.Enums;
-import de.embl.cba.registration.util.MetaImage;
+import de.embl.cba.registration.utils.MetaImage;
 import ij.ImagePlus;
 import ij.VirtualStack;
 import ij.gui.Overlay;
@@ -41,7 +40,6 @@ import org.scijava.widget.NumberWidget;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 @Plugin(type = Command.class, menuPath = "Plugins>Registration>N-D Sequence Registration", initializer = "init")
 public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand implements Interactive

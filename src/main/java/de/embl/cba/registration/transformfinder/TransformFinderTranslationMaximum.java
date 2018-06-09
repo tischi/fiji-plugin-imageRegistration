@@ -1,8 +1,8 @@
 package de.embl.cba.registration.transformfinder;
 
 import de.embl.cba.registration.filter.FilterSequence;
-import de.embl.cba.registration.util.RandomAccessibleIntervalUtils;
-import de.embl.cba.registration.util.Transforms;
+import de.embl.cba.registration.utils.RandomAccessibleIntervalUtils;
+import de.embl.cba.registration.utils.Transforms;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.phasecorrelation.PhaseCorrelationPeak2;

@@ -1,8 +1,7 @@
 package de.embl.cba.registration.projection;
 
-import de.embl.cba.registration.util.Enums;
+import de.embl.cba.registration.utils.Enums;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public enum ProjectionType

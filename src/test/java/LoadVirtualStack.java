@@ -1,12 +1,7 @@
 import de.embl.cba.registration.Readers;
-import de.embl.cba.registration.Services;
 import de.embl.cba.registration.Viewers;
-import de.embl.cba.registration.util.MetaImage;
-import net.imagej.DefaultDatasetService;
+import de.embl.cba.registration.utils.MetaImage;
 import net.imagej.ImageJ;
-import org.scijava.ui.DefaultUIService;
-
-import java.util.concurrent.Executors;
 
 public class LoadVirtualStack
 {

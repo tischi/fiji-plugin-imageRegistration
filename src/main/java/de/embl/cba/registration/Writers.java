@@ -1,17 +1,13 @@
 package de.embl.cba.registration;
 
-import de.embl.cba.registration.util.MetaImage;
+import de.embl.cba.registration.utils.MetaImage;
 import io.scif.img.ImgIOException;
 import io.scif.img.ImgSaver;
-import net.imagej.Dataset;
-import net.imagej.DefaultDataset;
 import net.imagej.ImgPlus;
 import net.imagej.axis.AxisType;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
-import net.imglib2.view.Views;
 
 import java.io.File;
 

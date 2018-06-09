@@ -1,6 +1,6 @@
 package de.embl.cba.registration;
 
-import de.embl.cba.registration.util.MetaImage;
+import de.embl.cba.registration.utils.MetaImage;
 import ij.IJ;
 import ij.io.Opener;
 import io.scif.config.SCIFIOConfig;

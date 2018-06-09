@@ -1,6 +1,6 @@
 package de.embl.cba.registration.filter;
 
-import de.embl.cba.registration.util.Duplicator;
+import de.embl.cba.registration.utils.Duplicator;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
