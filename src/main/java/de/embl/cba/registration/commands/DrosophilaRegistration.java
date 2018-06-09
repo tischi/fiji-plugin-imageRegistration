@@ -61,8 +61,10 @@ public class DrosophilaRegistration
 //		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif";
 
 		double threshold = 10.0D;
-		int subSampling = 1;
+		int subSampling = 4;
 		boolean showPlots = true;
+
+		double refractiveIndexMismatchCorrectionFactor = 1.6;
 
 		int derivativeDelta = 20 / subSampling;
 		long projectionRangeMin = +20 / subSampling ;
@@ -77,18 +79,22 @@ public class DrosophilaRegistration
 
 		double[] calibration = getCalibration( dataset );
 
-		RandomAccessibleInterval< T > rai = getDapiChannel( dataset );
+		show( (RandomAccessibleInterval<T> ) dataset.getImgPlus(), "input data", calibration );
 
+		RandomAccessibleInterval< T > rai = getDapiChannel( dataset );
 		rai = Views.subsample( rai, subSampling );
 
-		show( rai, calibration );
+		correctCalibrationForSubSampling( calibration, subSampling );
+		correctCalibrationForRefractiveIndexMismatchAlongZAxis( calibration, refractiveIndexMismatchCorrectionFactor );
 
 		correctIntensityAlongZ( rai, calibration[ Z ] );
+
+		show( rai, "intensity and calibration corrected", calibration );
 
 		final RandomAccessibleInterval< BitType >
 				binaryImage = createBinaryImage( rai, threshold );
 
-		show( binaryImage, calibration );
+		show( binaryImage, "binary", calibration );
 
 		final EllipsoidParameters
 				ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
@@ -96,20 +102,20 @@ public class DrosophilaRegistration
 		final RandomAccessibleInterval< T >
 				longAxisAligned = alignToEllipsoid( rai, ellipsoidParameters, calibration );
 
-//		show( longAxisAlongX, false );
+		show( longAxisAligned, "longAxisAligned", calibration );
 
 		final RandomAccessibleInterval< T >
 				longAxisOriented = registerLongAxisOrientation( longAxisAligned, X, derivativeDelta, showPlots );
 
-		show( longAxisOriented, calibration );
+		show( longAxisOriented, "longAxisOriented", calibration );
 
 		final RandomAccessibleInterval< T >
-				averageProjectionAlongX = computeAverageProjection( longAxisOriented, X, projectionRangeMin, projectionRangeMax  );
+				longAxisProjection = computeAverageProjection( longAxisOriented, X, projectionRangeMin, projectionRangeMax  );
 
-		show( averageProjectionAlongX, new double[]{ calibration[ Y ], calibration[ Z ] });
+		show( longAxisProjection, "longAxisProjection", new double[]{ calibration[ Y ], calibration[ Z ] });
 
 		final RandomAccessibleInterval< T > blurred
-				= blur( averageProjectionAlongX, sigmaForBlurringAverageProjection );
+				= blur( longAxisProjection, sigmaForBlurringAverageProjection );
 		final Point maximum
 				= Algorithms.findMaximum( blurred );
 
@@ -121,7 +127,7 @@ public class DrosophilaRegistration
 		final RandomAccessibleInterval< T >
 				registered = registerRotationAroundLongAxis( longAxisOriented, maximum, calibration );
 
-		show( registered, calibration );
+		show( registered, "registered", calibration );
 
 		//((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
 		//final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
@@ -329,23 +335,40 @@ public class DrosophilaRegistration
 
 	public < T extends RealType< T > > RandomAccessibleInterval< T > getDapiChannel( Dataset dataset )
 	{
-		return (RandomAccessibleInterval< T >) dataset.getImgPlus();
+		return (RandomAccessibleInterval< T >) dataset.getImgPlus().copy();
 	}
 
-	public double[] getCalibration( Dataset dataset )
+	public static double[] getCalibration( Dataset dataset )
 	{
 		double[] scalings = new double[ 3 ];
 
 		for ( int d : XYZ )
 		{
 			scalings[ d ] = ( ( LinearAxis ) dataset.getImgPlus().axis( d ) ).scale();
+
 		}
 
 		return scalings;
 	}
 
+	public static void correctCalibrationForSubSampling( double[] calibration, int subSampling )
+	{
+		for ( int d : XYZ )
+		{
+			calibration[ d ] *= subSampling;
+		}
+	}
+
+	public static void correctCalibrationForRefractiveIndexMismatchAlongZAxis( double[] calibration, double correctionFactor )
+	{
+		calibration[ Z ] *= correctionFactor;
+	}
+
+
+
 	public < T extends RealType< T > > void correctIntensityAlongZ( RandomAccessibleInterval< T > rai, double zScalingInMicrometer )
 	{
+
 		for ( long z = 0; z < rai.dimension( Z ); ++z )
 		{
 			final RandomAccessibleInterval< T > slice = Views.hyperSlice( rai, Z, z );
@@ -398,7 +421,7 @@ public class DrosophilaRegistration
 		 */
 
 		double z0 = 10.0D;
-		double decayLengthInMicrometer = 64.0D;
+		double decayLengthInMicrometer = 64.0D * 1.6D; // refractiveIndexMismatch
 		double generalIntensityScaling = 0.3; // TODO: what to use here?
 
 		double scaledZ = z * zScalingInMicrometer;
