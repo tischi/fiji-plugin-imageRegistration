@@ -36,9 +36,8 @@ import java.util.List;
 
 import static de.embl.cba.registration.bdv.BdvImageViewer.show;
 import static de.embl.cba.registration.geometry.EllipsoidParameters.PHI;
-import static de.embl.cba.registration.geometry.EllipsoidParameters.PSI;
-import static de.embl.cba.registration.geometry.EllipsoidParameters.THETA;
 import static de.embl.cba.registration.utils.Constants.*;
+import static de.embl.cba.registration.utils.Transforms.createArrayCopy;
 import static java.lang.Math.*;
 
 public class DrosophilaRegistration
@@ -88,10 +87,63 @@ public class DrosophilaRegistration
 
 		show( dapiRaw, "calibration corrected view on raw input data", calibration );
 
-//		correctIntensityAlongZ( dapi, calibration[ Z ] );
+		Scale scale = getBinningTransform( binning, calibration );
+
+		final RandomAccessibleInterval< T > binnedView = Transforms.createTransformedRaiViewWithAdjustedBounds( dapiRaw, scale );
+
+		final RandomAccessibleInterval< T > binned = createArrayCopy( binnedView );
+
+		setCalibrationAfterBinning( calibration, binning );
+
+		show( binned, "binned to " + binning + " um voxel size", calibration );
+
+		correctIntensityAlongZ( binned, calibration[ Z ] );
+
+		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( binned, threshold );
+
+		show( binaryImage, "binary", calibration );
+
+		final EllipsoidParameters ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
+
+		final RandomAccessibleInterval< T > longAxisAlignedView = createEllipsoidAlignedView( binned, ellipsoidParameters );
+
+		show( longAxisAlignedView , "longAxisAlignedView", calibration );
+
+		final RandomAccessibleInterval< T > longAxisOrientedView = createLongAxisOrientationRegisteredView( longAxisAlignedView, X, derivativeDelta, showPlots );
+
+		show( longAxisOrientedView , "longAxisOrientedView", calibration );
+
+		final RandomAccessibleInterval< T > longAxisProjection = createAverageProjection( longAxisOrientedView, X, projectionRangeMin, projectionRangeMax );
+
+		show( longAxisProjection, "longAxisProjection", new double[]{ calibration[ Y ], calibration[ Z ] } );
+
+		final RandomAccessibleInterval< T > blurred = createBlurredRai( longAxisProjection, sigmaForBlurringAverageProjection );
+
+		final Point maximum = Algorithms.findMaximum( blurred );
+
+		showWithPointOverlay( blurred, maximum );
+
+		final RandomAccessibleInterval< T > registered = createRotationAroundLongAxisRegisteredView( longAxisOrientedView, maximum );
+
+		show( registered, "registered", calibration );
 
 
+		//((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
+		//final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
 
+
+	}
+
+	public < T extends RealType< T > & NativeType< T > > void showWithPointOverlay( RandomAccessibleInterval< T > blurred, Point maximum )
+	{
+		// show
+		final List< RealPoint > realPoints = asRealPointList( maximum );
+		realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
+		show( blurred, realPoints, false );
+	}
+
+	public Scale getBinningTransform( int binning, double[] calibration )
+	{
 		double[] downScaling = new double[3];
 
 		for ( int d : XYZ )
@@ -101,67 +153,7 @@ public class DrosophilaRegistration
 
 		final AffineTransform3D scalingTransform = createScalingTransform( downScaling );
 
-		Scale scale = new Scale( downScaling ); 
-
-		final RandomAccessibleInterval< T > scaled = Transforms.createTransformedArrayRaiWithAdjustedBounds( dapiRaw, scale );
-
-		setIsotropicCalibration( calibration, binning );
-
-		show( scaled, "binned to " + binning + " um voxel size", calibration );
-
-		if( false )
-		{
-
-			final RandomAccessibleInterval< T > subSampled = Views.subsample( scaled, binning );
-
-			show( scaled, "sampled at " + binning + "um", calibration );
-
-
-
-			final RandomAccessibleInterval< BitType >
-					binaryImage = createBinaryImage( subSampled, threshold );
-
-			show( binaryImage, "binary", calibration );
-
-			final EllipsoidParameters
-					ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
-
-			final RandomAccessibleInterval< T >
-					longAxisAligned = alignToEllipsoid( scaled, ellipsoidParameters, calibration );
-
-			show( longAxisAligned, "longAxisAligned", calibration );
-
-			final RandomAccessibleInterval< T >
-					longAxisOriented = registerLongAxisOrientation( longAxisAligned, X, derivativeDelta, showPlots );
-
-			show( longAxisOriented, "longAxisOriented", calibration );
-
-			final RandomAccessibleInterval< T >
-					longAxisProjection = computeAverageProjection( longAxisOriented, X, projectionRangeMin, projectionRangeMax );
-
-			show( longAxisProjection, "longAxisProjection", new double[]{ calibration[ Y ], calibration[ Z ] } );
-
-			final RandomAccessibleInterval< T > blurred
-					= blur( longAxisProjection, sigmaForBlurringAverageProjection );
-			final Point maximum
-					= Algorithms.findMaximum( blurred );
-
-			// show
-			final List< RealPoint > realPoints = asRealPointList( maximum );
-			realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
-			show( blurred, realPoints, false );
-
-			final RandomAccessibleInterval< T >
-					registered = registerRotationAroundLongAxis( longAxisOriented, maximum, calibration );
-
-			show( registered, "registered", calibration );
-
-		}
-
-		//((LinearAxis)singleChannelImg.axis( 2 )).setScale( 1.6D );
-		//final BdvStackSource bdvStackSource = show3DImgPlusInBdv( singleChannelImg );
-
-
+		return new Scale( downScaling );
 	}
 
 	public AffineTransform3D createScalingTransform( double[] calibration )
@@ -171,27 +163,24 @@ public class DrosophilaRegistration
 		return scaling;
 	}
 
-	public void setIsotropicCalibration( double[] calibration, double value )
+	public void setCalibrationAfterBinning( double[] calibration, double value )
 	{
 		for ( int d : XYZ ) calibration[ d ] = value;
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > registerRotationAroundLongAxis( RandomAccessibleInterval< T > rai, Point maximum, double[] calibration )
+	RandomAccessibleInterval< T > createRotationAroundLongAxisRegisteredView( RandomAccessibleInterval< T > rai, Point maximum )
 	{
-		double angleToZAxisInDegrees = getAngleToYAxis( maximum );
+		double angleToZAxisInDegrees = getAngleToZAxis( maximum );
 		AffineTransform3D rotationAroundLongAxis = new AffineTransform3D();
 		rotationAroundLongAxis.rotate( X, toRadians( angleToZAxisInDegrees ) );
 
-		rotationAroundLongAxis.apply( calibration, calibration );
+		final RandomAccessibleInterval< T > transformedView = Transforms.createTransformedRaiViewWithAdjustedBounds( rai, rotationAroundLongAxis );
 
-		final RandomAccessibleInterval< T > transformed =
-				Transforms.createTransformedArrayRaiWithAdjustedBounds( rai, rotationAroundLongAxis );
-
-		return Views.interval( transformed, rai );
+		return transformedView;
 	}
 
-	public double getAngleToYAxis( Point maximum )
+	public double getAngleToZAxis( Point maximum )
 	{
 		final double angleToYAxis;
 
@@ -201,7 +190,7 @@ public class DrosophilaRegistration
 		}
 		else
 		{
-			angleToYAxis = atan( maximum.getDoublePosition( X ) / maximum.getDoublePosition( Y ) );
+			angleToYAxis = toDegrees( atan( maximum.getDoublePosition( X ) / maximum.getDoublePosition( Y ) ) );
 		}
 
 		return angleToYAxis;
@@ -229,7 +218,7 @@ public class DrosophilaRegistration
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > blur( RandomAccessibleInterval< T > rai, double sigma )
+	RandomAccessibleInterval< T > createBlurredRai( RandomAccessibleInterval< T > rai, double sigma )
 	{
 		ImgFactory< T > imgFactory = new ArrayImgFactory( rai.randomAccess().get()  );
 
@@ -243,14 +232,14 @@ public class DrosophilaRegistration
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > computeAverageProjection( RandomAccessibleInterval< T > rai, int d, long min, long max )
+	RandomAccessibleInterval< T > createAverageProjection( RandomAccessibleInterval< T > rai, int d, long min, long max )
 	{
 		Projection< T > projection = new Projection< T >(  rai, d,  new FinalInterval( new long[]{ min },  new long[]{ max } ) );
 		return projection.average();
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > alignToEllipsoid( RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters, double[] calibration )
+	RandomAccessibleInterval< T > createEllipsoidAlignedView( RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters )
 	{
 
 		AffineTransform3D translation = new AffineTransform3D();
@@ -259,14 +248,10 @@ public class DrosophilaRegistration
 
 		AffineTransform3D rotation = new AffineTransform3D();
 		rotation.rotate( Z, - toRadians( ellipsoidParameters.anglesInDegrees[ PHI ] ) );
-		rotation.rotate( Y, - toRadians( ellipsoidParameters.anglesInDegrees[ PSI ] ) );
-		rotation.rotate( X, - toRadians( ellipsoidParameters.anglesInDegrees[ THETA ] ) );
 
 		AffineTransform3D combinedTransform = translation.preConcatenate( rotation );
 
-		rotation.apply( calibration, calibration );
-
-		final RandomAccessibleInterval transformedRAI = Transforms.createTransformedArrayRaiWithAdjustedBounds( rai, combinedTransform );
+		final RandomAccessibleInterval transformedRAI = Transforms.createTransformedRaiViewWithAdjustedBounds( rai, combinedTransform );
 
 		return transformedRAI;
 
@@ -293,7 +278,8 @@ public class DrosophilaRegistration
 
 	}
 
-	public < T extends RealType< T > > RandomAccessibleInterval< T > registerLongAxisOrientation(
+	public < T extends RealType< T > >
+	RandomAccessibleInterval< T > createLongAxisOrientationRegisteredView(
 			RandomAccessibleInterval< T > rai, int longAxisDimension, int derivativeDelta,
 			boolean showPlots )
 	{
@@ -319,7 +305,7 @@ public class DrosophilaRegistration
 			AffineTransform3D affineTransform3D = new AffineTransform3D();
 			affineTransform3D.rotate( Z, toRadians( 180.0D ) );
 
-			final RandomAccessible transformedRA = Transforms.createTransformedRA( rai, affineTransform3D );
+			final RandomAccessible transformedRA = Transforms.getTransformedRaView( rai, affineTransform3D );
 
 			return Views.interval( transformedRA, rai );
 		}
@@ -417,11 +403,10 @@ public class DrosophilaRegistration
 
 			double intensityCorrectionFactor = getIntensityCorrectionFactorAlongZ( z, zScalingInMicrometer );
 
-			System.out.println( z + "," + intensityCorrectionFactor );
+//			System.out.println( z + "," + intensityCorrectionFactor );
 
 			Views.iterable( slice ).forEach( t -> t.mul( intensityCorrectionFactor )  );
 
-			int a = 1;
 		}
 
 	}
