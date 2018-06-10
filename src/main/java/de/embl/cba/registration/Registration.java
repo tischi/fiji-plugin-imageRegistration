@@ -106,7 +106,7 @@ public class Registration< R extends RealType< R > & NativeType < R >, T extends
     private void initializeTransforms()
     {
         transformations = new HashMap<>(  );
-        transformations.put( axes.sequenceMin(), (T) Transforms.identityAffineTransformation( axes.numRegistrationDimensions() ) );
+        transformations.put( axes.sequenceMin(), (T) Transforms.createIdentityAffineTransformation( axes.numRegistrationDimensions() ) );
         transformationInfos = new HashMap<>(  );
         transformationInfos.put( axes.sequenceMin(), "Reference => no transformation." );
     }
