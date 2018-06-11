@@ -375,7 +375,7 @@ public class RegistrationPlugin<T extends RealType<T>> extends DynamicCommand im
     public void run()
     {
         // do nothing
-        // the plugin is executed via a callback to computeRegistration()
+        // the plugin is executed via a callback to compute()
     }
 
     private void intervalChanged()

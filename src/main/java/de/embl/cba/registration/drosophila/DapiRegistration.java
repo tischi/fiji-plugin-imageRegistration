@@ -1,4 +1,4 @@
-package de.embl.cba.registration.commands;
+package de.embl.cba.registration.drosophila;
 
 
 import de.embl.cba.registration.algorithm.Algorithms;
@@ -40,107 +40,82 @@ import static de.embl.cba.registration.utils.Constants.*;
 import static de.embl.cba.registration.utils.Transforms.createArrayCopy;
 import static java.lang.Math.*;
 
-public class DrosophilaRegistration
+public class DapiRegistration
 {
+	final DapiRegistrationSettings settings;
 
-
-	// https://github.com/ijpb/MorphoLibJ/blob/master/src/main/java/inra/ijpb/measure/GeometricMeasures3D.java#L41
-	// Jama
-
-//
-//		DatasetService datasetService = imagej.dataset();
-//		UIService uiService = imagej.ui();
-
-
-	public  < T extends RealType< T >  & NativeType < T > > void sandbox() throws IOException
+	public DapiRegistration( DapiRegistrationSettings settings )
 	{
+		this.settings = settings;
+	}
 
-//		String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/crocker-7-2-scale0.25-rot_z_60.zip";
-		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-2 rotated.tif";
-//		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 6-3 Dapi iso1um.tif";
-//		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif";
-
-		double threshold = 10.0D;
-		double resolutionDuringRegistrationInMicrometer = 4;
-		double finalResolutionInMicrometer = 1.0;
-		boolean showIntermediateResults = true;
-
-		double refractiveIndexMismatchCorrectionFactor = 1.6;
-
-		int derivativeDelta = (int) ( 20 / resolutionDuringRegistrationInMicrometer);
-		long projectionRangeMin = (int) ( +20 / resolutionDuringRegistrationInMicrometer);
-		long projectionRangeMax = (int) ( +80 / resolutionDuringRegistrationInMicrometer);
-		int sigmaForBlurringAverageProjection = (int) ( 20 / resolutionDuringRegistrationInMicrometer );
+	public < T extends RealType< T > & NativeType< T > >
+	AffineTransform3D compute( RandomAccessibleInterval< T > dapiRaw, double[] calibration  ) throws IOException
+	{
 
 		AffineTransform3D registration = new AffineTransform3D();
 
-		ImageJ imagej = new ImageJ();
-		imagej.ui().showUI();
-		DatasetIOService datasetIOService = imagej.scifio().datasetIO();
+		if ( settings.showIntermediateResults ) show( dapiRaw, "raw input data", null, calibration, false );
 
-		Dataset dataset = datasetIOService.open( path );
+		correctCalibrationForRefractiveIndexMismatch( calibration, settings.refractiveIndexCorrectionAxialScalingFactor );
 
-		double[] calibration = getCalibration( dataset );
+		if ( settings.showIntermediateResults ) show( dapiRaw, "calibration corrected view on raw input data", null, calibration, false );
 
-		final RandomAccessibleInterval< T > dapiRaw = createDapiChannelCopy( dataset );
-
-		if ( showIntermediateResults ) show( dapiRaw, "raw input data", null, calibration, false );
-
-		correctCalibrationForRefractiveIndexMismatch( calibration, refractiveIndexMismatchCorrectionFactor );
-
-		if ( showIntermediateResults ) show( dapiRaw, "calibration corrected view on raw input data", null, calibration, false );
-
-		AffineTransform3D scalingToFourMicrometer = getScalingTransform( resolutionDuringRegistrationInMicrometer, calibration );
+		AffineTransform3D scalingToFourMicrometer = getScalingTransform( settings.resolutionDuringRegistrationInMicrometer, calibration );
 
 		final RandomAccessibleInterval< T > binnedView = Transforms.view( dapiRaw, scalingToFourMicrometer );
 
 		final RandomAccessibleInterval< T > binned = createArrayCopy( binnedView );
 
-		calibration = getIsotropicCalibration( resolutionDuringRegistrationInMicrometer );
+		calibration = getIsotropicCalibration( settings.resolutionDuringRegistrationInMicrometer );
 
-		if ( showIntermediateResults ) show( binned, "binned copy ( " + resolutionDuringRegistrationInMicrometer + " um )", null, calibration, false );
+		if ( settings.showIntermediateResults ) show( binned, "binned copy ( " + settings.resolutionDuringRegistrationInMicrometer + " um )", null, calibration, false );
 
 		correctIntensityAlongZ( binned, calibration[ Z ] );
 
-		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( binned, threshold );
+		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( binned, settings.threshold );
 
-		if ( showIntermediateResults ) show( binaryImage, "binary", null, calibration, false );
+		if ( settings.showIntermediateResults ) show( binaryImage, "binary", null, calibration, false );
 
 		final EllipsoidParameters ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
 
 		registration.preConcatenate( createEllipsoidAlignmentTransform( binned, ellipsoidParameters ) );
 
-		if ( showIntermediateResults ) show( Transforms.view( binned, registration ), "ellipsoid aligned", null, calibration, false );
+		if ( settings.showIntermediateResults ) show( Transforms.view( binned, registration ), "ellipsoid aligned", null, calibration, false );
 
-		registration.preConcatenate( createOrientationTransformation( Transforms.view( binned, registration ), X, derivativeDelta, showIntermediateResults ) );
+		registration.preConcatenate( createOrientationTransformation( Transforms.view( binned, registration ), X, settings.derivativeDeltaInMicrometer, settings.showIntermediateResults ) );
 
-		if ( showIntermediateResults ) show( Transforms.view( binned, registration ), "oriented", null, calibration, false );
+		if ( settings.showIntermediateResults ) show( Transforms.view( binned, registration ), "oriented", null, calibration, false );
 
-		final RandomAccessibleInterval< T > longAxisProjection = createAverageProjection( Transforms.view( binned, registration ), X, projectionRangeMin, projectionRangeMax );
+		final RandomAccessibleInterval< T > longAxisProjection = createAverageProjection(
+				Transforms.view( binned, registration ), X,
+				settings.projectionRangeMinDistanceToCenterInMicrometer,
+				settings.projectionRangeMaxDistanceToCenterInMicrometer,
+				settings.resolutionDuringRegistrationInMicrometer);
 
-		if ( showIntermediateResults ) show( longAxisProjection, "perpendicular projection", null, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
+		if ( settings.showIntermediateResults ) show( longAxisProjection, "perpendicular projection", null, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
 
-		final RandomAccessibleInterval< T > blurred = createBlurredRai( longAxisProjection, sigmaForBlurringAverageProjection );
+		final RandomAccessibleInterval< T > blurred = createBlurredRai( longAxisProjection, settings.sigmaForBlurringAverageProjectionInMicrometer );
 
 		final Point maximum = Algorithms.findMaximum( blurred,  new double[]{ calibration[ Y ], calibration[ Z ] });
 		final List< RealPoint > realPoints = asRealPointList( maximum );
 		realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
 
-		if ( showIntermediateResults ) show( blurred, "blurred with zero and max", realPoints, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
+		if ( settings.showIntermediateResults ) show( blurred, "blurred with zero and max", realPoints, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
 
 		registration.preConcatenate( createRollTransform( Transforms.view( binned, registration ), maximum ) );
 
-		if ( showIntermediateResults ) show( Transforms.view( binned, registration ), "registered binned dapi", null, calibration, false );
+		if ( settings.showIntermediateResults ) show( Transforms.view( binned, registration ), "registered binned dapi", null, calibration, false );
 
-		final AffineTransform3D scalingTransform = getScalingTransform( finalResolutionInMicrometer / resolutionDuringRegistrationInMicrometer, new double[]{ 1, 1, 1 } );
+		final AffineTransform3D scalingTransform = getScalingTransform( settings.finalResolutionInMicrometer / settings.resolutionDuringRegistrationInMicrometer, new double[]{ 1, 1, 1 } );
 
 		registration = scalingToFourMicrometer.preConcatenate( registration ).preConcatenate( scalingTransform );
 
- 		show( Transforms.view( dapiRaw, registration ), "registered input ( " + finalResolutionInMicrometer + " um )", asRealPointList( new Point( 0,0,0 ) ), new double[]{ 1, 1, 1 }, false );
+		return registration;
 
 	}
 
-	public AffineTransform3D getScalingTransform( double binning, double[] calibration )
+	private static AffineTransform3D getScalingTransform( double binning, double[] calibration )
 	{
 		double[] downScaling = new double[3];
 
@@ -154,7 +129,7 @@ public class DrosophilaRegistration
 		return scalingTransform;
 	}
 
-	public AffineTransform3D createScalingTransform( double[] calibration )
+	private static AffineTransform3D createScalingTransform( double[] calibration )
 	{
 		AffineTransform3D scaling = new AffineTransform3D();
 
@@ -166,7 +141,7 @@ public class DrosophilaRegistration
 		return scaling;
 	}
 
-	public double[] getIsotropicCalibration( double value )
+	private static double[] getIsotropicCalibration( double value )
 	{
 		double[] calibration = new double[ 3 ];
 		for ( int d : XYZ )
@@ -176,7 +151,7 @@ public class DrosophilaRegistration
 		return calibration;
 	}
 
-	public < T extends RealType< T > & NativeType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	AffineTransform3D createRollTransform( RandomAccessibleInterval< T > rai, Point maximum )
 	{
 		double angleToZAxisInDegrees = getAngleToZAxis( maximum );
@@ -186,7 +161,7 @@ public class DrosophilaRegistration
 		return rollTransform;
 	}
 
-	public double getAngleToZAxis( Point maximum )
+	private static double getAngleToZAxis( Point maximum )
 	{
 		final double angleToYAxis;
 
@@ -202,7 +177,7 @@ public class DrosophilaRegistration
 		return angleToYAxis;
 	}
 
-	public List< RealPoint > asRealPointList( Point maximum )
+	private static List< RealPoint > asRealPointList( Point maximum )
 	{
 		List< RealPoint > realPoints = new ArrayList<>();
 		final double[] doubles = new double[ maximum.numDimensions() ];
@@ -213,7 +188,7 @@ public class DrosophilaRegistration
 	}
 
 
-	public  < T extends RealType< T > & NativeType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	List< RealPoint > computeMaximumLocation( RandomAccessibleInterval< T > blurred, int sigmaForBlurringAverageProjection )
 	{
 		Shape shape = new HyperSphereShape( sigmaForBlurringAverageProjection );
@@ -223,7 +198,7 @@ public class DrosophilaRegistration
 		return points;
 	}
 
-	public < T extends RealType< T > & NativeType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	RandomAccessibleInterval< T > createBlurredRai( RandomAccessibleInterval< T > rai, double sigma )
 	{
 		ImgFactory< T > imgFactory = new ArrayImgFactory( rai.randomAccess().get()  );
@@ -237,14 +212,15 @@ public class DrosophilaRegistration
 		return blurred;
 	}
 
-	public < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > createAverageProjection( RandomAccessibleInterval< T > rai, int d, long min, long max )
+	private static < T extends RealType< T > & NativeType< T > >
+	RandomAccessibleInterval< T > createAverageProjection(
+			RandomAccessibleInterval< T > rai, int d, double min, double max, double scaling )
 	{
-		Projection< T > projection = new Projection< T >(  rai, d,  new FinalInterval( new long[]{ min },  new long[]{ max } ) );
+		Projection< T > projection = new Projection< T >(  rai, d,  new FinalInterval( new long[]{ (long) ( min / scaling) },  new long[]{ (long) ( max / scaling ) } ) );
 		return projection.average();
 	}
 
-	public < T extends RealType< T > & NativeType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	AffineTransform3D createEllipsoidAlignmentTransform( RandomAccessibleInterval< T > rai, EllipsoidParameters ellipsoidParameters )
 	{
 
@@ -263,7 +239,7 @@ public class DrosophilaRegistration
 
 	}
 
-	public < T extends RealType< T > > RandomAccessibleInterval< BitType > createBinaryImage(
+	private static < T extends RealType< T > & NativeType< T > > RandomAccessibleInterval< BitType > createBinaryImage(
 			RandomAccessibleInterval< T > input, double doubleThreshold )
 	{
 		final ArrayImg< BitType, LongArray > binaryImage = ArrayImgs.bits( Intervals.dimensionsAsLongArray( input ) );
@@ -284,7 +260,7 @@ public class DrosophilaRegistration
 
 	}
 
-	public < T extends RealType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	AffineTransform3D createOrientationTransformation(
 			RandomAccessibleInterval< T > rai, int longAxisDimension, int derivativeDelta,
 			boolean showPlots )
@@ -320,7 +296,7 @@ public class DrosophilaRegistration
 
 	}
 
-	public < T extends RealType< T > > void computeAverageIntensitiesInPlanesPerpendicularToLongAxis(
+	private static < T extends RealType< T > & NativeType< T > > void computeAverageIntensitiesInPlanesPerpendicularToLongAxis(
 			RandomAccessibleInterval< T > rai, int longAxisDimension,double[] averages, double[] coordinates )
 	{
 		for ( long coordinate = rai.min( longAxisDimension ), i = 0; coordinate <= rai.max( longAxisDimension ); ++coordinate, ++i )
@@ -333,7 +309,7 @@ public class DrosophilaRegistration
 
 
 
-	public double[] computeAbsoluteDerivatives( double[] values, int di )
+	private static double[] computeAbsoluteDerivatives( double[] values, int di )
 	{
 		double[ ] derivatives = new double[ values.length ];
 
@@ -346,7 +322,7 @@ public class DrosophilaRegistration
 	}
 
 
-	public double computeMaxLoc( double[] coordinates, double[] values )
+	private static double computeMaxLoc( double[] coordinates, double[] values )
 	{
 		double max = Double.MIN_VALUE;
 		double maxLoc = coordinates[ 0 ];
@@ -364,12 +340,7 @@ public class DrosophilaRegistration
 	}
 
 
-	public < T extends RealType< T > > RandomAccessibleInterval< T > createDapiChannelCopy( Dataset dataset )
-	{
-		return (RandomAccessibleInterval< T >) dataset.getImgPlus().copy();
-	}
-
-	public static double[] getCalibration( Dataset dataset )
+	private static double[] getCalibration( Dataset dataset )
 	{
 		double[] scalings = new double[ 3 ];
 
@@ -382,7 +353,7 @@ public class DrosophilaRegistration
 		return scalings;
 	}
 
-	public static void correctCalibrationForSubSampling( double[] calibration, int subSampling )
+	private static void correctCalibrationForSubSampling( double[] calibration, int subSampling )
 	{
 		for ( int d : XYZ )
 		{
@@ -390,14 +361,14 @@ public class DrosophilaRegistration
 		}
 	}
 
-	public static void correctCalibrationForRefractiveIndexMismatch( double[] calibration, double correctionFactor )
+	private static void correctCalibrationForRefractiveIndexMismatch( double[] calibration, double correctionFactor )
 	{
 		calibration[ Z ] *= correctionFactor;
 	}
 
 
 
-	public < T extends RealType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	void correctIntensityAlongZ( RandomAccessibleInterval< T > rai, double zScalingInMicrometer )
 	{
 
@@ -416,7 +387,7 @@ public class DrosophilaRegistration
 	}
 
 
-	public static < T extends RealType< T > >
+	private static < T extends RealType< T > & NativeType< T > >
 	double computeAverage( final RandomAccessibleInterval< T > rai )
 	{
 		final Cursor< T > cursor = Views.iterable( rai ).cursor();
@@ -434,7 +405,7 @@ public class DrosophilaRegistration
 	}
 
 
-	public double getIntensityCorrectionFactorAlongZ( long z, double zScalingInMicrometer )
+	private static double getIntensityCorrectionFactorAlongZ( long z, double zScalingInMicrometer )
 	{
 
 		/*
@@ -470,10 +441,37 @@ public class DrosophilaRegistration
 	}
 
 
-	public static void main( String... args ) throws IOException
+	public static < T extends RealType< T > & NativeType< T > >
+	void main( String... args ) throws IOException
 	{
-		DrosophilaRegistration registration = new DrosophilaRegistration();
-		registration.sandbox();
+		//		String path = "/Users/tischer/Documents/fiji-plugin-imageRegistration/src/test/resources/crocker-7-2-scale0.25-rot_z_60.zip";
+		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 7-2 rotated.tif";
+//		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 6-3 Dapi iso1um.tif";
+//		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif";
+
+		ImageJ imagej = new ImageJ();
+		imagej.ui().showUI();
+
+		DatasetIOService datasetIOService = imagej.scifio().datasetIO();
+
+		Dataset dataset = datasetIOService.open( path );
+
+		double[] calibration = getCalibration( dataset );
+
+		final RandomAccessibleInterval< T > dapiRaw = (RandomAccessibleInterval< T >) dataset.getImgPlus().copy();
+
+
+		DapiRegistrationSettings settings = new DapiRegistrationSettings();
+
+		settings.showIntermediateResults = true;
+
+		DapiRegistration registration = new DapiRegistration( settings );
+
+		final AffineTransform3D registrationTransform = registration.compute( dapiRaw, calibration );
+
+		show( Transforms.view( dapiRaw, registrationTransform ), "registered input ( " + settings.finalResolutionInMicrometer + " um )", asRealPointList( new Point( 0,0,0 ) ), new double[]{ 1, 1, 1 }, false );
+
+
 	}
 
 

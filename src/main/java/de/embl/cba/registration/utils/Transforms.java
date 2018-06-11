@@ -45,7 +45,7 @@ public abstract class Transforms < T extends InvertibleRealTransform & Concatena
     }
 
 
-    public static < T extends RealType< T > & NativeType< T > >
+    public static < T extends RealType< T > >
     RandomAccessibleInterval view( RandomAccessibleInterval< T > rai,
 								   InvertibleRealTransform combinedTransform )
 	{
@@ -57,9 +57,10 @@ public abstract class Transforms < T extends InvertibleRealTransform & Concatena
 
 	}
 
-	public static < T extends RealType< T > & NativeType< T > > RandomAccessibleInterval< T > createArrayCopy( RandomAccessibleInterval< T > rai )
+	public static < T extends RealType< T > & NativeType< T > >
+	RandomAccessibleInterval< T > createArrayCopy( RandomAccessibleInterval< T > rai )
 	{
-		RandomAccessibleInterval< T > copy = new ArrayImgFactory<>( rai.randomAccess().get() ).create( rai );
+		RandomAccessibleInterval< T > copy = new ArrayImgFactory( rai.randomAccess().get() ).create( rai );
 		copy = adjustOrigin( rai, copy );
 
 		final Cursor< T > out = Views.iterable( copy ).localizingCursor();
@@ -75,7 +76,7 @@ public abstract class Transforms < T extends InvertibleRealTransform & Concatena
 		return copy;
 	}
 
-	public static < T extends RealType< T > & NativeType< T > > RandomAccessibleInterval< T > adjustOrigin( RandomAccessibleInterval< T > rai, RandomAccessibleInterval< T > copy )
+	public static < T extends RealType< T > > RandomAccessibleInterval< T > adjustOrigin( RandomAccessibleInterval< T > rai, RandomAccessibleInterval< T > copy )
 	{
 		long[] offset = new long[ rai.numDimensions() ];
 		rai.min( offset );
