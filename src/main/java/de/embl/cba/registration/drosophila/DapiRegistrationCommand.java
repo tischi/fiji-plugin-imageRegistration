@@ -1,21 +1,19 @@
 package de.embl.cba.registration.drosophila;
 
-import de.embl.cba.registration.bdv.BdvImageViewer;
+import bdv.util.*;
 import de.embl.cba.registration.utils.ImagePlusUtils;
 import de.embl.cba.registration.utils.Transforms;
-import de.embl.cba.registration.utils.ViewsUtils;
 import ij.IJ;
 import ij.ImagePlus;
 import net.imagej.DatasetService;
 import net.imagej.ImageJ;
 import net.imagej.ops.OpService;
-import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.RealPoint;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.view.Views;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -27,13 +25,15 @@ import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 
+import java.util.ArrayList;
+
 
 @Plugin(type = Command.class, menuPath = "Plugins>Registration>EMBL>Drosophila Dapi", initializer = "init" )
 public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > implements Command, Interactive
 {
-
-	@Parameter( required = true )
-	public ImagePlus imagePlus;
+	//
+	// Services
+	//
 
 	@Parameter
 	public UIService uiService;
@@ -52,6 +52,13 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 
 	@Parameter
 	public StatusService statusService;
+
+	//
+	// Images
+	//
+
+	@Parameter
+	public ImagePlus imagePlus;
 
 	//
 	// Settings
@@ -89,14 +96,19 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 	@Parameter
 	public double sigmaForBlurringAverageProjectionInMicrometer = settings.sigmaForBlurringAverageProjectionInMicrometer;
 
+	//
+	// Buttons
+	//
 
 	@Parameter(label = "Run", callback = "execute")
 	private Button runButton;
+
 	//
 	// Constants
 	//
 
 	private int imagePlusChannelDimension = 2;
+
 
 	public void run()
 	{
@@ -129,16 +141,26 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 
 		final AffineTransform3D registrationTransform = dapiRegistration.compute( dapiChannel, ImagePlusUtils.getCalibration( imagePlus ) );
 
+		ArrayList< RandomAccessibleInterval< T > > transformedChannels = new ArrayList<>(  );
+
 		for ( int c = 0; c < allChannels.dimension( imagePlusChannelDimension ); ++c )
 		{
 			final RandomAccessibleInterval< T > channel = Views.hyperSlice( allChannels, imagePlusChannelDimension, c );
-			RandomAccessibleInterval< T >  transformedChannel = Transforms.view( channel, registrationTransform );
-			transformedChannel = ViewsUtils.insertDimension( transformedChannel, 2 );
-			final ImagePlus channelImp = ImageJFunctions.wrap( transformedChannel,"channel " + ( c + 1 ) );
-			IJ.run( channelImp, "Properties...", "unit=micrometer pixel_width="+finalResolutionInMicrometer+" pixel_height="+finalResolutionInMicrometer+" voxel_depth="+finalResolutionInMicrometer);
-			channelImp.show();
+			transformedChannels.add( Transforms.view( channel, registrationTransform ) );
 		}
 
+		RandomAccessibleInterval< T > stack = Views.stack( transformedChannels );
+//		transformedChannel = ViewsUtils.insertDimension( transformedChannel, 2 );
+//		final ImagePlus channelImp = ImageJFunctions.wrap( transformedChannel,"channel " + ( c + 1 ) );
+//		IJ.run( channelImp, "Properties...", "unit=micrometer pixel_width="+finalResolutionInMicrometer+" pixel_height="+finalResolutionInMicrometer+" voxel_depth="+finalResolutionInMicrometer);
+//		channelImp.show();
+
+		Bdv bdv = BdvFunctions.show( stack, "registered", BdvOptions.options().axisOrder( AxisOrder.XYZC ) );
+		final ArrayList< RealPoint > points = new ArrayList<>();
+		points.add( new RealPoint( new double[]{0,0,0} ));
+		BdvFunctions.showPoints( points, "origin", BdvOptions.options().addTo( bdv ) );
+		ImageJFunctions.show( Views.permute( stack, 2, 3 ) );
+		
 	}
 
 	public static void main(final String... args) throws Exception
