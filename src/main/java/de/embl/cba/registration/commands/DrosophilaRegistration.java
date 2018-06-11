@@ -22,7 +22,6 @@ import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.basictypeaccess.array.LongArray;
 import net.imglib2.loops.LoopBuilder;
 import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.realtransform.Scale;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
@@ -62,15 +61,16 @@ public class DrosophilaRegistration
 //		String path = "/Users/tischer/Documents/justin-crocker-drosophila-registration--data/processed_images/Image 4-3 Dapi iso1um.tif";
 
 		double threshold = 10.0D;
-		int binning = 4;
-		boolean showPlots = true;
+		double resolutionDuringRegistrationInMicrometer = 4;
+		double finalResolutionInMicrometer = 1.0;
+		boolean showIntermediateResults = true;
 
 		double refractiveIndexMismatchCorrectionFactor = 1.6;
 
-		int derivativeDelta = 20 / binning;
-		long projectionRangeMin = +20 / binning ;
-		long projectionRangeMax = +80 / binning;
-		int sigmaForBlurringAverageProjection = 20 / binning ;
+		int derivativeDelta = (int) ( 20 / resolutionDuringRegistrationInMicrometer);
+		long projectionRangeMin = (int) ( +20 / resolutionDuringRegistrationInMicrometer);
+		long projectionRangeMax = (int) ( +80 / resolutionDuringRegistrationInMicrometer);
+		int sigmaForBlurringAverageProjection = (int) ( 20 / resolutionDuringRegistrationInMicrometer );
 
 		AffineTransform3D registration = new AffineTransform3D();
 
@@ -84,67 +84,63 @@ public class DrosophilaRegistration
 
 		final RandomAccessibleInterval< T > dapiRaw = createDapiChannelCopy( dataset );
 
-		show( dapiRaw, "raw input data", calibration );
+		if ( showIntermediateResults ) show( dapiRaw, "raw input data", null, calibration, false );
 
 		correctCalibrationForRefractiveIndexMismatch( calibration, refractiveIndexMismatchCorrectionFactor );
 
-		show( dapiRaw, "calibration corrected view on raw input data", calibration );
+		if ( showIntermediateResults ) show( dapiRaw, "calibration corrected view on raw input data", null, calibration, false );
 
-		AffineTransform3D scaling = getBinningTransform( binning, calibration );
+		AffineTransform3D scalingToFourMicrometer = getScalingTransform( resolutionDuringRegistrationInMicrometer, calibration );
 
-		final RandomAccessibleInterval< T > binnedView = Transforms.view( dapiRaw, scaling );
+		final RandomAccessibleInterval< T > binnedView = Transforms.view( dapiRaw, scalingToFourMicrometer );
 
 		final RandomAccessibleInterval< T > binned = createArrayCopy( binnedView );
 
-		setCalibrationAfterBinning( calibration, binning );
+		calibration = getIsotropicCalibration( resolutionDuringRegistrationInMicrometer );
 
-		show( binned, "binned to " + binning + " um voxel size", calibration );
+		if ( showIntermediateResults ) show( binned, "binned copy ( " + resolutionDuringRegistrationInMicrometer + " um )", null, calibration, false );
 
 		correctIntensityAlongZ( binned, calibration[ Z ] );
 
 		final RandomAccessibleInterval< BitType > binaryImage = createBinaryImage( binned, threshold );
 
-		show( binaryImage, "binary", calibration );
+		if ( showIntermediateResults ) show( binaryImage, "binary", null, calibration, false );
 
 		final EllipsoidParameters ellipsoidParameters = EllipsoidParameterComputer.compute( binaryImage );
 
 		registration.preConcatenate( createEllipsoidAlignmentTransform( binned, ellipsoidParameters ) );
 
-		show( Transforms.view( binned, registration ), "ellipsoid aligned", calibration );
+		if ( showIntermediateResults ) show( Transforms.view( binned, registration ), "ellipsoid aligned", null, calibration, false );
 
-		registration.preConcatenate( createOrientationTransformation( Transforms.view( binned, registration ), X, derivativeDelta, showPlots ) );
+		registration.preConcatenate( createOrientationTransformation( Transforms.view( binned, registration ), X, derivativeDelta, showIntermediateResults ) );
 
-		show( Transforms.view( binned, registration ), "oriented", calibration );
+		if ( showIntermediateResults ) show( Transforms.view( binned, registration ), "oriented", null, calibration, false );
 
 		final RandomAccessibleInterval< T > longAxisProjection = createAverageProjection( Transforms.view( binned, registration ), X, projectionRangeMin, projectionRangeMax );
 
-		show( longAxisProjection, "perpendicular projection", new double[]{ calibration[ Y ], calibration[ Z ] } );
+		if ( showIntermediateResults ) show( longAxisProjection, "perpendicular projection", null, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
 
 		final RandomAccessibleInterval< T > blurred = createBlurredRai( longAxisProjection, sigmaForBlurringAverageProjection );
 
-		final Point maximum = Algorithms.findMaximum( blurred );
+		final Point maximum = Algorithms.findMaximum( blurred,  new double[]{ calibration[ Y ], calibration[ Z ] });
+		final List< RealPoint > realPoints = asRealPointList( maximum );
+		realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
 
-		showWithPointOverlay( blurred, maximum );
+		if ( showIntermediateResults ) show( blurred, "blurred with zero and max", realPoints, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
 
 		registration.preConcatenate( createRollTransform( Transforms.view( binned, registration ), maximum ) );
 
-		show( Transforms.view( binned, registration ), "registered", calibration );
+		if ( showIntermediateResults ) show( Transforms.view( binned, registration ), "registered binned dapi", null, calibration, false );
 
-		scaling.preConcatenate( registration );
+		final AffineTransform3D scalingTransform = getScalingTransform( finalResolutionInMicrometer / resolutionDuringRegistrationInMicrometer, new double[]{ 1, 1, 1 } );
 
-		show( Transforms.view( dapiRaw, scaling ), "registered", calibration );
+		registration = scalingToFourMicrometer.preConcatenate( registration ).preConcatenate( scalingTransform );
+
+ 		show( Transforms.view( dapiRaw, registration ), "registered input ( " + finalResolutionInMicrometer + " um )", asRealPointList( new Point( 0,0,0 ) ), new double[]{ 1, 1, 1 }, false );
 
 	}
 
-	public < T extends RealType< T > & NativeType< T > > void showWithPointOverlay( RandomAccessibleInterval< T > blurred, Point maximum )
-	{
-		// show
-		final List< RealPoint > realPoints = asRealPointList( maximum );
-		realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
-		show( blurred, realPoints, false );
-	}
-
-	public AffineTransform3D getBinningTransform( int binning, double[] calibration )
+	public AffineTransform3D getScalingTransform( double binning, double[] calibration )
 	{
 		double[] downScaling = new double[3];
 
@@ -170,9 +166,14 @@ public class DrosophilaRegistration
 		return scaling;
 	}
 
-	public void setCalibrationAfterBinning( double[] calibration, double value )
+	public double[] getIsotropicCalibration( double value )
 	{
-		for ( int d : XYZ ) calibration[ d ] = value;
+		double[] calibration = new double[ 3 ];
+		for ( int d : XYZ )
+		{
+			calibration[ d ] = value;
+		}
+		return calibration;
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
