@@ -50,7 +50,7 @@ public class DapiRegistration
 	}
 
 	public < T extends RealType< T > & NativeType< T > >
-	AffineTransform3D compute( RandomAccessibleInterval< T > dapiRaw, double[] calibration  ) throws IOException
+	AffineTransform3D compute( RandomAccessibleInterval< T > dapiRaw, double[] calibration  )
 	{
 
 		AffineTransform3D registration = new AffineTransform3D();
@@ -61,9 +61,9 @@ public class DapiRegistration
 
 		if ( settings.showIntermediateResults ) show( dapiRaw, "calibration corrected view on raw input data", null, calibration, false );
 
-		AffineTransform3D scalingToFourMicrometer = getScalingTransform( settings.resolutionDuringRegistrationInMicrometer, calibration );
+		AffineTransform3D scalingToRegistrationResolution = getScalingTransform( settings.resolutionDuringRegistrationInMicrometer, calibration );
 
-		final RandomAccessibleInterval< T > binnedView = Transforms.view( dapiRaw, scalingToFourMicrometer );
+		final RandomAccessibleInterval< T > binnedView = Transforms.view( dapiRaw, scalingToRegistrationResolution );
 
 		final RandomAccessibleInterval< T > binned = createArrayCopy( binnedView );
 
@@ -83,7 +83,11 @@ public class DapiRegistration
 
 		if ( settings.showIntermediateResults ) show( Transforms.view( binned, registration ), "ellipsoid aligned", null, calibration, false );
 
-		registration.preConcatenate( createOrientationTransformation( Transforms.view( binned, registration ), X, settings.derivativeDeltaInMicrometer, settings.showIntermediateResults ) );
+		registration.preConcatenate( createOrientationTransformation(
+				Transforms.view( binned, registration ), X,
+				settings.derivativeDeltaInMicrometer,
+				settings.resolutionDuringRegistrationInMicrometer,
+				settings.showIntermediateResults ) );
 
 		if ( settings.showIntermediateResults ) show( Transforms.view( binned, registration ), "oriented", null, calibration, false );
 
@@ -95,21 +99,24 @@ public class DapiRegistration
 
 		if ( settings.showIntermediateResults ) show( longAxisProjection, "perpendicular projection", null, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
 
-		final RandomAccessibleInterval< T > blurred = createBlurredRai( longAxisProjection, settings.sigmaForBlurringAverageProjectionInMicrometer );
+		final RandomAccessibleInterval< T > blurred = createBlurredRai(
+				longAxisProjection,
+				settings.sigmaForBlurringAverageProjectionInMicrometer,
+				settings.resolutionDuringRegistrationInMicrometer );
 
-		final Point maximum = Algorithms.findMaximum( blurred,  new double[]{ calibration[ Y ], calibration[ Z ] });
+		final Point maximum = Algorithms.findMaximum( blurred, new double[]{ calibration[ Y ], calibration[ Z ] });
 		final List< RealPoint > realPoints = asRealPointList( maximum );
 		realPoints.add( new RealPoint( new double[]{ 0, 0 } ) );
 
-		if ( settings.showIntermediateResults ) show( blurred, "blurred with zero and max", realPoints, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
+		if ( settings.showIntermediateResults ) show( blurred, "perpendicular projection - blurred ", realPoints, new double[]{ calibration[ Y ], calibration[ Z ] }, false );
 
 		registration.preConcatenate( createRollTransform( Transforms.view( binned, registration ), maximum ) );
 
 		if ( settings.showIntermediateResults ) show( Transforms.view( binned, registration ), "registered binned dapi", null, calibration, false );
 
-		final AffineTransform3D scalingTransform = getScalingTransform( settings.finalResolutionInMicrometer / settings.resolutionDuringRegistrationInMicrometer, new double[]{ 1, 1, 1 } );
+		final AffineTransform3D scalingToFinalResolution = getScalingTransform( settings.finalResolutionInMicrometer / settings.resolutionDuringRegistrationInMicrometer, new double[]{ 1, 1, 1 } );
 
-		registration = scalingToFourMicrometer.preConcatenate( registration ).preConcatenate( scalingTransform );
+		registration = scalingToRegistrationResolution.preConcatenate( registration ).preConcatenate( scalingToFinalResolution );
 
 		return registration;
 
@@ -199,7 +206,7 @@ public class DapiRegistration
 	}
 
 	private static < T extends RealType< T > & NativeType< T > >
-	RandomAccessibleInterval< T > createBlurredRai( RandomAccessibleInterval< T > rai, double sigma )
+	RandomAccessibleInterval< T > createBlurredRai( RandomAccessibleInterval< T > rai, double sigma, double scaling )
 	{
 		ImgFactory< T > imgFactory = new ArrayImgFactory( rai.randomAccess().get()  );
 
@@ -207,7 +214,7 @@ public class DapiRegistration
 
 		blurred = Views.translate( blurred, Intervals.minAsLongArray( rai ) );
 
-		Gauss3.gauss( sigma, Views.extendBorder( rai ), blurred ) ;
+		Gauss3.gauss( sigma / scaling, Views.extendBorder( rai ), blurred ) ;
 
 		return blurred;
 	}
@@ -262,7 +269,7 @@ public class DapiRegistration
 
 	private static < T extends RealType< T > & NativeType< T > >
 	AffineTransform3D createOrientationTransformation(
-			RandomAccessibleInterval< T > rai, int longAxisDimension, int derivativeDelta,
+			RandomAccessibleInterval< T > rai, int longAxisDimension, double derivativeDelta, double scaling,
 			boolean showPlots )
 	{
 		double[ ] averages = new double[ (int) rai.dimension( longAxisDimension ) ];
@@ -270,7 +277,7 @@ public class DapiRegistration
 
 		computeAverageIntensitiesInPlanesPerpendicularToLongAxis( rai, longAxisDimension, averages, coordinates );
 
-		double[] absoluteDerivatives = computeAbsoluteDerivatives( averages, derivativeDelta );
+		double[] absoluteDerivatives = computeAbsoluteDerivatives( averages, (int) (derivativeDelta / scaling ));
 
 		double maxLoc = computeMaxLoc( coordinates, absoluteDerivatives );
 
@@ -470,7 +477,6 @@ public class DapiRegistration
 		final AffineTransform3D registrationTransform = registration.compute( dapiRaw, calibration );
 
 		show( Transforms.view( dapiRaw, registrationTransform ), "registered input ( " + settings.finalResolutionInMicrometer + " um )", asRealPointList( new Point( 0,0,0 ) ), new double[]{ 1, 1, 1 }, false );
-
 
 	}
 

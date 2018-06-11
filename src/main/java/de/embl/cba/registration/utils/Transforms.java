@@ -50,8 +50,8 @@ public abstract class Transforms < T extends InvertibleRealTransform & Concatena
 								   InvertibleRealTransform combinedTransform )
 	{
 		final RandomAccessible transformedRA = getTransformedRaView( rai, combinedTransform );
-		final FinalInterval transformedBounds = createTransformedInterval( rai, combinedTransform );
-		final RandomAccessibleInterval< T > transformedIntervalView = Views.interval( transformedRA, transformedBounds );
+		final FinalInterval transformedInterval = createTransformedInterval( rai, combinedTransform );
+		final RandomAccessibleInterval< T > transformedIntervalView = Views.interval( transformedRA, transformedInterval );
 
 		return transformedIntervalView;
 
