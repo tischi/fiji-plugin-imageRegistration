@@ -154,7 +154,7 @@ public class ProSPrLegend extends JPanel implements ActionListener
 
         //Create and set up the window.
         frame = new JFrame( "" );
-        frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        frame.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
 
         //Create and set up the content pane.
         setOpaque( true ); //content panes must be opaque

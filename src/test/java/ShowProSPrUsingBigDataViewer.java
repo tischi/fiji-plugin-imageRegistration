@@ -61,7 +61,6 @@ public class ShowProSPrUsingBigDataViewer< T extends InvertibleRealTransform & C
 
         final String xmlFilename = "/Users/tischer/Documents/detlev-arendt-clem-registration/data/em-raw-500nm.xml";
         final SpimData spimData = new XmlIoSpimData().load( xmlFilename );
-
         RandomAccessibleInterval< ? > image = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( 0 ).getImage( 0 );
 
         /*

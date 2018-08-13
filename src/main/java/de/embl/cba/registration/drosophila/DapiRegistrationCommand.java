@@ -16,20 +16,18 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 import org.scijava.app.StatusService;
-import org.scijava.command.Command;
-import org.scijava.command.Interactive;
+import org.scijava.command.InteractiveCommand;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 
 import java.util.ArrayList;
 
 
-@Plugin(type = Command.class, menuPath = "Plugins>Registration>EMBL>Drosophila Dapi", initializer = "init" )
-public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > implements Command, Interactive
+@Plugin(type = InteractiveCommand.class, menuPath = "Plugins>Registration>EMBL>Drosophila Dapi" )
+public class DapiRegistrationCommand <T extends RealType<T> & NativeType< T > > extends InteractiveCommand
 {
 	//
 	// Services
@@ -44,8 +42,8 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 	@Parameter
 	public LogService logService;
 
-	@Parameter
-	public ThreadService threadService;
+//	@Parameter
+//	public ThreadService threadService;
 
 	@Parameter
 	public OpService opService;
@@ -112,13 +110,13 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 
 	public void run()
 	{
-
+		System.out.println( "Test" );
 	}
 
-	public void init()
-	{
-
-	}
+//	public void init()
+//	{
+//
+//	}
 
 	public void execute()
 	{
@@ -139,7 +137,7 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 
 		DapiRegistration dapiRegistration = new DapiRegistration( settings );
 
-		final AffineTransform3D registrationTransform = dapiRegistration.compute( dapiChannel, ImagePlusUtils.getCalibration( imagePlus ) );
+		final AffineTransform3D registrationTransform = dapiRegistration.computeRegistration( dapiChannel, ImagePlusUtils.getCalibration( imagePlus ) );
 
 		ArrayList< RandomAccessibleInterval< T > > transformedChannels = new ArrayList<>(  );
 
@@ -160,7 +158,7 @@ public class DapiRegistrationCommand<T extends RealType<T> & NativeType< T > > i
 		points.add( new RealPoint( new double[]{0,0,0} ));
 		BdvFunctions.showPoints( points, "origin", BdvOptions.options().addTo( bdv ) );
 		ImageJFunctions.show( Views.permute( stack, 2, 3 ) );
-		
+
 	}
 
 	public static void main(final String... args) throws Exception

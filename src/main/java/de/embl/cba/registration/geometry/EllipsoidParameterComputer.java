@@ -112,7 +112,7 @@ public class EllipsoidParameterComputer
 
 	public static Matrix getMomentsMatrix( double[] moments )
 	{
-		// compute compute parameters for each region
+		// computeRegistration computeRegistration parameters for each region
 		Matrix matrix = new Matrix( 3, 3 );
 
 		for ( int d : XYZ )

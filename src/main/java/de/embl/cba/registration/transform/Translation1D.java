@@ -45,7 +45,7 @@ import net.imglib2.realtransform.AbstractTranslation;
 import net.imglib2.realtransform.TranslationGet;
 
 /**
- * 2-dimensional translation.
+ * 1-dimensional translation.
  *
  * @author Stephan Saalfeld, Christian Tischer
  */

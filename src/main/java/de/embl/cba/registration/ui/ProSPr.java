@@ -1,5 +1,7 @@
 package de.embl.cba.registration.ui;
 
+import bdv.img.imaris.Imaris;
+import bdv.spimdata.SpimDataMinimal;
 import bdv.util.*;
 import bdv.viewer.Interpolation;
 import de.embl.cba.registration.prospr.ProSPrRegistration;
@@ -9,11 +11,18 @@ import ij.gui.GenericDialog;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.XmlIoSpimData;
+import mpicbg.spim.data.generic.sequence.BasicViewSetup;
+import mpicbg.spim.data.registration.ViewTransform;
+import mpicbg.spim.data.registration.ViewTransformAffine;
+import mpicbg.spim.data.sequence.FinalVoxelDimensions;
+import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.ImageJ;
+import net.imglib2.Dimensions;
 import net.imglib2.RealPoint;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.realtransform.Scale;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.util.Util;
 import org.scijava.command.Command;
@@ -29,18 +38,19 @@ import org.scijava.ui.behaviour.util.Behaviours;
 import org.scijava.ui.behaviour.util.TriggerBehaviourBindings;
 import org.scijava.widget.Button;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
 @Plugin(type = Command.class, menuPath = "Plugins>Registration>EMBL>ProSPr", initializer = "init")
 public class ProSPr extends DynamicCommand implements Interactive
 {
-    private static final String DATA_SOURCE_SUFFIX = ".xml";
+    private static final String BDV_XML_SUFFIX = ".xml";
+    private static final String IMARIS_SUFFIX = ".ims";
     private static final double PROSPR_SCALING_IN_MICROMETER = 0.5;
-    private static final String EM_RAW_FILE_ID = "em-raw";
+    private static final String EM_RAW_FILE_ID =  "em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //
     private static final String EM_SEGMENTED_FILE_ID = "em-segmented";
     private static final String SELECTION_UI = "Genes";
     private static final Color DEFAULT_GENE_COLOR = new Color( 255, 0, 255, 255 );
@@ -59,8 +69,6 @@ public class ProSPr extends DynamicCommand implements Interactive
     String emRawDataID;
     AffineTransform3D emRawDataTransform;
     ProSPrLegend legend;
-
-
 
 
     public void init()
@@ -183,7 +191,7 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         if ( dataSource.bdvSource == null )
         {
-            switch ( DATA_SOURCE_SUFFIX )
+            switch ( BDV_XML_SUFFIX )
             {
                 case ".tif":
                     addSourceFromTiffFile( dataSourceName );
@@ -192,7 +200,7 @@ public class ProSPr extends DynamicCommand implements Interactive
                     loadAndShowSourceInBdv( dataSourceName );
                     break;
                 default:
-                    logService.error( "Unsupported format: " + DATA_SOURCE_SUFFIX );
+                    logService.error( "Unsupported format: " + BDV_XML_SUFFIX );
             }
         }
 
@@ -240,33 +248,58 @@ public class ProSPr extends DynamicCommand implements Interactive
     private void loadAndShowSourceInBdv( String dataSourceName )
     {
 
-        ProSPrDataSource dataSource = dataSourcesMap.get( dataSourceName );
+        ProSPrDataSource source = dataSourcesMap.get( dataSourceName );
 
-        if ( dataSource.spimData == null )
+        if ( source.isSpimDataMinimal )
         {
-            dataSource.spimData = openSpimData( dataSource.file );
+            setNames( dataSourceName, source );
+
+            source.bdvSource = BdvFunctions.show( source.spimDataMinimal, BdvOptions.options().addTo( bdv ) ).get( 0 );
+            source.bdvSource.setColor( asArgbType( source.color ) );
+            source.bdvSource.setDisplayRange( 0.0, source.maxLutValue );
+
+            bdv = source.bdvSource.getBdvHandle();
         }
+        else
+        {
+            if ( source.spimData == null )
+            {
+                // spimData can be null for the fluorescence data, which is only initialized on demand
+                source.spimData = openSpimData( source.file );
+            }
 
-        setNames( dataSourceName, dataSource );
+            setNames( dataSourceName, source );
 
-        dataSource.bdvSource = BdvFunctions.show( dataSource.spimData, BdvOptions.options().addTo( bdv ) ).get( 0 );
+            source.bdvSource = BdvFunctions.show( source.spimData, BdvOptions.options().addTo( bdv ) ).get( 0 );
 
-        dataSource.bdvSource.setColor( asArgbType( dataSource.color ) );
-        dataSource.bdvSource.setDisplayRange( 0.0, dataSource.maxLutValue );
+            source.bdvSource.setColor( asArgbType( source.color ) );
+            source.bdvSource.setDisplayRange( 0.0, source.maxLutValue );
 
-        bdv = dataSource.bdvSource.getBdvHandle();
+            bdv = source.bdvSource.getBdvHandle();
+        }
 
     }
 
-    private void setNames( String dataSourceName, ProSPrDataSource dataSource )
+    private void setNames( String name, ProSPrDataSource source )
     {
-        dataSource.spimData.getSequenceDescription()
-                .getViewDescription( 0,0  )
-                .getViewSetup().getChannel().setName( dataSourceName );
 
-        dataSource.spimData.getSequenceDescription()
-                .getViewSetups().get(  0  )
-                .getChannel().setName( dataSourceName );
+        if ( source.isSpimDataMinimal )
+        {
+//            source.spimDataMinimal.getSequenceDescription()
+//                    .getViewSetupsOrdered( ).get( 0 )..setName( name );
+        }
+        else
+        {
+            source.spimData.getSequenceDescription().getViewSetupsOrdered( ).get( 0 ).getChannel().setName( name );
+        }
+
+//        source.spimData.getSequenceDescription()
+//                .getViewDescription( 0,0  )
+//                .getViewSetup().getChannel().setName( name );
+//
+//        source.spimData.getSequenceDescription()
+//                .getViewSetups().get(  0  )
+//                .getChannel().setName( name );
     }
 
 
@@ -306,16 +339,51 @@ public class ProSPr extends DynamicCommand implements Interactive
 
     private SpimData openSpimData( File file )
     {
+
         try
         {
-            SpimData data = new XmlIoSpimData().load( file.toString() );
-            return data;
+            SpimData spimData = new XmlIoSpimData().load( file.toString() );
+            return spimData;
         }
         catch ( SpimDataException e )
         {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private SpimDataMinimal openImaris( File file, double[] calibration )
+    {
+        SpimDataMinimal spimDataMinimal;
+
+        try
+        {
+            spimDataMinimal = Imaris.openIms( file.toString() );
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+            return null;
+        }
+
+        setScale( calibration, spimDataMinimal );
+
+        return spimDataMinimal;
+
+    }
+
+    private void setScale( double[] calibration, SpimDataMinimal spimDataMinimal )
+    {
+        final AffineTransform3D affineTransform3D = new AffineTransform3D();
+        final Scale scale = new Scale( calibration );
+        affineTransform3D.preConcatenate( scale );
+        final ViewTransformAffine calibrationTransform = new ViewTransformAffine( "calibration", affineTransform3D );
+        spimDataMinimal.getViewRegistrations().getViewRegistration( 0,0 ).identity();
+        spimDataMinimal.getViewRegistrations().getViewRegistration( 0,0 ).preconcatenateTransform( calibrationTransform );
+
+        final FinalVoxelDimensions voxelDimensions = new FinalVoxelDimensions( "micrometer", calibration );
+        BasicViewSetup basicViewSetup = new BasicViewSetup(  0, "view", null, voxelDimensions );
+        spimDataMinimal.getSequenceDescription().getViewSetupsOrdered().set( 0, basicViewSetup);
     }
 
     private void createSourceSelectionUI( )
@@ -338,21 +406,28 @@ public class ProSPr extends DynamicCommand implements Interactive
 
         for ( File file : files )
         {
-
-            if ( file.getName().endsWith( DATA_SOURCE_SUFFIX ) )
+            if ( file.getName().endsWith( BDV_XML_SUFFIX ) || file.getName().endsWith( IMARIS_SUFFIX )  )
             {
+                String dataSourceName = getDataSourceName( file );
 
-                String dataSourceName = file.getName().replaceAll( DATA_SOURCE_SUFFIX, "" );;
-
-                ProSPrDataSource dataSource = new ProSPrDataSource();
-                dataSource.file = file;
-                dataSource.maxLutValue = 255;
+                ProSPrDataSource source = new ProSPrDataSource();
+                source.file = file;
+                source.maxLutValue = 255;
 
                 if ( file.getName().contains( EM_RAW_FILE_ID ) || file.getName().contains( EM_SEGMENTED_FILE_ID ) )
                 {
-                    dataSource.spimData = openSpimData( file );
+                    if ( file.getName().endsWith( BDV_XML_SUFFIX ) )
+                    {
+                        source.spimData = openSpimData( file );
+                    }
+                    else if ( file.getName().contains( IMARIS_SUFFIX ) )
+                    {
+                        double[] calibration = new double[] { 0.01, 0.01, 0.025 };
+                        source.spimDataMinimal = openImaris( file, calibration );
+                        source.isSpimDataMinimal = true;
+                    }
 
-                    AffineTransform3D affineTransform3D = ProSPrRegistration.setEmSimilarityTransform( dataSource.spimData );
+                    AffineTransform3D affineTransform3D = ProSPrRegistration.setEmSimilarityTransform( source );
 
                     if ( file.getName().contains( EM_RAW_FILE_ID ) )
                     {
@@ -360,20 +435,35 @@ public class ProSPr extends DynamicCommand implements Interactive
                         emRawDataTransform = affineTransform3D;
                     }
 
-                    dataSource.color = defaultEmColor;
+                    source.color = defaultEmColor;
                 }
                 else // prospr gene
                 {
-                    dataSource.color = DEFAULT_GENE_COLOR;
+                    source.color = DEFAULT_GENE_COLOR;
                 }
 
-                dataSourcesMap.put( dataSourceName, dataSource );
+                dataSourcesMap.put( dataSourceName, source );
 
             }
         }
 
     }
 
+    private String getDataSourceName( File file )
+    {
+        String dataSourceName = null;
+
+        if ( file.getName().endsWith( BDV_XML_SUFFIX ) )
+		{
+			dataSourceName = file.getName().replaceAll( BDV_XML_SUFFIX, "" );
+		}
+		else if ( file.getName().endsWith( IMARIS_SUFFIX ) )
+		{
+			dataSourceName = file.getName().replaceAll( IMARIS_SUFFIX, "" );
+		}
+
+        return dataSourceName;
+    }
 
 
     public static void main( String... args )
