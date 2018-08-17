@@ -2,8 +2,6 @@ package de.embl.cba.registration.prospr;
 
 import bdv.spimdata.SpimDataMinimal;
 import de.embl.cba.registration.ui.ProSPrDataSource;
-import mpicbg.spim.data.SpimData;
-import mpicbg.spim.data.generic.AbstractSpimData;
 import mpicbg.spim.data.registration.ViewRegistration;
 import mpicbg.spim.data.registration.ViewTransform;
 import mpicbg.spim.data.registration.ViewTransformAffine;
@@ -14,24 +12,25 @@ import net.imglib2.realtransform.AffineTransform3D;
 
 public class ProSPrRegistration
 {
-    public static AffineTransform3D getTransformJRotation( ProSPrDataSource source )
+    public static AffineTransform3D getTransformJRotation( )
     {
-
-        AffineTransform3D transformJTransform = new AffineTransform3D(  );
+        AffineTransform3D transformJTransform = new AffineTransform3D();
 
         transformJTransform.set(
                 -0.6427876097,   0.7660444431,   0.0,   0.0,
                 0.0, 0.0, 1.0, 0.0,
                 0.7660444431,  0.6427876097,  0.0, 0.0 );
 
-        FinalRealInterval boundingIntervalAfterTransformation = getBoundsAfterRotation( source, transformJTransform );
+//        FinalRealInterval boundingIntervalAfterTransformation = getBoundsAfterRotation( source, transformJTransform );
 
-        double[] transformJTranslation = new double[]{
-                - boundingIntervalAfterTransformation.realMin( 0 ),
-                - boundingIntervalAfterTransformation.realMin( 1 ) ,
-                - boundingIntervalAfterTransformation.realMin( 2 ) };
+//        double[] transformJTranslation = new double[]{
+//                - boundingIntervalAfterTransformation.realMin( 0 ),
+//                - boundingIntervalAfterTransformation.realMin( 1 ) ,
+//                - boundingIntervalAfterTransformation.realMin( 2 ) };
 
-        transformJTransform.translate( transformJTranslation );
+        double[] transformJTranslationInMicrometer = new double[]{ 176.7, 0.0, 0.0 };
+
+        transformJTransform.translate( transformJTranslationInMicrometer );
 
         return transformJTransform;
     }
@@ -95,23 +94,24 @@ public class ProSPrRegistration
 
     public static AffineTransform3D setEmSimilarityTransform( ProSPrDataSource source )
     {
-        // TODO:
-        // The rotation and similarity transform assume a isotropic data set
-        // - this is not the case for the 10x10x25 nm data set => Maybe I have to make it isotropic by some interpolation?
+        AffineTransform3D emToProsprInMicrometerUnites = getTransformationFromEmToProsprInMicrometerUnites( );
 
-        AffineTransform3D transformJRotation = getTransformJRotation( source );
-
-        AffineTransform3D elastixSimilarityTransform = getEmElastixSimilarityTransform( source );
-
-        AffineTransform3D combinedTransform = getCombinedTransform( transformJRotation, elastixSimilarityTransform );
-
-        AffineTransform3D finalTransform = adaptViewRegistration( source, combinedTransform );
+        AffineTransform3D finalTransform = adaptViewRegistration( source, emToProsprInMicrometerUnites );
 
         return finalTransform;
 
     }
 
-    public static AffineTransform3D adaptViewRegistration( ProSPrDataSource source, AffineTransform3D transform )
+    public static AffineTransform3D getTransformationFromEmToProsprInMicrometerUnites( )
+    {
+        AffineTransform3D transformJRotation = getTransformJRotation( );
+
+        AffineTransform3D elastixSimilarityTransform = getElastixSimilarityTransform( );
+
+        return getCombinedTransform( transformJRotation, elastixSimilarityTransform );
+    }
+
+    public static AffineTransform3D adaptViewRegistration( ProSPrDataSource source, AffineTransform3D additionalTransform )
     {
         ViewRegistration viewRegistration;
 
@@ -125,13 +125,20 @@ public class ProSPrRegistration
             viewRegistration = source.spimDataMinimal.getViewRegistrations().getViewRegistrationsOrdered( ).get( 0 );
         }
 
-        ViewTransform viewTransform = new ViewTransformAffine( "align",  transform );
-        viewRegistration.concatenateTransform( viewTransform );
+        /*
+        The conventional meaning for concatenating transformations is the following:
+        Let ba = b.concatenate(a).
+        Applying ba to x is equivalent to first applying a to x and then applying b to the result.
+         */
 
-        return viewRegistration.getModel();
+        final AffineTransform3D viewRegistrationAffineTransform = viewRegistration.getModel();
+
+		viewRegistrationAffineTransform.preConcatenate( additionalTransform );
+
+        return viewRegistrationAffineTransform;
     }
 
-    public static AffineTransform3D getEmElastixSimilarityTransform( ProSPrDataSource source )
+    public static AffineTransform3D getElastixSimilarityTransform( )
     {
         AffineTransform3D elastixFixedToMoving = new AffineTransform3D();
 
@@ -142,9 +149,9 @@ public class ProSPrRegistration
 
         double[] translationInMicrometer = new double[]{ 76.46363039, -78.88425459, 233.36234024 };
 
-        double[] translationInPixels = getTranslationInPixels( source, translationInMicrometer );
+//        double[] translationInPixels = getTranslationInPixels( source, translationInMicrometer );
 
-        elastixFixedToMoving.translate( translationInPixels );
+        elastixFixedToMoving.translate( translationInMicrometer );
 
         return elastixFixedToMoving.inverse();
     }

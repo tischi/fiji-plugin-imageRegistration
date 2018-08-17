@@ -7,7 +7,7 @@
 
 	<groupId>embl.cba</groupId>
 	<artifactId>fiji-plugin-imageRegistration</artifactId>
-	<version>0.47.0</version>
+	<version>0.5.11</version>
 
 	<name>Fiji plugin for n-dimensional image sequence registration</name>
 	<description>A plugin for n-dimensional image sequence registration.</description>
@@ -78,7 +78,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>22.3.0</version>
+		<version>23.1.1</version>
 		<relativePath />
 	</parent>
 

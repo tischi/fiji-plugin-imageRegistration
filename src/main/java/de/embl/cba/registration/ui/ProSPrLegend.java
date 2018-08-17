@@ -15,35 +15,64 @@ public class ProSPrLegend extends JPanel implements ActionListener
     public static final String ADAPT_BRIGHTNESS = "Adapt brightness";
     public static final String REMOVE = "Remove";
     public static final String CANCELLED = "Cancelled";
-    protected Map< String, JButton > buttons;
+    public static final String COLOR_ACTION = "Color___";
+    public static final String BRIGHTNESS_ACTION = "B___";
+    public static final String REMOVE_ACTION = "X___";
+    protected Map< String, JPanel > panels;
     JFrame frame;
     final ProSPr prospr;
 
     public ProSPrLegend( ProSPr prospr )
     {
         this.prospr = prospr;
-        buttons = new LinkedHashMap<>(  );
+        panels = new LinkedHashMap<>(  );
         createGUI();
     }
 
 
-    public void addButton( ProSPrDataSource dataSource )
+    public void addSource( ProSPrDataSource dataSource )
     {
 
-        if( ! buttons.containsKey( dataSource.name ) )
+        if( ! panels.containsKey( dataSource.name ) )
         {
 
-            JButton button = new JButton( padded( dataSource.name ) );
-            button.setOpaque( true );
-            button.setBackground( dataSource.color );
-            button.addActionListener( this );
-            button.setAlignmentX( Component.CENTER_ALIGNMENT );
+            int[] buttonDimensions = new int[]{ 40, 40 };
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+            panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+            panel.add(Box.createHorizontalGlue());
+            panel.setOpaque( true );
+            panel.setBackground( dataSource.color );
+
+            JLabel jLabel = new JLabel( dataSource.name );
+            jLabel.setHorizontalAlignment( SwingConstants.CENTER );
+
+            JButton color = new JButton( "C" );
+            color.addActionListener( this );
+            color.setPreferredSize( new Dimension( buttonDimensions[ 0 ],buttonDimensions[ 1 ] ) );
+            color.setName( COLOR_ACTION + dataSource.name );
+
+            JButton brightness = new JButton( "B" );
+            brightness.addActionListener( this );
+            brightness.setPreferredSize( new Dimension( buttonDimensions[ 0 ],buttonDimensions[ 1 ] ) );
+            brightness.setName( BRIGHTNESS_ACTION + dataSource.name );
+
+            JButton remove = new JButton( "X" );
+            remove.addActionListener( this );
+            remove.setPreferredSize( new Dimension( buttonDimensions[ 0 ],buttonDimensions[ 1 ] ) );
+            remove.setName( REMOVE_ACTION + dataSource.name );
+
+            panel.add( jLabel );
+            panel.add( color );
+            panel.add( brightness );
+            panel.add( remove );
 
             //Font font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("font.ttf"));
             //button.setFont( new Font.createFont( Font.TRUETYPE_FONT ) );
 
-            add( button );
-            buttons.put( dataSource.name, button );
+            add( panel );
+            panels.put( dataSource.name, panel );
 
             refreshGui();
 
@@ -59,10 +88,10 @@ public class ProSPrLegend extends JPanel implements ActionListener
     }
 
 
-    private void removeButton( String name )
+    private void removeSource( String name )
     {
-        remove( buttons.get( name ) );
-        buttons.remove( name );
+        remove( panels.get( name ) );
+        panels.remove( name );
         refreshGui();
     }
 
@@ -77,17 +106,25 @@ public class ProSPrLegend extends JPanel implements ActionListener
     public void actionPerformed( ActionEvent e )
     {
 
-        for ( JButton button : buttons.values() )
+        JButton button = (JButton) e.getSource();
+        String name = button.getName().trim();
+
+        if ( name.contains( COLOR_ACTION ))
         {
-            if ( e.getSource() == button )
-            {
-                String name = button.getText().trim();
-                showActionUI( name );
-                return;
-            }
+            String dataSourceName = name.replace( COLOR_ACTION, "" );
+            changeColorViaUI( dataSourceName );
         }
-
-
+        else if ( name.contains( BRIGHTNESS_ACTION ) )
+        {
+            String dataSourceName = name.replace( BRIGHTNESS_ACTION, "" );
+            prospr.setBrightness( dataSourceName );
+        }
+        else if( name.contains( REMOVE_ACTION ) )
+        {
+            String dataSourceName = name.replace( REMOVE_ACTION, "" );
+            prospr.hideDataSource( dataSourceName );
+            removeSource( dataSourceName );
+        }
     }
 
     public void  showActionUI( String dataSourceName )
@@ -98,7 +135,7 @@ public class ProSPrLegend extends JPanel implements ActionListener
         {
             case REMOVE:
                 prospr.hideDataSource( dataSourceName );
-                removeButton( dataSourceName );
+                removeSource( dataSourceName );
                 break;
             case CHANGE_COLOR:
                 changeColorViaUI( dataSourceName );
@@ -138,7 +175,7 @@ public class ProSPrLegend extends JPanel implements ActionListener
         if ( color != null )
         {
             prospr.setDataSourceColor( name, color );
-            buttons.get( name ).setBackground( color );
+            panels.get( name ).setBackground( color );
         }
 
     }

@@ -12,12 +12,9 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.XmlIoSpimData;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
-import mpicbg.spim.data.registration.ViewTransform;
 import mpicbg.spim.data.registration.ViewTransformAffine;
 import mpicbg.spim.data.sequence.FinalVoxelDimensions;
-import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.ImageJ;
-import net.imglib2.Dimensions;
 import net.imglib2.RealPoint;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -35,7 +32,6 @@ import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.ClickBehaviour;
 import org.scijava.ui.behaviour.io.InputTriggerConfig;
 import org.scijava.ui.behaviour.util.Behaviours;
-import org.scijava.ui.behaviour.util.TriggerBehaviourBindings;
 import org.scijava.widget.Button;
 
 import java.awt.*;
@@ -50,14 +46,12 @@ public class ProSPr extends DynamicCommand implements Interactive
     private static final String BDV_XML_SUFFIX = ".xml";
     private static final String IMARIS_SUFFIX = ".ims";
     private static final double PROSPR_SCALING_IN_MICROMETER = 0.5;
-    private static final String EM_RAW_FILE_ID =  "em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //
+    private static final String EM_RAW_FILE_ID = "em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //"em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //
     private static final String EM_SEGMENTED_FILE_ID = "em-segmented";
-    private static final String SELECTION_UI = "Genes";
+    private static final String SELECTION_UI = "Data sources";
     private static final Color DEFAULT_GENE_COLOR = new Color( 255, 0, 255, 255 );
-    private static final Color defaultEmColor = new Color(255, 255, 255, 255 );
-
-
-    private TriggerBehaviourBindings triggerbindings;
+    private static final Color DEFAULT_EM_RAW_COLOR = new Color(255, 255, 255, 255 );
+    private static final Color DEFAULT_EM_SEGMENTATION_COLOR = new Color(255, 0, 0, 255 );
 
     @Parameter
     public LogService logService;
@@ -102,6 +96,7 @@ public class ProSPr extends DynamicCommand implements Interactive
     private void createLegend()
     {
         legend = new ProSPrLegend( this );
+        legend.addSource( dataSourcesMap.get( emRawDataID ) );
     }
 
     private void addOverlay()
@@ -209,7 +204,7 @@ public class ProSPr extends DynamicCommand implements Interactive
         dataSource.bdvSource.setColor( asArgbType( dataSource.color ) );
         dataSource.name = dataSourceName;
 
-        legend.addButton( dataSource );
+        legend.addSource( dataSource );
 
 
     }
@@ -414,6 +409,7 @@ public class ProSPr extends DynamicCommand implements Interactive
                 source.file = file;
                 source.maxLutValue = 255;
 
+
                 if ( file.getName().contains( EM_RAW_FILE_ID ) || file.getName().contains( EM_SEGMENTED_FILE_ID ) )
                 {
                     if ( file.getName().endsWith( BDV_XML_SUFFIX ) )
@@ -435,7 +431,15 @@ public class ProSPr extends DynamicCommand implements Interactive
                         emRawDataTransform = affineTransform3D;
                     }
 
-                    source.color = defaultEmColor;
+                    if ( file.getName().contains( EM_RAW_FILE_ID ) )
+                    {
+                        source.color = DEFAULT_EM_RAW_COLOR;
+                        source.name = EM_RAW_FILE_ID;
+                    }
+                    else if ( file.getName().contains( EM_SEGMENTED_FILE_ID ) )
+                    {
+                        source.color = DEFAULT_EM_SEGMENTATION_COLOR;
+                    }
                 }
                 else // prospr gene
                 {
