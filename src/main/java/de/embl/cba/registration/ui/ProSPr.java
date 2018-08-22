@@ -46,7 +46,8 @@ public class ProSPr extends DynamicCommand implements Interactive
     private static final String BDV_XML_SUFFIX = ".xml";
     private static final String IMARIS_SUFFIX = ".ims";
     private static final double PROSPR_SCALING_IN_MICROMETER = 0.5;
-    private static final String EM_RAW_FILE_ID = "em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //"em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //
+    private static final String EM_RAW_FILE_DEFAULT_ID = "em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //"em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //
+    private static final String EM_RAW_FILE_ID = "em-raw-"; //"em-raw-100nm"; //"em-raw-10nm-10nm-25nm"; //"em-raw-100nm"; //
     private static final String EM_SEGMENTED_FILE_ID = "em-segmented";
     private static final String SELECTION_UI = "Data sources";
     private static final Color DEFAULT_GENE_COLOR = new Color( 255, 0, 255, 255 );
@@ -425,16 +426,20 @@ public class ProSPr extends DynamicCommand implements Interactive
 
                     AffineTransform3D affineTransform3D = ProSPrRegistration.setEmSimilarityTransform( source );
 
-                    if ( file.getName().contains( EM_RAW_FILE_ID ) )
+                    if ( file.getName().contains( EM_RAW_FILE_DEFAULT_ID ) )
                     {
                         emRawDataID = dataSourceName;
                         emRawDataTransform = affineTransform3D;
                     }
 
-                    if ( file.getName().contains( EM_RAW_FILE_ID ) )
+                    if ( file.getName().contains( EM_RAW_FILE_DEFAULT_ID ) )
                     {
                         source.color = DEFAULT_EM_RAW_COLOR;
-                        source.name = EM_RAW_FILE_ID;
+                        source.name = EM_RAW_FILE_DEFAULT_ID;
+                    }
+                    else if ( file.getName().contains( EM_RAW_FILE_ID )  )
+                    {
+                        source.color = DEFAULT_EM_RAW_COLOR;
                     }
                     else if ( file.getName().contains( EM_SEGMENTED_FILE_ID ) )
                     {
