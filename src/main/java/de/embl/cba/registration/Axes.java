@@ -498,8 +498,10 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
     {
         List< long[ ] > corners = Corners.corners( interval );
 
-        long[] boundingMin = Intervals.minAsLongArray( interval );
-        long[] boundingMax = Intervals.maxAsLongArray( interval );
+        long[] boundingMin = new long[ interval.numDimensions() ];
+        long[] boundingMax = new long[ interval.numDimensions() ];
+        Arrays.fill( boundingMin, Long.MAX_VALUE );
+        Arrays.fill( boundingMax, Long.MIN_VALUE );
 
         for ( long[] corner : corners )
         {
@@ -527,7 +529,8 @@ public class Axes < T extends InvertibleRealTransform & Concatenable< T > & PreC
         }
     }
 
-    private static < T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > > double[] transformedCorner( T transform, long[] corner )
+    private static < T extends InvertibleRealTransform & Concatenable< T > & PreConcatenable< T > >
+    double[] transformedCorner( T transform, long[] corner )
     {
         double[] cornerAsDouble = Arrays.stream( corner ).mapToDouble( x -> x ).toArray();
         double[] transformedCorner = new double[ corner.length ];

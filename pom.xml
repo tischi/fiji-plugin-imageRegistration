@@ -5,9 +5,16 @@
 		http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>23.1.1</version>
+		<relativePath />
+	</parent>
+
 	<groupId>embl.cba</groupId>
 	<artifactId>fiji-plugin-imageRegistration</artifactId>
-	<version>0.5.11</version>
+	<version>0.5.13</version>
 
 	<name>Fiji plugin for n-dimensional image sequence registration</name>
 	<description>A plugin for n-dimensional image sequence registration.</description>
@@ -74,13 +81,6 @@
 		<imagej.app.directory>/Applications/Fiji.app/</imagej.app.directory>
 		<enforcer.skip>true</enforcer.skip>
 	</properties>
-
-	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>23.1.1</version>
-		<relativePath />
-	</parent>
 
 	<repositories>
 		<!-- NB: for SciJava dependencies -->
